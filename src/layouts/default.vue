@@ -3,9 +3,9 @@
     <q-layout-header>
       <q-toolbar
         color="primary"
-        :glossy="$q.theme === 'mat'"
-        :inverted="$q.theme === 'ios'"
       >
+      <!-- :glossy="$q.theme === 'mat'"
+      :inverted="$q.theme === 'ios'" -->
         <q-btn
           flat
           dense
@@ -16,16 +16,37 @@
           <q-icon name="menu" />
         </q-btn>
 
-        <q-toolbar-title>
+
+        <!-- Single Selection as a simple List -->
+        <!-- <q-select
+          color="none"
+          v-model="selectedHost"
+          style="width: 240px"
+          :options="selectHosts"
+        /> -->
+        <at-select v-model="selectedHost"
+          filterable
+          size="normal"
+          style="width: 240px"
+          v-for="(host) in selectHosts"
+          >
+          <at-option value="host.value">{{host.label}}</at-option>
+        </at-select>
+
+        <!-- <q-toolbar-title>
           Quasar App
           <div slot="subtitle">Running on Quasar v{{ $q.version }}</div>
-        </q-toolbar-title>
+
+        </q-toolbar-title> -->
+
+
       </q-toolbar>
     </q-layout-header>
 
     <q-layout-drawer
-      v-model="leftDrawerOpen"
+       v-model="leftDrawerOpen"
       :content-class="$q.theme === 'mat' ? 'bg-grey-2' : null"
+      :content-style="{'z-index': -1}"
     >
       <q-list
         no-border
@@ -69,7 +90,14 @@ export default {
   name: 'LayoutDefault',
   data () {
     return {
-      leftDrawerOpen: this.$q.platform.is.desktop
+      leftDrawerOpen: this.$q.platform.is.desktop,
+      selectedHost: 0,
+      selectHosts: [
+        {
+          label: 'localhost',
+          value: '127.0.0.0.1'
+        }
+      ]
     }
   },
   methods: {
