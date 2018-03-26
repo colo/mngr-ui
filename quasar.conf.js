@@ -56,6 +56,7 @@ module.exports = function (ctx) {
         'QItemMain',
         'QItemSide',
         'QSelect',
+        // 'QBtnDropdown'
         // 'QPageSticky'
       ],
       directives: [

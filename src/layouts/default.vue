@@ -22,6 +22,11 @@
           <div slot="subtitle">Running on Quasar v{{ $q.version }}</div>
         </q-toolbar-title>
 
+
+
+
+
+
         <!-- Single Selection as a simple List -->
         <!-- <q-select
           color="none"
@@ -30,10 +35,24 @@
           :options="selectHosts"
         /> -->
 
+        <at-button type="text" icon="icon-bell">
+          Alarms
+          <at-badge :value="123" status="info" :max-num="99"></at-badge>
+        </at-button>
+
+
+        <at-dropdown>
+          <at-button size="normal" icon="icon-settings">Settings <i class="icon icon-chevron-down"></i></at-button>
+          <at-dropdown-menu slot="menu">
+            <at-dropdown-item>Shenzhen</at-dropdown-item>
+            <at-dropdown-item>Guangzhou</at-dropdown-item>
+          </at-dropdown-menu>
+        </at-dropdown>
       </q-toolbar>
 
+
     </q-layout-header>
-    
+
     <q-layout-drawer
        v-model="rightDrawerOpen"
        side="right"
