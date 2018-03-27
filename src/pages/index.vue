@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex"> <!-- flex-center -->
     <!-- <div class="overflow-hidden"> -->
-    <div class="row">
+    <div class="row window-width">
 
       <!-- <div class="col-4 order-last"> -->
         <!-- <q-card flat inline> -->
@@ -26,7 +26,7 @@
       </template>
       <template v-else> -->
 
-        <div class="col-18 window-width">
+        <div class="col-sm-12 col-md-19">
           <at-collapse simple :value="[0, 1]">
             <!-- class="absolute-top" -->
             <at-collapse-item
@@ -49,7 +49,7 @@
           </at-collapse>
         </div>
 
-        <div class="col-4 no-wrap">
+        <div class="gt-sm col-md-2">
           <at-menu mode="inline" active-name="0">
           <at-menu-item name="0" disabled><i class="icon icon-box"></i>Submenu</at-menu-item>
           <at-submenu>

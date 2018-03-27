@@ -18,7 +18,7 @@
           <q-icon name="menu" />
         </q-btn>
 
-        <q-toolbar-title>
+        <q-toolbar-title class="gt-sm">
           Quasar App
           <div slot="subtitle">Running on Quasar v{{ $q.version }}</div>
         </q-toolbar-title>
@@ -43,11 +43,10 @@
           </at-button>
 
 
-          <at-dropdown>
-            <at-button size="normal" icon="icon-settings">Settings <i class="icon icon-chevron-down"></i></at-button>
+          <at-dropdown placement="bottom-left">
+            <at-button size="normal" icon="icon-user">User <i class="icon icon-chevron-down"></i></at-button>
             <at-dropdown-menu slot="menu">
-              <at-dropdown-item>Shenzhen</at-dropdown-item>
-              <at-dropdown-item>Guangzhou</at-dropdown-item>
+              <at-dropdown-item name="settings" divided><i class="icon icon-settings"></i> Settings</at-dropdown-item>
             </at-dropdown-menu>
           </at-dropdown>
         </q-card-main>
@@ -101,6 +100,7 @@
 
     <q-layout-drawer
        v-model="leftDrawerOpen"
+       :overlay="true"
     >
           <!-- :content-class="$q.theme === 'mat' ? 'bg-grey-2' : null" -->
       <q-list
@@ -113,7 +113,7 @@
           <at-select v-model="selectedHost"
             filterable
             size="large"
-            style="width: 240px"
+            style="width: 100%"
             v-for="(host) in selectHosts"
             :key="host.value"
             >
