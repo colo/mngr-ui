@@ -3,6 +3,7 @@
     <q-layout-header>
       <q-toolbar
         :inverted="true"
+        class="top-left"
       >
       <!-- color="primary" -->
       <!-- :glossy="$q.theme === 'mat'"
@@ -22,11 +23,6 @@
           <div slot="subtitle">Running on Quasar v{{ $q.version }}</div>
         </q-toolbar-title>
 
-
-
-
-
-
         <!-- Single Selection as a simple List -->
         <!-- <q-select
           color="none"
@@ -35,35 +31,39 @@
           :options="selectHosts"
         /> -->
 
-        <at-button type="text" icon="icon-bell">
-          Alarms
-          <at-badge :value="123" status="info" :max-num="99"></at-badge>
-        </at-button>
-
-
-        <at-dropdown>
-          <at-button size="normal" icon="icon-settings">Settings <i class="icon icon-chevron-down"></i></at-button>
-          <at-dropdown-menu slot="menu">
-            <at-dropdown-item>Shenzhen</at-dropdown-item>
-            <at-dropdown-item>Guangzhou</at-dropdown-item>
-          </at-dropdown-menu>
-        </at-dropdown>
       </q-toolbar>
 
 
+
+      <q-card class="absolute-top-right" flat inline>
+        <q-card-main>
+          <at-button type="text" icon="icon-bell">
+            Alarms
+            <at-badge :value="123" status="info" :max-num="99"></at-badge>
+          </at-button>
+
+
+          <at-dropdown>
+            <at-button size="normal" icon="icon-settings">Settings <i class="icon icon-chevron-down"></i></at-button>
+            <at-dropdown-menu slot="menu">
+              <at-dropdown-item>Shenzhen</at-dropdown-item>
+              <at-dropdown-item>Guangzhou</at-dropdown-item>
+            </at-dropdown-menu>
+          </at-dropdown>
+        </q-card-main>
+      </q-card>
+
     </q-layout-header>
 
-    <q-layout-drawer
+    <!-- <q-layout-drawer
        v-model="rightDrawerOpen"
        side="right"
     >
-          <!-- :content-class="$q.theme === 'mat' ? 'bg-grey-2' : null" -->
       <q-list
         no-border
         link
         inset-delimiter
       >
-        <!-- <q-list-header>Essential Links</q-list-header> -->
         <q-item>
           <at-select v-model="selectedHost"
             filterable
@@ -97,7 +97,7 @@
           <q-item-main label="Twitter" sublabel="@quasarframework" />
         </q-item>
       </q-list>
-    </q-layout-drawer>
+    </q-layout-drawer> -->
 
     <q-layout-drawer
        v-model="leftDrawerOpen"
