@@ -1,10 +1,61 @@
 <template>
-  <div>
+  <div class="col-sm-12 col-md-19">
+    <at-collapse simple :value="expanded">
+      <template v-for="(stat, iface) in networkInterfaces_stats">
+        <at-collapse-item
+          v-for="(option, messure) in stat"
+          v-if="messure == 'bytes' || messure == 'packets'"
+          :key="iface+'-'+messure"
+          :ref="iface+'-'+messure"
+          :name="iface+'-'+messure"
+        >
+        <!-- :class="$options.net_stats.class"
+        :style="$options.net_stats.style" -->
 
-    <template v-for="(stat, iface) in networkInterfaces_stats">
+            <div slot="title">{{iface}} : {{messure}} <i class="icon icon-info"/></div>
+            <at-card :bordered="false">
+              <!-- <h4 slot="title">Card Title</h4> -->
+              <!-- <div slot="extra"><a>Extra</a></div> -->
+              <div
+                :id="iface+'-'+messure"
+                :style="$options.net_stats.style"
+              ></div>
+            </at-card>
+            <!-- {{ item.content }} -->
+
+        </at-collapse-item>
+     </template>
+
+      <!-- OS stats -->
+
+     <at-collapse-item
+       v-for="(stat, name) in $options.stats"
+       :key="name"
+       :ref="name"
+       :name="name"
+     >
+     <!-- :class="stat.class"
+     :style="stat.style" -->
+     <!-- :class="$options.net_stats.class"
+     :style="$options.net_stats.style" -->
+
+         <div slot="title">{{name}} <i class="icon icon-info"/></div>
+         <at-card :bordered="false">
+           <!-- <h4 slot="title">Card Title</h4> -->
+           <!-- <div slot="extra"><a>Extra</a></div> -->
+           <div :id="name" :style="stat.style"></div>
+         </at-card>
+         <!-- {{ item.content }} -->
+
+     </at-collapse-item>
+
+    </at-collapse>
+  </div>
+
+    <!-- <template v-for="(stat, iface) in networkInterfaces_stats"> -->
       <!-- each stat is an "option" obj, for eChart  -->
       <!-- <template v-if="iface == 'lo'"> -->
-        <div
+        <!-- <div
          v-for="(option, messure) in stat"
          v-if="messure == 'bytes' || messure == 'packets'"
          :id="iface+'-'+messure"
@@ -14,25 +65,24 @@
          :style="$options.net_stats.style"
          >
 
-         <!-- {{iface+'-'+messure}} -->
-       </div>
+       </div> -->
      <!-- </template> -->
-   </template>
+   <!-- </template> -->
    <!-- v-if="messure == 'packets'" -->
   <!-- v-if="messure == 'bytes' || messure == 'packets'" -->
 
    <!-- OS stats -->
 
-    <div v-for="(stat, name) in $options.stats"
+    <!-- <div v-for="(stat, name) in $options.stats"
     :key="name"
     :ref="name"
     :id="name"
     :class="stat.class"
     :style="stat.style"
     >
-    </div>
+    </div> -->
 
-  </div>
+
 </template>
 
 <script>
@@ -41,8 +91,8 @@ import Dygraph from 'dygraphs'
 import 'dygraphs/src/extras/smooth-plotter'
 import 'dygraphs/dist/dygraph.css'
 
-import stats from './os.dygraphs.js'
-// import net_stats from './json/net.dygraphs'
+import stats from './js/os.dygraphs'
+import net_stats from './js/net.dygraphs'
 
 export default {
   // name: 'App',
@@ -85,6 +135,7 @@ export default {
 
   data () {
     return {
+      expanded: [],
       charts : {},
       stats: {},
       networkInterfaces_stats: {},
@@ -140,6 +191,7 @@ export default {
       if(stat.init)
         stat.init(this.charts[name], this.stats[name])
 
+      this.expanded.push(name)
     }.bind(this))
 
     // Object.each(this.$options.stats, function(stat, name){
@@ -393,6 +445,8 @@ export default {
 
                 if(this.$options.net_stats.init)
                   this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
+
+                this.expanded.push(iface+'-'+messure)
               }
               // else{
 

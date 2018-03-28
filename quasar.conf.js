@@ -31,6 +31,16 @@ module.exports = function (ctx) {
       // extractCSS: false,
       // useNotifier: false,
       extendWebpack (cfg) {
+        /**
+      	 * for npm 'request' (https://github.com/request/request/issues/1529)
+      	 * */
+        cfg.node = {
+          console: true,
+          fs: 'empty',
+          net: 'empty',
+          tls: 'empty',
+          //'node-express-authorization': 'empty'
+        }
       }
     },
     devServer: {

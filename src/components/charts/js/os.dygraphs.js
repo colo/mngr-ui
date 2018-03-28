@@ -1,7 +1,7 @@
 export default {
   "uptime": {
     // "class": "chart-with-legend-right dygraph-with-legend-right",
-    "style": "width:95%; height:126px;",
+    "style": "width:100%; height:126px;",
     "interval": 0,
     "options": {
       // drawPoints: true,
@@ -26,7 +26,7 @@ export default {
 
   "loadavg": {
     // "class": "chart-with-legend-right dygraph-with-legend-right",
-    "style": "width:95%; height:126px;",
+    "style": "width:100%; height:126px;",
     "interval": 0,
     "options": {
       // drawPoints: true,

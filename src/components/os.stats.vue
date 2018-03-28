@@ -1,3 +1,14 @@
+<template>
+    <osdygraphs
+      :mem="mem"
+      :cpu="cpu"
+      :uptime="uptime"
+      :loadavg="loadavg"
+      :timestamps="timestamps"
+      :networkInterfaces="networkInterfaces"
+    />
+</template>
+
 <script>
 import osdygraphs from './charts/os.dygraphs'
 
@@ -8,13 +19,13 @@ export default {
   components: {
     osdygraphs
   },
-  template: '<div><osdygraphs '+
-            ':mem="mem" :cpu="cpu" '+
-            ':uptime="uptime" '+
-            ':loadavg="loadavg"'+
-            ':timestamps="timestamps"'+
-            ':networkInterfaces="networkInterfaces"'+
-            '/></div>',
+  // template: '<div><osdygraphs '+
+  //           ':mem="mem" :cpu="cpu" '+
+  //           ':uptime="uptime" '+
+  //           ':loadavg="loadavg"'+
+  //           ':timestamps="timestamps"'+
+  //           ':networkInterfaces="networkInterfaces"'+
+  //           '/></div>',
   props: {
     EventBus: {
       type: [Object],
