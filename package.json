@@ -13,6 +13,7 @@
     "at-ui": "^1.3.3",
     "at-ui-style": "^1.5.1",
     "axios": "^0.18.0",
+    "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
     "vue-i18n": "^7.3.3"
   },
   "devDependencies": {

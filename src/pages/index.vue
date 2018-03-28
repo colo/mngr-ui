@@ -101,6 +101,7 @@
 </style>
 
 <script>
+import os_stats from '../components/os.stats'
 
 export default {
   name: 'PageIndex',
