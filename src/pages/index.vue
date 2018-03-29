@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex"> <!-- flex-center -->
     <!-- <div class="overflow-hidden"> -->
-    <div class="row window-width">
+    <div class="row window-width" >
       <template v-if="!$q.platform.is.desktop">
         <img alt="Quasar logo" src="~assets/quasar-logo-full.svg" >
 
@@ -203,11 +203,14 @@ export default {
   data () {
     return {
       EventBus : EventBus,
-      list: [
-        {title: 'first chart'},
-        {title: 'second chart'},
-      ]
+      // list: [
+      //   {title: 'first chart'},
+      //   {title: 'second chart'},
+      // ]
     }
-  }
+  },
+  // updated () {
+  //   this.$q.loading.hide()
+  // },
 }
 </script>

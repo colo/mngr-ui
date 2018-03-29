@@ -1,18 +1,27 @@
 <template>
   <div class="col-sm-12 col-md-19">
-    <at-collapse simple :value="expanded">
+    <q-list>
+    <!-- <at-collapse simple :value="expanded"> -->
       <template v-for="(stat, iface) in networkInterfaces_stats">
-        <at-collapse-item
+        <!-- <at-collapse-item
+          v-for="(option, messure) in stat"
+          v-if="messure == 'bytes' || messure == 'packets'"
+          :key="iface+'-'+messure"
+          :ref="iface+'-'+messure"
+          :name="iface+'-'+messure"
+        > -->
+        <q-collapsible
+          :opened="true"
+          icon="info"
+          :label="iface +' : '+messure"
+          :separator="true"
           v-for="(option, messure) in stat"
           v-if="messure == 'bytes' || messure == 'packets'"
           :key="iface+'-'+messure"
           :ref="iface+'-'+messure"
           :name="iface+'-'+messure"
         >
-        <!-- :class="$options.net_stats.class"
-        :style="$options.net_stats.style" -->
-
-            <div slot="title">{{iface}} : {{messure}} <i class="icon icon-info"/></div>
+            <!-- <div slot="title">{{iface}} : {{messure}} <i class="icon icon-info"/></div> -->
             <at-card :bordered="false">
               <!-- <h4 slot="title">Card Title</h4> -->
               <!-- <div slot="extra"><a>Extra</a></div> -->
@@ -23,23 +32,30 @@
             </at-card>
             <!-- {{ item.content }} -->
 
-        </at-collapse-item>
+        <!-- </at-collapse-item> -->
+      </q-collapsible>
      </template>
 
       <!-- OS stats -->
 
-     <at-collapse-item
+     <!-- <at-collapse-item
        v-for="(stat, name) in $options.stats"
        :key="name"
        :ref="name"
        :name="name"
+     > -->
+     <q-collapsible
+      :opened="true"
+      icon="info"
+      :label="name"
+      :separator="true"
+      v-for="(stat, name) in $options.stats"
+      :key="name"
+      :ref="name"
+      :name="name"
      >
-     <!-- :class="stat.class"
-     :style="stat.style" -->
-     <!-- :class="$options.net_stats.class"
-     :style="$options.net_stats.style" -->
 
-         <div slot="title">{{name}} <i class="icon icon-info"/></div>
+         <!-- <div slot="title">{{name}} <i class="icon icon-info"/></div> -->
          <at-card :bordered="false">
            <!-- <h4 slot="title">Card Title</h4> -->
            <!-- <div slot="extra"><a>Extra</a></div> -->
@@ -47,9 +63,11 @@
          </at-card>
          <!-- {{ item.content }} -->
 
-     </at-collapse-item>
+     <!-- </at-collapse-item> -->
+   </q-collapsible>
 
-    </at-collapse>
+    <!-- </at-collapse> -->
+  </q-list>
   </div>
 
     <!-- <template v-for="(stat, iface) in networkInterfaces_stats"> -->
@@ -142,6 +160,9 @@ export default {
       networkInterfaces_charts: {},
       // uptime_stats: []
     }
+  },
+  updated () {
+    this.$q.loading.hide()
   },
   created () {
 
@@ -446,7 +467,7 @@ export default {
                 if(this.$options.net_stats.init)
                   this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
 
-                this.expanded.push(iface+'-'+messure)
+                // this.expanded.push(iface+'-'+messure)
               }
               // else{
 
@@ -460,6 +481,7 @@ export default {
 
           }.bind(this))
         }.bind(this))
+
 
     },
   },

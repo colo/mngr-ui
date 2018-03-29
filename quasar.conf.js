@@ -68,6 +68,8 @@ module.exports = function (ctx) {
         'QSelect',
         'QCard',
         'QCardMain',
+        'QCollapsible',
+        'QSpinnerGears'
         // 'QBtnDropdown'
         // 'QPageSticky'
       ],
@@ -76,7 +78,8 @@ module.exports = function (ctx) {
       ],
       // Quasar plugins
       plugins: [
-        'Notify'
+        'Notify',
+        'Loading'
       ]
     },
     // animations: 'all' --- includes all animations
