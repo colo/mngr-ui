@@ -106,7 +106,7 @@ export default {
 		})
 
     this.EventBus.$on('networkInterfaces', doc => {
-			// ////console.log('recived doc via Event networkInterfaces', doc)
+			// console.log('recived doc via Event networkInterfaces', doc)
 
       self.$set(self.networkInterfaces, 'prev', {
         value: JSON.parse(JSON.stringify(self.networkInterfaces.value)),
@@ -139,7 +139,7 @@ export default {
 		})
 
     this.EventBus.$on('uptime', doc => {
-			// //console.log('recived doc via Event uptime', doc)
+
 
 
       self.$set(self.uptime, 'prev', {
@@ -150,6 +150,8 @@ export default {
       self.uptime.value = doc;
 			self.uptime.timestamp = self.timestamps.getLast();
 
+      // console.log('recived doc via Event uptime', doc)
+      // console.log('recived doc via Event uptime', self.timestamps.getLast())
 		})
 
 		this.EventBus.$on('mem', doc => {

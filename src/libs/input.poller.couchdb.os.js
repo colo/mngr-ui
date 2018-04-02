@@ -12,7 +12,38 @@ export default new Class({
   options: {
 
 		requests : {
+      range: [
+				//{ get: {uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
+				{
+					sort_by_path: function(req, next, app){
+            console.log('req.opt.range', req.opt.range)
 
+            next(app.view({
+							uri: 'dashboard',
+              args: [
+                'sort',
+                'by_path',
+                {
+  								startkey: ["os", app.host, "periodical", req.opt.range.start],
+  								endkey: ["os", app.host, "periodical",req.opt.range.end],
+  								/**
+  								 * pouchdb
+  								 * */
+  								// startkey: ["os", app.host, "periodical\ufff0"],
+  								// endkey: ["os", app.host, "periodical"],
+  								/** **/
+  								// limit: 1,
+  								// descending: true,
+  								inclusive_end: true,
+  								include_docs: true
+  							}
+              ]
+						}))
+
+					}
+				},
+
+			],
 			periodical: [
 				{
 					sort_by_path: function(req, next, app){
@@ -23,7 +54,7 @@ export default new Class({
                 'by_path',
                 {
   								startkey: ["os", app.host, "periodical",Date.now() + 0],
-  								endkey: ["os", app.host, "periodical", Date.now() - 5000],
+  								endkey: ["os", app.host, "periodical", Date.now() - 1000],
   								/**
   								 * pouchdb
   								 * */
@@ -134,28 +165,29 @@ export default new Class({
 
 
   },
-
-  sort_by_path: function(err, resp){
-		// //console.log('this.sort_by_path %o', resp);
+  // range_sort_by_path: function(err, resp){
+  //   console.log('range_sort_by_path', err, resp)
+  // },
+  sort_by_path: function(err, resp, view){
+		// console.log('this.sort_by_path ', resp, view.options.args[2].limit);
 
 		if(err){
 			//console.log('this.sort_by_path error %o', err);
 
 		}
 		else{
-			//let result = JSON.decode(resp.body)
 
-			//console.log('this.get result %o', resp);
 
-      if(resp.rows[0]){
+
+      if(view.options.args[2].limit == 1 && resp.rows[0]){
 				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
 
-				// for (var key in resp.rows[0].doc.data) {
-				// 	//console.log(key);
-        //   if(key == 'cpus')
-        //     //console.log(resp.rows[0].doc.data['cpus'])
-				// }
 			}
+      else{//range docs
+        // Array.each(resp.rows, function(row){
+        //   this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+        // }.bind(this))
+      }
 		}
   },
   request: function(err, resp){
@@ -200,9 +232,10 @@ export default new Class({
 		}
 	},
 	_first_connect: function(err, result, body, opts){
-		// //console.log('first_connect %o', result.uuid);
+		// console.log('first_connect %o', result.uuid);
 		this.options.id = result.uuid;//set ID
 
+    // this.fireEvent('ON_RANGE', {})
 	}
 
 });

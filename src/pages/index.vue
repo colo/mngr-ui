@@ -97,8 +97,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						host:'192.168.0.180',
-						// host:'127.0.0.1',
+						// host:'192.168.0.180',
+						host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
 						module: InputPollerCouchDBOS,
@@ -196,6 +196,10 @@ pipelines.push(new Pipeline({
 	]
 }))
 
+/**
+* start with range, "last 300000 ms / 5min"
+*/
+pipelines[0].fireEvent('range', { Range: 'posix '+ ( Date.now() - 300000) +'-'+Date.now()+'/*' })
 
 export default {
   name: 'PageIndex',
