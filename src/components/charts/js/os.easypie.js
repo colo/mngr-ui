@@ -1,0 +1,34 @@
+// import Dygraph from 'dygraphs'
+
+export default {
+  "mem": {
+    component: 'q-knob',
+    icon: 'memory',
+    // "class": "chart-with-legend-right dygraph-with-legend-right",
+    // "style": "width:100%; height:126px;",
+    // "style": "font-size: 1.5rem",
+    "interval": 0,
+    "options": {
+      min: 0,
+      max: 100,
+      color: "primary",
+      // track-color="yellow-3"
+      // "line-width": "5px"
+    }
+  },
+  "cpu": {
+    // component: 'q-knob',
+    // icon: 'flash_on',
+    // "class": "chart-with-legend-right dygraph-with-legend-right",
+    // "style": "width:100%; height:126px;",
+    "interval": 0,
+    "options": {
+      // min: 0,
+      // max: 100,
+      // size: "120px",
+      // color: "red",
+      // 'bar-color': '#000000'
+      // 'lineCap': 'butt'
+    }
+  },
+}

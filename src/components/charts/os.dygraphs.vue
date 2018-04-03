@@ -1,15 +1,8 @@
 <template>
-  <div class="col-sm-12 col-md-19">
-    <q-list>
-    <!-- <at-collapse simple :value="expanded"> -->
+
+    <div>
       <template v-for="(stat, iface) in networkInterfaces_stats">
-        <!-- <at-collapse-item
-          v-for="(option, messure) in stat"
-          v-if="messure == 'bytes' || messure == 'packets'"
-          :key="iface+'-'+messure"
-          :ref="iface+'-'+messure"
-          :name="iface+'-'+messure"
-        > -->
+
         <q-collapsible
           :opened="true"
           icon="info"
@@ -21,29 +14,18 @@
           :ref="iface+'-'+messure"
           :name="iface+'-'+messure"
         >
-            <!-- <div slot="title">{{iface}} : {{messure}} <i class="icon icon-info"/></div> -->
-            <at-card :bordered="false">
-              <!-- <h4 slot="title">Card Title</h4> -->
-              <!-- <div slot="extra"><a>Extra</a></div> -->
-              <div
-                :id="iface+'-'+messure"
-                :style="$options.net_stats.style"
-              ></div>
-            </at-card>
-            <!-- {{ item.content }} -->
 
-        <!-- </at-collapse-item> -->
+          <at-card :bordered="false">
+            <div
+              :id="iface+'-'+messure"
+              :style="$options.net_stats.style"
+            ></div>
+          </at-card>
       </q-collapsible>
      </template>
 
       <!-- OS stats -->
 
-     <!-- <at-collapse-item
-       v-for="(stat, name) in $options.stats"
-       :key="name"
-       :ref="name"
-       :name="name"
-     > -->
      <q-collapsible
       :opened="true"
       icon="info"
@@ -55,50 +37,12 @@
       :name="name"
      >
 
-         <!-- <div slot="title">{{name}} <i class="icon icon-info"/></div> -->
-         <at-card :bordered="false">
-           <!-- <h4 slot="title">Card Title</h4> -->
-           <!-- <div slot="extra"><a>Extra</a></div> -->
-           <div :id="name" :style="stat.style"></div>
-         </at-card>
-         <!-- {{ item.content }} -->
+       <at-card :bordered="false">
+         <div :id="name" :style="stat.style"></div>
+       </at-card>
+     </q-collapsible>
 
-     <!-- </at-collapse-item> -->
-   </q-collapsible>
-
-    <!-- </at-collapse> -->
-  </q-list>
-  </div>
-
-    <!-- <template v-for="(stat, iface) in networkInterfaces_stats"> -->
-      <!-- each stat is an "option" obj, for eChart  -->
-      <!-- <template v-if="iface == 'lo'"> -->
-        <!-- <div
-         v-for="(option, messure) in stat"
-         v-if="messure == 'bytes' || messure == 'packets'"
-         :id="iface+'-'+messure"
-         :key="iface+'-'+messure"
-         :ref="iface+'-'+messure"
-         :class="$options.net_stats.class"
-         :style="$options.net_stats.style"
-         >
-
-       </div> -->
-     <!-- </template> -->
-   <!-- </template> -->
-   <!-- v-if="messure == 'packets'" -->
-  <!-- v-if="messure == 'bytes' || messure == 'packets'" -->
-
-   <!-- OS stats -->
-
-    <!-- <div v-for="(stat, name) in $options.stats"
-    :key="name"
-    :ref="name"
-    :id="name"
-    :class="stat.class"
-    :style="stat.style"
-    >
-    </div> -->
+   </div>
 
 
 </template>
@@ -126,14 +70,14 @@ export default {
       type: [Array],
       default: () => ([])
     },
-    mem: {
-      type: [Object],
-      default: () => ({})
-    },
-    cpu: {
-      type: [Object],
-       default: () => ({})
-    },
+    // mem: {
+    //   type: [Object],
+    //   default: () => ({})
+    // },
+    // cpu: {
+    //   type: [Object],
+    //    default: () => ({})
+    // },
     uptime: {
       type: [Array],
       default: () => ([])
@@ -218,43 +162,43 @@ export default {
   },
 
   watch: {
-    'mem.percentage': function(val){
-      if(this.$refs['mem']){
-        // if(this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval){
-
-          val = val.toFixed(2)
-          this.stats.mem.data = [['Used', val], ['Free', 100 - val]]
-
-        //
-        //   this.charts.mem.arrows[0].setValue(val);
-        //   this.charts.mem.axes[0].setTopText(val + " %");
-        //
-        //   // adjust darker band to new value
-        //   this.charts.mem.axes[0].bands[1].setEndValue(val);
-        //
-        //   this.stats.mem.lastupdate = Date.now()
-        // }
-      }
-    },
-    'cpu.percentage': function(val){
-      if(this.$refs['cpu']){
-        // if(this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval){
-        //
-
-          val = val.toFixed(2)
-          this.stats.cpu.data = [['Used', val], ['Free', 100 - val]]
-
-        //   this.charts.cpu.arrows[0].setValue(val);
-        //   this.charts.cpu.axes[0].setTopText(val + " %");
-        //
-        //   // adjust darker band to new value
-        //   this.charts.cpu.axes[0].bands[1].setEndValue(val);
-        //
-        //   this.stats.cpu.lastupdate = Date.now()
-        // }
-      }
-
-		},
+    // 'mem.percentage': function(val){
+    //   if(this.$refs['mem']){
+    //     // if(this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval){
+    //
+    //       val = val.toFixed(2)
+    //       this.stats.mem.data = [['Used', val], ['Free', 100 - val]]
+    //
+    //     //
+    //     //   this.charts.mem.arrows[0].setValue(val);
+    //     //   this.charts.mem.axes[0].setTopText(val + " %");
+    //     //
+    //     //   // adjust darker band to new value
+    //     //   this.charts.mem.axes[0].bands[1].setEndValue(val);
+    //     //
+    //     //   this.stats.mem.lastupdate = Date.now()
+    //     // }
+    //   }
+    // },
+    // 'cpu.percentage': function(val){
+    //   if(this.$refs['cpu']){
+    //     // if(this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval){
+    //     //
+    //
+    //       val = val.toFixed(2)
+    //       this.stats.cpu.data = [['Used', val], ['Free', 100 - val]]
+    //
+    //     //   this.charts.cpu.arrows[0].setValue(val);
+    //     //   this.charts.cpu.axes[0].setTopText(val + " %");
+    //     //
+    //     //   // adjust darker band to new value
+    //     //   this.charts.cpu.axes[0].bands[1].setEndValue(val);
+    //     //
+    //     //   this.stats.cpu.lastupdate = Date.now()
+    //     // }
+    //   }
+    //
+		// },
     uptime: function(val){
        //console.log('uptime', val)
       // //console.log(this.$refs['uptime'])
@@ -440,6 +384,11 @@ export default {
               let current_transmited = stats.value[iface]['transmited'][messure]
               let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
               transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
+
+              if(messure == 'bytes'){ //bps -> Kbps
+                  transmited = transmited / 128
+                  recived = recived / 128
+              }
 
               data.push([timestamp, recived, transmited])
             })

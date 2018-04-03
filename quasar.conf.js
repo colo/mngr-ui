@@ -69,12 +69,14 @@ module.exports = function (ctx) {
         'QCard',
         'QCardMain',
         'QCollapsible',
-        'QSpinnerGears'
+        'QSpinnerGears',
+        'QKnob'
         // 'QBtnDropdown'
         // 'QPageSticky'
       ],
       directives: [
-        'Ripple'
+        'Ripple',
+        'BackToTop'
       ],
       // Quasar plugins
       plugins: [

@@ -19,6 +19,7 @@
     "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
     "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
     "tls": "0.0.1",
+    "vue-easy-pie-chart": "^1.0.3",
     "vue-i18n": "^7.3.3"
   },
   "devDependencies": {
