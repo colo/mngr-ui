@@ -179,15 +179,16 @@ export default new Class({
 
 
 
-      if(view.options.args[2].limit == 1 && resp.rows[0]){
-				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
+      // if(view.options.args[2].limit == 1 && resp.rows[0]){
+			// 	this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
+			// }
+      // else{//range docs
+      //   this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
 
-			}
-      else{//range docs
-        // Array.each(resp.rows, function(row){
-        //   this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
-        // }.bind(this))
-      }
+        Array.each(resp.rows, function(row){
+          this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+        }.bind(this))
+      // }
 		}
   },
   request: function(err, resp){

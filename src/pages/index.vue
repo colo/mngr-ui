@@ -114,59 +114,110 @@ pipelines.push(new Pipeline({
 		}
 	],
 	filters: [
-		function(doc, opts, next){
+		function(doc, opts, next){//periodical docs
 
-			// console.log('test filter', doc.data.cpus);
+			// console.log('filter', opts, doc);
+      if(opts.type == 'periodical'){
 
-			let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
-      // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp };
-      let cpu = { total: 0, idle: 0 };
-      let timestamp = { timestamp: doc.metadata.timestamp };
-      let uptime = {uptime: doc.data.uptime }
-			let loadavg = {loadavg: doc.data.loadavg }
-			let networkInterfaces = {networkInterfaces: doc.data.networkInterfaces }
-      // let core = doc.data.cpus[0];//test
+  			let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
+        // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp };
+        let cpu = { total: 0, idle: 0 };
+        let timestamp = { timestamp: doc.metadata.timestamp };
+        let uptime = {uptime: doc.data.uptime }
+  			let loadavg = {loadavg: doc.data.loadavg }
+  			let networkInterfaces = {networkInterfaces: doc.data.networkInterfaces }
+        // let core = doc.data.cpus[0];//test
 
-      Array.each(doc.data.cpus, function(core){
-        Object.each(core.times, function(value, key){
+        Array.each(doc.data.cpus, function(core){
+          Object.each(core.times, function(value, key){
 
-          if(key == 'idle')
-            cpu.idle += value
+            if(key == 'idle')
+              cpu.idle += value
 
-          cpu.total += value
+            cpu.total += value
 
 
+          });
         });
-      });
 
-			// if(buffer_size > 1){
-			// 	if(buffer.length < buffer_size){
-			// 		buffer.push([mem,cpu,timestamp,uptime,loadavg,networkInterfaces])
-			// 	}
-			// 	else{
-			// 		Array.each(buffer, function(docs){
-			// 			Array.each(docs, function(doc){
-			// 				next(doc)
-			// 			})
-			// 		})
-      //
-			// 		buffer = []
-			// 	}
-			// }
-			// else{
+
 				next(mem);
 				next(cpu);
 				next(timestamp);
 				next(uptime);
 				next(loadavg);
 				next(networkInterfaces);
-			// }
 
 
-		}
+      }
+      else{
+        next(doc)
+      }
+
+		},
+    // function(doc, opts, next){//range docs
+    //
+		// 	// console.log('filter', opts, doc);
+    //
+    //   if(opts.type == 'range'){
+    //     Array.each(doc, function(row, index){
+    //
+    //     })
+    //
+  	// 		// let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
+    //     // // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp };
+    //     // let cpu = { total: 0, idle: 0 };
+    //     // let timestamp = { timestamp: doc.metadata.timestamp };
+    //     // let uptime = {uptime: doc.data.uptime }
+  	// 		// let loadavg = {loadavg: doc.data.loadavg }
+  	// 		// let networkInterfaces = {networkInterfaces: doc.data.networkInterfaces }
+    //     // // let core = doc.data.cpus[0];//test
+    //     //
+    //     // Array.each(doc.data.cpus, function(core){
+    //     //   Object.each(core.times, function(value, key){
+    //     //
+    //     //     if(key == 'idle')
+    //     //       cpu.idle += value
+    //     //
+    //     //     cpu.total += value
+    //     //
+    //     //
+    //     //   });
+    //     // });
+    //     //
+  	// 		// // if(buffer_size > 1){
+  	// 		// // 	if(buffer.length < buffer_size){
+  	// 		// // 		buffer.push([mem,cpu,timestamp,uptime,loadavg,networkInterfaces])
+  	// 		// // 	}
+  	// 		// // 	else{
+  	// 		// // 		Array.each(buffer, function(docs){
+  	// 		// // 			Array.each(docs, function(doc){
+  	// 		// // 				next(doc)
+  	// 		// // 			})
+  	// 		// // 		})
+    //     // //
+  	// 		// // 		buffer = []
+  	// 		// // 	}
+  	// 		// // }
+  	// 		// // else{
+  	// 		// 	next(mem);
+  	// 		// 	next(cpu);
+  	// 		// 	next(timestamp);
+  	// 		// 	next(uptime);
+  	// 		// 	next(loadavg);
+  	// 		// 	next(networkInterfaces);
+  	// 		// // }
+    //
+    //   }
+    //   else{
+    //     next(doc)
+    //   }
+    //
+		// }
 	],
 	output: [
 		function(doc){
+
 			doc = JSON.decode(doc)
 
 			if(doc.totalmem){

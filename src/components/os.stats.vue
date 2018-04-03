@@ -49,31 +49,36 @@ export default {
         },
       },
       timestamps: [],
-      uptime: {
-        value: 0,
-        timestamp: 0,
-        prev: {
-          value: 0,
-          timestamp: 0
-        }
-      },
-      loadavg: {
-        value: 0,
-        timestamp: 0,
-        prev: {
-          value: 0,
-          timestamp: 0
-        }
-      },
-      // loadavg: [],
-      networkInterfaces: {
-        value: {},
-        timestamp: 0,
-        prev: {
-          value: {},
-          timestamp: 0,
-        }
-      },
+      // uptime: {
+      //   value: 0,
+      //   timestamp: 0,
+      //   prev: {
+      //     value: 0,
+      //     timestamp: 0
+      //   }
+      // },
+      uptime: [],
+
+      // loadavg: {
+      //   value: 0,
+      //   timestamp: 0,
+      //   prev: {
+      //     value: 0,
+      //     timestamp: 0
+      //   }
+      // },
+      loadavg: [],
+
+      // networkInterfaces: {
+      //   value: {},
+      //   timestamp: 0,
+      //   prev: {
+      //     value: {},
+      //     timestamp: 0,
+      //   }
+      // },
+      networkInterfaces: [],
+
       cpu: {
         total: 0,
         idle: 0,
@@ -94,7 +99,7 @@ export default {
     let self = this;
 
     this.EventBus.$on('timestamp', doc => {
-			// ////console.log('recived doc via Event timestamp', doc)
+			// //////console.log('recived doc via Event timestamp', doc)
       self.timestamps.push( doc );
       // self.timestamps = self.timestamps.slice(-self.seconds)
       let length = self.timestamps.length
@@ -106,56 +111,88 @@ export default {
 		})
 
     this.EventBus.$on('networkInterfaces', doc => {
-			// console.log('recived doc via Event networkInterfaces', doc)
+			// //console.log('recived doc via Event networkInterfaces', doc)
 
-      self.$set(self.networkInterfaces, 'prev', {
-        value: JSON.parse(JSON.stringify(self.networkInterfaces.value)),
-        timestamp: JSON.parse(JSON.stringify(self.networkInterfaces.timestamp)),
+      // self.$set(self.networkInterfaces, 'prev', {
+      //   value: JSON.parse(JSON.stringify(self.networkInterfaces.value)),
+      //   timestamp: JSON.parse(JSON.stringify(self.networkInterfaces.timestamp)),
+      // })
+      //
+      // // self.networkInterfaces.prev = JSON.parse(JSON.stringify(self.networkInterfaces.current))
+      // if(Object.keys(self.networkInterfaces.prev.value) == 0)
+      //   self.networkInterfaces.prev.value = JSON.parse(JSON.stringify(doc))
+      //
+      //
+      // self.networkInterfaces.value = doc;
+      // self.networkInterfaces.timestamp = JSON.parse(JSON.stringify(self.timestamps.getLast()));
+
+      self.networkInterfaces.push({
+        value: doc,
+        timestamp: self.timestamps.getLast() + 0
       })
 
-      // self.networkInterfaces.prev = JSON.parse(JSON.stringify(self.networkInterfaces.current))
-      if(Object.keys(self.networkInterfaces.prev.value) == 0)
-        self.networkInterfaces.prev.value = JSON.parse(JSON.stringify(doc))
+      let length = self.networkInterfaces.length
 
-
-      self.networkInterfaces.value = doc;
-      self.networkInterfaces.timestamp = JSON.parse(JSON.stringify(self.timestamps.getLast()));
+      self.networkInterfaces.splice(
+        -this.timestamps.length -1,
+        length - this.timestamps.length
+      )
 		})
 
 
 
     this.EventBus.$on('loadavg', doc => {
-			//console.log('recived doc via Event loadavg', doc)
+			////console.log('recived doc via Event loadavg', doc)
 
-      self.$set(self.loadavg, 'prev', {
-        value: JSON.parse(JSON.stringify(self.loadavg.value)),
-        timestamp: JSON.parse(JSON.stringify(self.loadavg.timestamp)),
+      // self.$set(self.loadavg, 'prev', {
+      //   value: JSON.parse(JSON.stringify(self.loadavg.value)),
+      //   timestamp: JSON.parse(JSON.stringify(self.loadavg.timestamp)),
+      // })
+
+      // self.loadavg.value = doc;
+			// self.loadavg.timestamp = self.timestamps.getLast();
+
+      self.loadavg.push({
+        value: doc,
+        timestamp: self.timestamps.getLast() + 0
       })
 
-      self.loadavg.value = doc;
-			self.loadavg.timestamp = self.timestamps.getLast();
+      let length = self.loadavg.length
 
-
+      self.loadavg.splice(
+        -this.timestamps.length -1,
+        length - this.timestamps.length
+      )
 		})
 
     this.EventBus.$on('uptime', doc => {
+      // //console.log('recived doc via Event uptime', doc)
 
 
+      // self.$set(self.uptime, 'prev', {
+      //   value: JSON.parse(JSON.stringify(self.uptime.value)),
+      //   timestamp: JSON.parse(JSON.stringify(self.uptime.timestamp)),
+      // })
+      //
+      // self.uptime.value = doc;
+			// self.uptime.timestamp = self.timestamps.getLast();
 
-      self.$set(self.uptime, 'prev', {
-        value: JSON.parse(JSON.stringify(self.uptime.value)),
-        timestamp: JSON.parse(JSON.stringify(self.uptime.timestamp)),
+      self.uptime.push({
+        value: doc,
+        timestamp: self.timestamps.getLast() + 0
       })
 
-      self.uptime.value = doc;
-			self.uptime.timestamp = self.timestamps.getLast();
+      let length = self.uptime.length
 
-      // console.log('recived doc via Event uptime', doc)
-      // console.log('recived doc via Event uptime', self.timestamps.getLast())
+      self.uptime.splice(
+        -this.timestamps.length -1,
+        length - this.timestamps.length
+      )
+
 		})
 
 		this.EventBus.$on('mem', doc => {
-      // //console.log('recived doc via Event mem', doc)
+      // ////console.log('recived doc via Event mem', doc)
 
       self.$set(self.mem, 'prev', {
         total: JSON.parse(JSON.stringify(self.mem.total)),
@@ -179,7 +216,7 @@ export default {
     // this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
 
     this.EventBus.$on('cpu', doc => {
-      // //console.log('recived doc via Event cpu', doc)
+      // ////console.log('recived doc via Event cpu', doc)
 
       if(doc.total != self.cpu.total){
         self.$set(self.cpu, 'prev', {
