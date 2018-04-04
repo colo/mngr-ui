@@ -1,30 +1,6 @@
 <template>
 
     <div>
-      <template v-for="(stat, iface) in networkInterfaces_stats">
-
-        <q-collapsible
-          :opened="true"
-          icon="info"
-          :label="iface +' : '+messure"
-          :separator="true"
-          header-class="text-primary bg-white"
-          v-for="(option, messure) in stat"
-          v-if="messure == 'bytes' || messure == 'packets'"
-          :key="iface+'-'+messure"
-          :ref="iface+'-'+messure"
-          :name="iface+'-'+messure"
-        >
-
-          <at-card :bordered="false">
-            <div
-              :id="iface+'-'+messure"
-              :style="$options.net_stats.style"
-            ></div>
-          </at-card>
-      </q-collapsible>
-     </template>
-
       <!-- OS stats -->
 
      <q-collapsible
@@ -44,6 +20,30 @@
        </at-card>
      </q-collapsible>
 
+     <template v-for="(stat, iface) in networkInterfaces_stats">
+
+       <q-collapsible
+         :opened="true"
+         icon="info"
+         :label="iface +' : '+messure"
+         :separator="true"
+         header-class="text-primary bg-white"
+         v-for="(option, messure) in stat"
+         v-if="messure == 'bytes' || messure == 'packets'"
+         :key="iface+'-'+messure"
+         :ref="iface+'-'+messure"
+         :name="iface+'-'+messure"
+       >
+
+         <at-card :bordered="false">
+           <div
+             :id="iface+'-'+messure"
+             :style="$options.net_stats.style"
+           ></div>
+         </at-card>
+     </q-collapsible>
+    </template>
+
    </div>
 
 
@@ -53,6 +53,12 @@
 
 import Dygraph from 'dygraphs'
 import 'dygraphs/src/extras/smooth-plotter'
+import '../../libs/synchronizer'
+
+// Object.assign(window, r)
+
+// console.log(synchronize)
+
 import 'dygraphs/dist/dygraph.css'
 
 import stats from './js/os.dygraphs'
@@ -61,6 +67,8 @@ import net_stats from './js/net.dygraphs'
 export default {
   // name: 'App',
   name: 'osdygraphs',
+
+  sync: null,
 
   // uptime_chart: null,
   components: {
@@ -108,6 +116,27 @@ export default {
     }
   },
   updated () {
+    // if(this.$options.sync == null){
+      let gs = []
+      Object.each(this.charts, function(dygraph){
+        gs.push(dygraph)
+      })
+    //
+    //   Object.each(this.networkInterfaces_charts, function(dygraph){
+    //     gs.push(dygraph)
+    //   })
+    //
+      console.log(gs)
+    //
+    //   // if(this.$options.sync)
+    //   //   this.$options.sync.detach()
+    //
+    gs.push({
+      zoom: true,
+      selection: true
+    })
+    this.$options.sync = synchronize.attempt(gs)
+    // }
     this.$q.loading.hide()
   },
   created () {
@@ -538,7 +567,6 @@ export default {
 
         }.bind(this))
       }.bind(this))
-
 
     },
   },
