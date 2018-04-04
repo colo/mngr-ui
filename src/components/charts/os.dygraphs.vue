@@ -16,7 +16,12 @@
      >
 
        <at-card :bordered="false">
-         <div :id="name" :style="stat.style"></div>
+         <div
+          :id="name"
+          :style="stat.style"
+          v-observe-visibility="visibilityChanged"
+          >
+        </div>
        </at-card>
      </q-collapsible>
 
@@ -39,6 +44,7 @@
            <div
              :id="iface+'-'+messure"
              :style="$options.net_stats.style"
+             v-observe-visibility="visibilityChanged"
            ></div>
          </at-card>
      </q-collapsible>
@@ -53,9 +59,14 @@
 
 import Dygraph from 'dygraphs'
 import 'dygraphs/src/extras/smooth-plotter'
-import '../../libs/synchronizer'
 
-// Object.assign(window, r)
+/**
+* https://stackoverflow.com/questions/33774592/dygraphs-live-trending-and-synchronization
+* zoom: true, range: false -> https://github.com/danvk/dygraphs/issues/612
+*/
+import '../../libs/synchronizer' //modified version
+
+
 
 // console.log(synchronize)
 
@@ -69,6 +80,7 @@ export default {
   name: 'osdygraphs',
 
   sync: null,
+  visibles: {},
 
   // uptime_chart: null,
   components: {
@@ -116,27 +128,10 @@ export default {
     }
   },
   updated () {
-    // if(this.$options.sync == null){
-      let gs = []
-      Object.each(this.charts, function(dygraph){
-        gs.push(dygraph)
-      })
-    //
-    //   Object.each(this.networkInterfaces_charts, function(dygraph){
-    //     gs.push(dygraph)
-    //   })
-    //
-      console.log(gs)
-    //
-    //   // if(this.$options.sync)
-    //   //   this.$options.sync.detach()
-    //
-    gs.push({
-      zoom: true,
-      selection: true
+    this.$nextTick(function () {
+      this.sync_charts()
     })
-    this.$options.sync = synchronize.attempt(gs)
-    // }
+
     this.$q.loading.hide()
   },
   created () {
@@ -257,52 +252,18 @@ export default {
 
 
         //
-        if(this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval){
-          this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data } );
-
+        if(
+          this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
+          this.$options.visibles['uptime'] == true
+        ){
+          // this.sync_charts()
+          this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
           this.stats.uptime.lastupdate = Date.now()
           // this.$forceUpdate()
         }
       }
 
     },
-    // 'uptime.value': function(val){
-    //    //console.log('uptime.value', val)
-    //   // //console.log(this.$refs['uptime'])
-    //
-    //   if(this.$refs['uptime']){
-    //
-    //     let data = this.stats.uptime.data
-    //     // let labels = this.stats.uptime.labels
-    //     // this.stats.uptime.labels = this.formated_timestamps
-    //
-    //     data.push([new Date(this.uptime.timestamp), val])
-    //
-    //     // data.push(val)
-    //     // labels.push(this.uptime.timestamp)
-    //
-    //     let length = data.length
-    //
-    //     this.stats.uptime.data.splice(
-    //       -this.timestamps.length -1,
-    //       length - this.timestamps.length
-    //     )
-    //
-    //     // this.stats.uptime.labels.splice(
-    //     //   -this.timestamps.length -1,
-    //     //   length - this.timestamps.length
-    //     // )
-    //
-    //     //
-    //     if(this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval){
-    //       this.charts.uptime.updateOptions( { 'file': data } );
-    //
-    //       this.stats.uptime.lastupdate = Date.now()
-    //       // this.$forceUpdate()
-    //     }
-    //   }
-    //
-    // },
     loadavg: function(val){
       //console.log('loadavg', val)
 
@@ -325,56 +286,18 @@ export default {
         this.$set(this.stats.loadavg, 'data', data)
 
 
-        if(this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval){
-          this.charts.loadavg.updateOptions( { 'file': this.stats.loadavg.data } );
+        if(
+          this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval &&
+          this.$options.visibles['loadavg'] == true
+        ){
+          // this.sync_charts()
+          this.charts.loadavg.updateOptions( { 'file': this.stats.loadavg.data, 'dateWindow': this.charts.loadavg.xAxisExtremes() } )
           this.stats.loadavg.lastupdate = Date.now()
         }
 
       }
 
     },
-    // 'loadavg.value': function(val){
-    //   if(this.$refs['loadavg']){
-    //     let data = this.stats.loadavg.data
-    //
-    //     // let values = { date: new Date(this.loadavg.timestamp) }
-    //
-    //     // Array.each(this.charts.loadavg.graphs, function(graph, index){
-    //     //   let valueField = graph.valueField
-    //     //   values[valueField] = this.loadavg.value[index]
-    //     // }.bind(this))
-    //
-    //
-    //     let loadavg = [new Date(this.loadavg.timestamp)]
-    //
-    //     Array.each(val, function(value, index){
-    //       loadavg.push(value)
-    //
-    //     }.bind(this))
-    //
-    //     data.push(loadavg)
-    //
-    //     let length = data.length
-    //     data.splice(
-    //       -this.timestamps.length -1,
-    //       length - this.timestamps.length
-    //     )
-    //
-    //     // //console.log(this.stats.loadavg)
-    //
-    //     // this.stats.loadavg.data.splice(
-    //     //   -this.timestamps.length -1,
-    //     //   length - this.timestamps.length
-    //     // )
-    //
-    //     if(this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval){
-    //       this.charts.loadavg.updateOptions( { 'file': data } );
-    //       this.stats.loadavg.lastupdate = Date.now()
-    //     }
-    //
-    //   }
-    //
-    // },
     networkInterfaces: function(networkInterfaces){
       // console.log('networkInterfaces', networkInterfaces)
 
@@ -553,13 +476,20 @@ export default {
               if(this.$options.net_stats.init)
                 this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
 
+              // this.sync_charts()
               // this.expanded.push(iface+'-'+messure)
             }
             // else{
 
-            if(value.lastupdate < Date.now() - this.$options.net_stats.interval){
+            if(
+              value.lastupdate < Date.now() - this.$options.net_stats.interval &&
+              this.$options.visibles[iface+'-'+messure] == true
+            ){
 
-              this.networkInterfaces_charts[iface+'-'+messure].updateOptions( { 'file': value.data } );
+              this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
+                 'file': value.data,
+                 'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
+               });
               value.lastupdate = Date.now()
 
             }
@@ -568,134 +498,61 @@ export default {
         }.bind(this))
       }.bind(this))
 
+      // if( this.$options.sync == null &&
+      //   (this.networkInterfaces_charts.length == this.networkInterfaces_stats.length)
+      // ){
+      //   this.sync_charts()
+      // }
+
     },
   },
-  //   'networkInterfaces.value': function(val){
-  //     let self = this
-  //
-  //     let ifaces = Object.keys(val)
-  //     let properties = Object.keys(val[ifaces[0]])
-  //     let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
-  //
-  //
-  //     Array.each(ifaces, function(iface){
-  //       if(!self.networkInterfaces_stats[iface])
-  //         self.$set(self.networkInterfaces_stats, iface, {})
-  //
-  //       /**
-  //       * turn data property->messure (ex: transmited { bytes: .. }),
-  //       * to: messure->property (ex: bytes {transmited:.., recived: ... })
-  //       **/
-  //       Array.each(messures, function(messure){// "bytes" | "packets"
-  //         if(!self.networkInterfaces_stats[iface][messure])
-  //           self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
-  //
-  //           Array.each(properties, function(property){// "recived" | "transmited"
-  //             if(property == 'recived' || property == 'transmited'){
-  //
-  //               let current = val[iface][property][messure]
-  //               let prev = self.networkInterfaces.prev.value[iface][property][messure]
-  //               let data = current - prev + 0
-  //
-  //               if(messure == 'bytes')
-  //                 data = data / 1024
-  //               // let serie = {}
-  //
-  //               if(property == 'recived')//negative, so it end up ploting under X axis
-  //                 data = 0 - data
-  //
-  //               // let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure]))
-  //               let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
-  //
-  //               let value = copy.getLast()
-  //               if(value == null || value.length == 3){//no data yet || has timestamp,OUT,IN values already
-  //                 let timestamp = JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
-  //                 value = [timestamp, data]
-  //                 copy.push(value)
-  //               }
-  //               else if(value.length < 3){//has timestamp
-  //                 value.push(data)
-  //                 copy.push(value)
-  //               }
-  //               // value[property] = data
-  //
-  //
-  //
-  //
-  //
-  //               let length = copy.length
-  //
-  //               copy.splice(
-  //                 -self.timestamps.length -1,
-  //                 length - self.timestamps.length
-  //               )
-  //
-  //               self.networkInterfaces_stats[iface][messure].data = JSON.parse(JSON.stringify(copy))
-  //
-  //             }
-  //           })
-  //
-  //
-  //       })
-  //
-  //     })
-  //
-  //     //console.log(self.networkInterfaces_stats)
-  //
-  //
-  //       Object.each(this.networkInterfaces_stats, function(stat, iface){
-  //         Object.each(stat, function(value, messure){
-  //
-  //
-  //           if(document.getElementById(iface+'-'+messure)){
-  //
-  //             if(!this.networkInterfaces_charts[iface+'-'+messure]){
-  //               ////console.log('---validatin---', iface+'-'+messure)
-  //
-  //               let option = JSON.parse(JSON.stringify(this.$options.net_stats.options))
-  //               // Array.each(option.valueAxes, function(axis, index){
-  //               //   axis.id = iface+'-'+messure+'-'+axis.id
-  //               //   option.graphs[index].valueAxis = axis.id
-  //               // })
-  //
-  //               this.$set(this.networkInterfaces_charts,
-  //                 iface+'-'+messure,
-  //                 new Dygraph(
-  //                     document.getElementById(iface+'-'+messure),  // containing div
-  //                     this.networkInterfaces_stats[iface][messure].data,
-  //                     option
-  //                   )
-  //               )
-  //
-  //
-  //               if(this.$options.net_stats.init)
-  //                 this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
-  //
-  //               // this.expanded.push(iface+'-'+messure)
-  //             }
-  //             // else{
-  //
-  //             if(value.lastupdate < Date.now() - this.$options.net_stats.interval){
-  //
-  //               this.networkInterfaces_charts[iface+'-'+messure].updateOptions( { 'file': value.data } );
-  //               value.lastupdate = Date.now()
-  //
-  //             }
-  //           }
-  //
-  //         }.bind(this))
-  //       }.bind(this))
-  //
-  //
-  //   },
-  // },
   computed: {
     formated_timestamps: function(){
       return this.format_timestamps(this.timestamps)
     }
   },
   methods: {
+    visibilityChanged (isVisible, entry) {
+      this.$options.visibles[entry.target.id] = isVisible
+      this.sync_charts()
+      // console.log('visible', isVisible, entry.target)
+    },
+    sync_charts(){
+      // if(this.$options.sync == null){
+        let gs = []
+        // console.log(this.charts)
+        Object.each(this.charts, function(dygraph, name){
+          if(this.$options.visibles[name] == true){
+            console.log('charts', dygraph)
+            gs.push(dygraph)
+          }
+        }.bind(this))
 
+        Object.each(this.networkInterfaces_charts, function(dygraph, name){
+          if(this.$options.visibles[name] == true){
+            console.log('networkInterfaces', dygraph)
+            gs.push(dygraph)
+          }
+        }.bind(this))
+
+        // console.log(this.networkInterfaces_charts)
+      //
+      if(this.$options.sync){
+        console.log('detaching')
+        this.$options.sync.detach()
+      }
+
+      console.log(gs)
+
+      if(gs.length > 1){
+        this.$options.sync = synchronize(gs, {
+          zoom: true,
+          // selection: true,
+          range: false
+        })
+      }
+      // }
+    },
 
     // format_timestamps(timestamps){
     //

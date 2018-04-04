@@ -31,15 +31,20 @@
  * You may also set `range: false` if you wish to only sync the x-axis.
  * The `range` option has no effect unless `zoom` is true (the default).
  */
+import Dygraph from 'dygraphs'
+
 (function() {
 /* global Dygraph:false */
 'use strict';
 
 // var Dygraph;
+
+// console.log(Dygraph)
+
 // if (window.Dygraph) {
 //   Dygraph = window.Dygraph;
 // } else if (typeof(module) !== 'undefined') {
-//   Dygraph = require('../dygraph');
+  // Dygraph = require('dygraph');
 // }
 
 var synchronize = function(/* dygraphs..., opts */) {
@@ -67,14 +72,14 @@ var synchronize = function(/* dygraphs..., opts */) {
     }
   };
 
-  //if (arguments[0] instanceof Dygraph) {
+  if (arguments[0] instanceof Dygraph) {
     // Arguments are Dygraph objects.
     for (var i = 0; i < arguments.length; i++) {
-      //if (arguments[i] instanceof Dygraph) {
+      if (arguments[i] instanceof Dygraph) {
         dygraphs.push(arguments[i]);
-      //} else {
-        //break;
-      //}
+      } else {
+        break;
+      }
     }
     if (i < arguments.length - 1) {
       throw 'Invalid invocation of Dygraph.synchronize(). ' +
@@ -82,22 +87,23 @@ var synchronize = function(/* dygraphs..., opts */) {
     } else if (i == arguments.length - 1) {
       parseOpts(arguments[arguments.length - 1]);
     }
-  //} else if (arguments[0].length) {
-    //// Invoked w/ list of dygraphs, options
-    //for (var i = 0; i < arguments[0].length; i++) {
-      //dygraphs.push(arguments[0][i]);
-    //}
-    //if (arguments.length == 2) {
-      //parseOpts(arguments[1]);
-    //} else if (arguments.length > 2) {
-      //throw 'Invalid invocation of Dygraph.synchronize(). ' +
-            //'Expected two arguments: array and optional options argument.';
-    //}  // otherwise arguments.length == 1, which is fine.
-  //} else {
-    //throw 'Invalid invocation of Dygraph.synchronize(). ' +
-          //'First parameter must be either Dygraph or list of Dygraphs.';
-  //}
-	// console.log(dygraphs)
+  } else if (arguments[0].length) {
+    // Invoked w/ list of dygraphs, options
+    for (var i = 0; i < arguments[0].length; i++) {
+      dygraphs.push(arguments[0][i]);
+    }
+    if (arguments.length == 2) {
+      parseOpts(arguments[1]);
+    } else if (arguments.length > 2) {
+      throw 'Invalid invocation of Dygraph.synchronize(). ' +
+            'Expected two arguments: array and optional options argument.';
+    }  // otherwise arguments.length == 1, which is fine.
+  } else {
+    throw 'Invalid invocation of Dygraph.synchronize(). ' +
+          'First parameter must be either Dygraph or list of Dygraphs.';
+  }
+
+  // console.log(dygraphs)
 
   if (dygraphs.length < 2) {
     throw 'Invalid invocation of Dygraph.synchronize(). ' +
@@ -243,7 +249,7 @@ function attachSelectionHandlers(gs, prevCallbacks) {
 }
 
 window.synchronize = synchronize;
-// Dygraph.synchronize = synchronize;
+Dygraph.synchronize = synchronize;
 // window.Dygraph = Dygraph;
 
 })();

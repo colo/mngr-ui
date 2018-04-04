@@ -6,7 +6,8 @@ module.exports = function (ctx) {
     plugins: [
       'i18n',
       'axios',
-      'atui'
+      'atui',
+      'vue-observe-visibility'
     ],
     css: [
       'app.styl'

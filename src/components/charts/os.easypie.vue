@@ -24,6 +24,7 @@
             :style="stat.style"
             :key="name"
             :ref="name"
+            v-observe-visibility="visibilityChanged"
             >
               <q-knob v-if="stat.component == 'q-knob'"
                v-model="stats[name].data"
@@ -55,6 +56,7 @@ export default {
   // name: 'App',
   name: 'oseasypie',
 
+  visibles: {},
   // uptime_chart: null,
   components: {
     VueEasyPieChart
@@ -164,7 +166,10 @@ export default {
     mem: function(val){
       // console.log('mem val', val)
       // if(this.$refs['mem']){
-        if(this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval){
+        if(
+          this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval &&
+          this.$options.visibles['mem'] == true
+        ){
           let last = val.getLast()
 
           if(last == null)
@@ -179,7 +184,10 @@ export default {
     cpu: function(val){
       // console.log('cpu val', val)
       // if(this.$refs['cpu']){
-        if(this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval){
+        if(
+          this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval &&
+          this.$options.visibles['cpu'] == true
+        ){
           let last = val.getLast()
 
           if(last == null)
@@ -198,7 +206,9 @@ export default {
   computed: {
   },
   methods: {
-
+    visibilityChanged (isVisible, entry) {
+      this.$options.visibles[entry.target.id] = isVisible
+    },
   },
 }
 </script>

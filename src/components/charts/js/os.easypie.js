@@ -19,18 +19,33 @@ export default {
     }
   },
   "cpu": {
-    // component: 'q-knob',
-    // icon: 'flash_on',
+    // // component: 'q-knob',
+    // // icon: 'flash_on',
+    // // "class": "chart-with-legend-right dygraph-with-legend-right",
+    // // "style": "height:120px;",
+    // "interval": 0,
+    // "options": {
+    //   // min: 0,
+    //   // max: 100,
+    //   size: 120,
+    //   // color: "red",
+    //   // 'bar-color': '#000000'
+    //   // 'lineCap': 'butt'
+    // }
+    component: 'q-knob',
+    icon: 'memory',
     // "class": "chart-with-legend-right dygraph-with-legend-right",
+    // "style": "width:100%; height:126px;",
+    // "style": "font-size: 1.5rem",
     // "style": "height:120px;",
     "interval": 0,
     "options": {
-      // min: 0,
-      // max: 100,
-      size: 120,
-      // color: "red",
-      // 'bar-color': '#000000'
-      // 'lineCap': 'butt'
+      min: 0,
+      max: 100,
+      color: "primary",
+      size: "100px",
+      // track-color="yellow-3"
+      // "line-width": "5px"
     }
   },
 }
