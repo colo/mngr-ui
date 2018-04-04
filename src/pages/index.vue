@@ -89,6 +89,19 @@ import Vue from 'vue'
 const EventBus = new Vue();
 
 const pipelines = []
+
+/* *
+* @todo separate DB.host & DB.port, allow an Array of DBs
+**/
+
+/* *
+* @todo: use an InputPollerCouchDBHosts to get a ONCE doc of Hosts (for each DB)
+**/
+
+/* *
+* @todo: create InputPollerCouchDBOS for each Host
+**/
+
 pipelines.push(new Pipeline({
 	input: [
 		{
@@ -97,8 +110,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						host:'192.168.0.180',
-						// host:'127.0.0.1',
+						// host:'192.168.0.180',
+						host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
 						module: InputPollerCouchDBOS,

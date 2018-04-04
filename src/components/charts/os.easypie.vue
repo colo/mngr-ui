@@ -6,6 +6,7 @@
       :opened="true"
       icon="info"
       :separator="true"
+      header-class="text-primary bg-white"
       label="System Overview"
     >
     <!-- :key="name"

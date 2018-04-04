@@ -3,7 +3,7 @@
 export default {
   "uptime": {
     // "class": "chart-with-legend-right dygraph-with-legend-right",
-    "style": "width:100%; height:126px;",
+    "style": "width:100%; height:120px;",
     "interval": 0,
     "options": {
       fillGraph: true,

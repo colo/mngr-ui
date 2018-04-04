@@ -8,6 +8,7 @@
           icon="info"
           :label="iface +' : '+messure"
           :separator="true"
+          header-class="text-primary bg-white"
           v-for="(option, messure) in stat"
           v-if="messure == 'bytes' || messure == 'packets'"
           :key="iface+'-'+messure"
@@ -31,6 +32,7 @@
       icon="info"
       :label="name"
       :separator="true"
+      header-class="text-primary bg-white"
       v-for="(stat, name) in $options.stats"
       :key="name"
       :ref="name"
@@ -345,7 +347,7 @@ export default {
     //
     // },
     networkInterfaces: function(networkInterfaces){
-      //console.log('networkInterfaces', networkInterfaces)
+      // console.log('networkInterfaces', networkInterfaces)
 
       let self = this
 
@@ -376,13 +378,21 @@ export default {
 
               let recived = 0
               let transmited = 0
+              let prev_recived = 0
+              let prev_transmited = 0
 
               let current_recived = stats.value[iface]['recived'][messure]
-              let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
+              let current_transmited = stats.value[iface]['transmited'][messure]
+
+              if(index > 0 && networkInterfaces[index - 1].value[iface]){
+                prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
+                prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
+              }
+
+              // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
               recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
 
-              let current_transmited = stats.value[iface]['transmited'][messure]
-              let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
+              // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
               transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
 
               if(messure == 'bytes'){ //bps -> Kbps
@@ -736,80 +746,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-
-.container-with-legend {
-    display: inline-block;
-    overflow: hidden;
-
-    transform: translate3d(0,0,0);
-
-    /* fix minimum scrollbar issue in firefox */
-    min-height: 99px;
-
-    /* required for child elements to have absolute position */
-    position: relative;
-
-    /* width and height is given per chart with data-width and data-height */
-}
-.chart-with-legend-right {
-    position: absolute; /* within .netdata-container */
-    top: 0; /* within .netdata-container */
-    left: 0; /* within .netdata-container */
-    display: block;
-    overflow: hidden;
-    margin-right: 140px; /* --legend-width */
-    width: calc(100% - 140px); /* --legend-width */
-    height: 100%;
-    z-index: 5;
-    flex-grow: 1;
-
-    /* width and height is calculated (depends on the appearance of the legend) */
-}
-
-.dygraph-chart {
-
-}
-
-.dygraph-ylabel {
-}
-
-.dygraph-axis-label-x {
-    overflow-x: hidden;
-}
-
-.dygraph-label-rotate-left {
-    text-align: center;
-    /* See http://caniuse.com/#feat=transforms2d */
-    transform: rotate(90deg);
-    -webkit-transform: rotate(90deg);
-    -moz-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-}
-
-/* For y2-axis label */
-.dygraph-label-rotate-right {
-    text-align: center;
-    /* See http://caniuse.com/#feat=transforms2d */
-    transform: rotate(-90deg);
-    -webkit-transform: rotate(-90deg);
-    -moz-transform: rotate(-90deg);
-    -o-transform: rotate(-90deg);
-    -ms-transform: rotate(-90deg);
-}
-
-.dygraph-title {
-    text-indent: 56px;
-    text-align: left;
-    position: absolute;
-    left: 0px;
-    top: 4px;
-    font-size: 11px;
-    font-weight: bold;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-}
-</style>

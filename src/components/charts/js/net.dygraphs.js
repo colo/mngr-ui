@@ -1,6 +1,6 @@
 export default {
   "class": "line",
-  "style": "width:100%; height:250px;",
+  "style": "width:100%; height:120px;",
   "interval": 0,
   "options": {
     fillGraph: true,

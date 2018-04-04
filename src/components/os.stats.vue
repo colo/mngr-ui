@@ -4,6 +4,7 @@
       <oseasypie
         :mem="mem"
         :cpu="cpu"
+        :timestamps="timestamps"
       />
 
       <osdygraphs
@@ -123,7 +124,7 @@ export default {
 		})
 
     this.EventBus.$on('networkInterfaces', doc => {
-			// //console.log('recived doc via Event networkInterfaces', doc)
+			// console.log('recived doc via Event networkInterfaces', doc)
 
       // self.$set(self.networkInterfaces, 'prev', {
       //   value: JSON.parse(JSON.stringify(self.networkInterfaces.value)),
