@@ -7,7 +7,10 @@ const App = require ( '../../node_modules/node-app-couchdb-client/index' )
 export default new Class({
   Extends: App,
 
-  host: 'colo',
+  // host: 'colo',
+  hosts: [],
+  hosts_range_started: [],
+
 
   options: {
 
@@ -16,58 +19,97 @@ export default new Class({
 				//{ get: {uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
 				{
 					sort_by_path: function(req, next, app){
-            console.log('req.opt.range', req.opt.range)
+            // console.log('req.opt.range', req.opt.range)
+            if(app.hosts.length > 0){
+              Array.each(app.hosts, function(host){
 
-            next(app.view({
-							uri: 'dashboard',
-              args: [
-                'sort',
-                'by_path',
-                {
-  								startkey: ["os", app.host, "periodical", req.opt.range.start],
-  								endkey: ["os", app.host, "periodical",req.opt.range.end],
-  								/**
-  								 * pouchdb
-  								 * */
-  								// startkey: ["os", app.host, "periodical\ufff0"],
-  								// endkey: ["os", app.host, "periodical"],
-  								/** **/
-  								// limit: 1,
-  								// descending: true,
-  								inclusive_end: true,
-  								include_docs: true
-  							}
-              ]
-						}))
+                if(!app.hosts_range_started.contains(host)){
+                  // app.hosts_range_started.push(host)
+                  console.log('req.opt.range', req.opt.range, host)
+
+                  next(app.view({
+      							uri: 'dashboard',
+                    args: [
+                      'sort',
+                      'by_path',
+                      {
+        								startkey: ["os", host, "periodical", req.opt.range.start],
+        								endkey: ["os", host, "periodical",req.opt.range.end],
+        								/**
+        								 * pouchdb
+        								 * */
+        								// startkey: ["os", app.host, "periodical\ufff0"],
+        								// endkey: ["os", app.host, "periodical"],
+        								/** **/
+        								// limit: 1,
+        								// descending: true,
+        								inclusive_end: true,
+        								include_docs: true
+        							}
+                    ]
+      						}))
+
+                }
+
+
+              }.bind(app))
+            }
+
+
 
 					}
 				},
 
 			],
 			periodical: [
-				{
-					sort_by_path: function(req, next, app){
+        {
+					search_hosts: function(req, next, app){
 						next(app.view({
 							uri: 'dashboard',
               args: [
-                'sort',
-                'by_path',
+                'search',
+                'hosts',
                 {
-  								startkey: ["os", app.host, "periodical",Date.now() + 0],
-  								endkey: ["os", app.host, "periodical", Date.now() - 1000],
-  								/**
-  								 * pouchdb
-  								 * */
-  								// startkey: ["os", app.host, "periodical\ufff0"],
-  								// endkey: ["os", app.host, "periodical"],
-  								/** **/
-  								limit: 1,
-  								descending: true,
-  								inclusive_end: true,
-  								include_docs: true
+                  //limit: 1,
+                  reduce: true, //avoid geting duplicate host
+                  group: true,
+                  //descending: true,
+                  //inclusive_end: true,
+                  // include_docs: true
   							}
               ]
 						}))
+					}
+				},
+				{
+					sort_by_path: function(req, next, app){
+            // console.log('sort_by_path', app.hosts)
+            if(app.hosts.length > 0){
+              Array.each(app.hosts, function(host){
+                next(app.view({
+    							uri: 'dashboard',
+                  args: [
+                    'sort',
+                    'by_path',
+                    {
+      								startkey: ["os", host, "periodical",Date.now() + 0],
+      								endkey: ["os", host, "periodical", Date.now() - 1000],
+      								/**
+      								 * pouchdb
+      								 * */
+      								// startkey: ["os", app.host, "periodical\ufff0"],
+      								// endkey: ["os", app.host, "periodical"],
+      								/** **/
+      								limit: 1,
+      								descending: true,
+      								inclusive_end: true,
+      								include_docs: true
+      							}
+                  ]
+    						}))
+              })
+            }
+
 					}
 				}
 				//{
@@ -157,7 +199,7 @@ export default new Class({
 			view: [
 				{
 					path: ':database',
-					callbacks: ['sort_by_path'],
+					callbacks: ['view'],
 					//version: '',
 				},
 			]
@@ -168,8 +210,8 @@ export default new Class({
   // range_sort_by_path: function(err, resp){
   //   console.log('range_sort_by_path', err, resp)
   // },
-  sort_by_path: function(err, resp, view){
-		// console.log('this.sort_by_path ', resp, view.options.args[2].limit);
+  view: function(err, resp, view){
+		// console.log('this.view ', resp, view.options.args);
 
 		if(err){
 			//console.log('this.sort_by_path error %o', err);
@@ -177,18 +219,35 @@ export default new Class({
 		}
 		else{
 
-
-
-      // if(view.options.args[2].limit == 1 && resp.rows[0]){
-			// 	this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
-			// }
-      // else{//range docs
-      //   this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
-
+      if(view.options.args[0] == 'search' && view.options.args[1] == 'hosts'){
+        this.hosts = []
         Array.each(resp.rows, function(row){
-          this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+          // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+          this.hosts.push(row.key)
+
+          console.log('this.hosts_range_started', this.hosts_range_started)
+          if(!this.hosts_range_started.contains(row.key)){//if no range for this host yet
+            /**
+            * start with range, "last 300000 ms / 5min"
+            */
+            this.fireEvent('range', { Range: 'posix '+ ( Date.now() - 300000) +'-'+Date.now()+'/*' })
+            this.hosts_range_started.push(row.key)
+          }
+
         }.bind(this))
-      // }
+      }
+      else{
+        // if(view.options.args[2].limit == 1 && resp.rows[0]){
+  			// 	this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
+  			// }
+        // else{//range docs
+        //   this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
+
+          Array.each(resp.rows, function(row){
+            this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+          }.bind(this))
+        // }
+      }
 		}
   },
   request: function(err, resp){

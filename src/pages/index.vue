@@ -86,20 +86,12 @@ import InputPollerCouchDBOS from '../libs/input.poller.couchdb.os'
 * vue events as message bus
 */
 import Vue from 'vue'
-const EventBus = new Vue();
+const EventBus = new Vue()
 
 const pipelines = []
 
 /* *
-* @todo separate DB.host & DB.port, allow an Array of DBs
-**/
-
-/* *
-* @todo: use an InputPollerCouchDBHosts to get a ONCE doc of Hosts (for each DB)
-**/
-
-/* *
-* @todo: create InputPollerCouchDBOS for each Host
+* @todo: create InputPollerCouchDBOS/Pipeline for each Host??
 **/
 
 pipelines.push(new Pipeline({
@@ -110,8 +102,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						// host:'192.168.0.180',
-						host:'127.0.0.1',
+						host:'192.168.0.180',
+						// host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
 						module: InputPollerCouchDBOS,
@@ -129,17 +121,18 @@ pipelines.push(new Pipeline({
 	filters: [
 		function(doc, opts, next){//periodical docs
 
-			// console.log('filter', opts, doc);
+			// console.log('filter', opts, doc)
+
       if(opts.type == 'periodical'){
 
-  			let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
-        // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp };
-        let cpu = { total: 0, idle: 0 };
-        let timestamp = { timestamp: doc.metadata.timestamp };
-        let uptime = {uptime: doc.data.uptime }
-  			let loadavg = {loadavg: doc.data.loadavg }
-  			let networkInterfaces = {networkInterfaces: doc.data.networkInterfaces }
-        // let core = doc.data.cpus[0];//test
+  			let mem = { host: doc.metadata.host, totalmem: doc.data.totalmem, freemem: doc.data.freemem }
+        // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
+        let cpu = { host: doc.metadata.host, total: 0, idle: 0 }
+        let timestamp = { host: doc.metadata.host, timestamp: doc.metadata.timestamp }
+        let uptime = { host: doc.metadata.host, uptime: doc.data.uptime }
+  			let loadavg = { host: doc.metadata.host, loadavg: doc.data.loadavg }
+  			let networkInterfaces = { host: doc.metadata.host, networkInterfaces: doc.data.networkInterfaces }
+        // let core = doc.data.cpus[0]//test
 
         Array.each(doc.data.cpus, function(core){
           Object.each(core.times, function(value, key){
@@ -150,16 +143,16 @@ pipelines.push(new Pipeline({
             cpu.total += value
 
 
-          });
-        });
+          })
+        })
 
 
-				next(mem);
-				next(cpu);
-				next(timestamp);
-				next(uptime);
-				next(loadavg);
-				next(networkInterfaces);
+				next(mem)
+				next(cpu)
+				next(timestamp)
+				next(uptime)
+				next(loadavg)
+				next(networkInterfaces)
 
 
       }
@@ -170,21 +163,21 @@ pipelines.push(new Pipeline({
 		},
     // function(doc, opts, next){//range docs
     //
-		// 	// console.log('filter', opts, doc);
+		// 	// console.log('filter', opts, doc)
     //
     //   if(opts.type == 'range'){
     //     Array.each(doc, function(row, index){
     //
     //     })
     //
-  	// 		// let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem};
-    //     // // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp };
-    //     // let cpu = { total: 0, idle: 0 };
-    //     // let timestamp = { timestamp: doc.metadata.timestamp };
+  	// 		// let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem}
+    //     // // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
+    //     // let cpu = { total: 0, idle: 0 }
+    //     // let timestamp = { timestamp: doc.metadata.timestamp }
     //     // let uptime = {uptime: doc.data.uptime }
   	// 		// let loadavg = {loadavg: doc.data.loadavg }
   	// 		// let networkInterfaces = {networkInterfaces: doc.data.networkInterfaces }
-    //     // // let core = doc.data.cpus[0];//test
+    //     // // let core = doc.data.cpus[0]//test
     //     //
     //     // Array.each(doc.data.cpus, function(core){
     //     //   Object.each(core.times, function(value, key){
@@ -195,8 +188,8 @@ pipelines.push(new Pipeline({
     //     //     cpu.total += value
     //     //
     //     //
-    //     //   });
-    //     // });
+    //     //   })
+    //     // })
     //     //
   	// 		// // if(buffer_size > 1){
   	// 		// // 	if(buffer.length < buffer_size){
@@ -213,12 +206,12 @@ pipelines.push(new Pipeline({
   	// 		// // 	}
   	// 		// // }
   	// 		// // else{
-  	// 		// 	next(mem);
-  	// 		// 	next(cpu);
-  	// 		// 	next(timestamp);
-  	// 		// 	next(uptime);
-  	// 		// 	next(loadavg);
-  	// 		// 	next(networkInterfaces);
+  	// 		// 	next(mem)
+  	// 		// 	next(cpu)
+  	// 		// 	next(timestamp)
+  	// 		// 	next(uptime)
+  	// 		// 	next(loadavg)
+  	// 		// 	next(networkInterfaces)
   	// 		// // }
     //
     //   }
@@ -262,8 +255,9 @@ pipelines.push(new Pipeline({
 
 /**
 * start with range, "last 300000 ms / 5min"
+* moved inside that Pipeline.init
 */
-pipelines[0].fireEvent('range', { Range: 'posix '+ ( Date.now() - 300000) +'-'+Date.now()+'/*' })
+// pipelines[0].fireEvent('range', { Range: 'posix '+ ( Date.now() - 300000) +'-'+Date.now()+'/*' })
 
 export default {
   name: 'PageIndex',
