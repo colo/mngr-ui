@@ -188,6 +188,7 @@ export default {
           this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval &&
           this.$options.visibles['cpu'] == true
         ){
+          // console.log('update cpu')
           let last = val.getLast()
 
           if(last == null)
@@ -208,6 +209,7 @@ export default {
   methods: {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id] = isVisible
+      console.log('visible', isVisible, entry.target)
     },
   },
 }

@@ -515,7 +515,7 @@ export default {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id] = isVisible
       this.sync_charts()
-      // console.log('visible', isVisible, entry.target)
+      console.log('visible', isVisible, entry.target)
     },
     sync_charts(){
       // if(this.$options.sync == null){
@@ -523,14 +523,14 @@ export default {
         // console.log(this.charts)
         Object.each(this.charts, function(dygraph, name){
           if(this.$options.visibles[name] == true){
-            console.log('charts', dygraph)
+            // console.log('charts', dygraph)
             gs.push(dygraph)
           }
         }.bind(this))
 
         Object.each(this.networkInterfaces_charts, function(dygraph, name){
           if(this.$options.visibles[name] == true){
-            console.log('networkInterfaces', dygraph)
+            // console.log('networkInterfaces', dygraph)
             gs.push(dygraph)
           }
         }.bind(this))
@@ -538,11 +538,11 @@ export default {
         // console.log(this.networkInterfaces_charts)
       //
       if(this.$options.sync){
-        console.log('detaching')
+        // console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
       }
 
-      console.log(gs)
+      // console.log(gs)
 
       if(gs.length > 1){
         this.$options.sync = synchronize(gs, {

@@ -31,21 +31,28 @@
  * You may also set `range: false` if you wish to only sync the x-axis.
  * The `range` option has no effect unless `zoom` is true (the default).
  */
+
+/**
+* @modified
+*/
 import Dygraph from 'dygraphs'
 
 (function() {
 /* global Dygraph:false */
 'use strict';
 
-// var Dygraph;
-
-// console.log(Dygraph)
-
-// if (window.Dygraph) {
-//   Dygraph = window.Dygraph;
-// } else if (typeof(module) !== 'undefined') {
-  // Dygraph = require('dygraph');
-// }
+/**
+* @modified
+*
+* var Dygraph;
+*
+*
+* if (window.Dygraph) {
+*  Dygraph = window.Dygraph;
+* } else if (typeof(module) !== 'undefined') {
+*  Dygraph = require('dygraph');
+* }
+**/
 
 var synchronize = function(/* dygraphs..., opts */) {
   if (arguments.length === 0) {
@@ -140,16 +147,21 @@ var synchronize = function(/* dygraphs..., opts */) {
 
   return {
     detach: function() {
-      for (var i = 0; i < dygraphs.length; i++) {
-        var g = dygraphs[i];
-        if (opts.zoom) {
-          g.updateOptions({drawCallback: prevCallbacks[i].drawCallback});
-        }
-        if (opts.selection) {
-          g.updateOptions({
-            highlightCallback: prevCallbacks[i].highlightCallback,
-            unhighlightCallback: prevCallbacks[i].unhighlightCallback
-          });
+      /**
+      * @modified
+      **/
+      if(dygraphs != null){//added verification
+        for (var i = 0; i < dygraphs.length; i++) {
+          var g = dygraphs[i];
+          if (opts.zoom) {
+            g.updateOptions({drawCallback: prevCallbacks[i].drawCallback});
+          }
+          if (opts.selection) {
+            g.updateOptions({
+              highlightCallback: prevCallbacks[i].highlightCallback,
+              unhighlightCallback: prevCallbacks[i].unhighlightCallback
+            });
+          }
         }
       }
       // release references & make subsequent calls throw.
