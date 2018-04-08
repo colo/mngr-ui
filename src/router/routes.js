@@ -3,8 +3,9 @@ export default [
   {
     path: '/',
     component: () => import('layouts/default'),
+    props: true,
     children: [
-      { path: '', component: () => import('pages/index') }
+      { path: '', component: () => import('pages/index'), props: true }
     ]
   },
 

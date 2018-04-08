@@ -115,9 +115,9 @@
             size="large"
             style="width: 100%"
             v-for="(host) in selectHosts"
-            :key="host.value"
+            :key="'selectHosts_'+host.value"
             >
-            <at-option value="host.value">{{host.label}}</at-option>
+            <at-option value="host">{{host}}</at-option>
           </at-select>
 
         </q-item>
@@ -146,7 +146,7 @@
 
 
     <q-page-container>
-      <router-view />
+      <router-view :EventBus="EventBus"/>
       <q-btn
         v-back-to-top.animate="{offset: 500, duration: 200}"
         round
@@ -179,17 +179,39 @@ import { openURL } from 'quasar'
 
 export default {
   name: 'LayoutDefault',
+  props: {
+    EventBus: {
+      type: [Object],
+       default: () => ({})
+    },
+  },
   data () {
     return {
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
-      selectedHost: 0,
-      selectHosts: [
-        {
-          label: 'localhost',
-          value: '127.0.0.0.1'
-        }
-      ]
+      selectedHost: 'colo',
+      // selectHosts: [
+      //   {
+      //     label: 'localhost',
+      //     value: '127.0.0.0.1'
+      //   }
+      // ]
+    }
+  },
+  computed: {
+    selectHosts: {
+
+      get () {
+        let select = []
+        Array.each(this.$store.state.hosts.all, function(host, index){
+          select.push(host)
+        })
+        console.log(select)
+        return select
+      },
+      // set (val) {
+      //   this.$store.commit('showcase/updateDrawerState', val)
+      // }
     }
   },
   methods: {

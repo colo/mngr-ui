@@ -23,6 +23,8 @@
 import osdygraphs from './charts/os.dygraphs'
 import oseasypie from './charts/os.easypie'
 
+import hostStats from '../store/stats'
+
 export default {
   name: 'osstats',
 
@@ -42,6 +44,26 @@ export default {
       type: [Object],
        default: () => ({})
     },
+  },
+  // computed: {
+  //   hosts () {
+  //     console.log('computed.hosts')
+  //     return this.$store.state.hosts.all
+  //   }
+  // },
+  watch:{
+    '$store.state.hosts.all' : function(val){
+      // console.log('$store.state.hosts.all', this.$store.state.hosts.all)
+      Array.each(this.$store.state.hosts.all, function(host){
+        // register a nested module `nested/myModule`
+        if(!this.$store.state.hosts[host].stats){
+          console.log('registering....', host, hostStats)
+          this.$store.registerModule(['hosts', host, 'stats'], hostStats)
+        }
+          // this.$store.commit('hosts/'+host+'/seconds', self.seconds)
+      }.bind(this))
+
+    }
   },
   data () {
     return {
@@ -112,14 +134,20 @@ export default {
     let self = this;
 
     this.EventBus.$on('timestamp', doc => {
-			// //////console.log('recived doc via Event timestamp', doc)
-      self.timestamps.push( doc );
+			// console.log('recived doc via Event timestamp', doc)
+
+      self.timestamps.push( doc.timestamp );
       // self.timestamps = self.timestamps.slice(-self.seconds)
       let length = self.timestamps.length
       self.timestamps.splice(
         -self.seconds -1,
         length - self.seconds
       )
+
+      this.$store.commit('hosts/'+doc.host+'/stats/timestamp', doc.timestamp)
+
+      // console.log(this.$store)
+
 
 		})
 

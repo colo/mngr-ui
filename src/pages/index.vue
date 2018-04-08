@@ -78,201 +78,25 @@
 
 <script>
 import osstats from '../components/os.stats'
-import Pipeline from 'node-mngr-worker/lib/pipeline'
-import InputPollerCouchDBOS from '../libs/input.poller.couchdb.os'
 
-/**
-* https://alligator.io/vuejs/global-event-bus/
-* vue events as message bus
-*/
-import Vue from 'vue'
-const EventBus = new Vue()
-
-const pipelines = []
-
-/* *
-* @todo: create InputPollerCouchDBOS/Pipeline for each Host??
-**/
-
-pipelines.push(new Pipeline({
-	input: [
-		{
-			poll: {
-				id: "input.os.cradle",
-				conn: [
-					{
-						scheme: 'http',
-						host:'192.168.0.180',
-						// host:'127.0.0.1',
-						port: 5984,
-						//module: require('./lib/os.stats'),
-						module: InputPollerCouchDBOS,
-						//load: ['apps/info/os/']
-					}
-				],
-				connect_retry_count: 5,
-				connect_retry_periodical: 1000,
-				requests: {
-					periodical: 1000,
-				},
-			},
-		}
-	],
-	filters: [
-		function(doc, opts, next){//periodical docs
-
-			// console.log('filter', opts, doc)
-
-      if(opts.type == 'periodical'){
-
-  			let mem = { host: doc.metadata.host, totalmem: doc.data.totalmem, freemem: doc.data.freemem }
-        // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
-        let cpu = { host: doc.metadata.host, total: 0, idle: 0 }
-        let timestamp = { host: doc.metadata.host, timestamp: doc.metadata.timestamp }
-        let uptime = { host: doc.metadata.host, uptime: doc.data.uptime }
-  			let loadavg = { host: doc.metadata.host, loadavg: doc.data.loadavg }
-  			let networkInterfaces = { host: doc.metadata.host, networkInterfaces: doc.data.networkInterfaces }
-        // let core = doc.data.cpus[0]//test
-
-        Array.each(doc.data.cpus, function(core){
-          Object.each(core.times, function(value, key){
-
-            if(key == 'idle')
-              cpu.idle += value
-
-            cpu.total += value
-
-
-          })
-        })
-
-
-				next(mem)
-				next(cpu)
-				next(timestamp)
-				next(uptime)
-				next(loadavg)
-				next(networkInterfaces)
-
-
-      }
-      else{
-        next(doc)
-      }
-
-		},
-    // function(doc, opts, next){//range docs
-    //
-		// 	// console.log('filter', opts, doc)
-    //
-    //   if(opts.type == 'range'){
-    //     Array.each(doc, function(row, index){
-    //
-    //     })
-    //
-  	// 		// let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem}
-    //     // // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
-    //     // let cpu = { total: 0, idle: 0 }
-    //     // let timestamp = { timestamp: doc.metadata.timestamp }
-    //     // let uptime = {uptime: doc.data.uptime }
-  	// 		// let loadavg = {loadavg: doc.data.loadavg }
-  	// 		// let networkInterfaces = {networkInterfaces: doc.data.networkInterfaces }
-    //     // // let core = doc.data.cpus[0]//test
-    //     //
-    //     // Array.each(doc.data.cpus, function(core){
-    //     //   Object.each(core.times, function(value, key){
-    //     //
-    //     //     if(key == 'idle')
-    //     //       cpu.idle += value
-    //     //
-    //     //     cpu.total += value
-    //     //
-    //     //
-    //     //   })
-    //     // })
-    //     //
-  	// 		// // if(buffer_size > 1){
-  	// 		// // 	if(buffer.length < buffer_size){
-  	// 		// // 		buffer.push([mem,cpu,timestamp,uptime,loadavg,networkInterfaces])
-  	// 		// // 	}
-  	// 		// // 	else{
-  	// 		// // 		Array.each(buffer, function(docs){
-  	// 		// // 			Array.each(docs, function(doc){
-  	// 		// // 				next(doc)
-  	// 		// // 			})
-  	// 		// // 		})
-    //     // //
-  	// 		// // 		buffer = []
-  	// 		// // 	}
-  	// 		// // }
-  	// 		// // else{
-  	// 		// 	next(mem)
-  	// 		// 	next(cpu)
-  	// 		// 	next(timestamp)
-  	// 		// 	next(uptime)
-  	// 		// 	next(loadavg)
-  	// 		// 	next(networkInterfaces)
-  	// 		// // }
-    //
-    //   }
-    //   else{
-    //     next(doc)
-    //   }
-    //
-		// }
-	],
-	output: [
-		function(doc){
-
-			doc = JSON.decode(doc)
-
-			if(doc.totalmem){
-				// console.log(doc)
-				EventBus.$emit('mem', doc) //update mem widget
-			}
-			else if(doc.idle){
-        // console.log(doc)
-				EventBus.$emit('cpu', doc) //update cpu widget
-			}
-			else if(doc.timestamp){
-        // console.log(doc)
-				EventBus.$emit('timestamp', doc.timestamp) //update timestamp
-			}
-			else if(doc.uptime){
-        // console.log(doc)
-				EventBus.$emit('uptime', doc.uptime) //update uptime widget
-			}
-			else if(doc.loadavg){
-        // console.log(doc)
-				EventBus.$emit('loadavg', doc.loadavg) //update loadavg widget
-			}
-			else if(doc.networkInterfaces){
-				EventBus.$emit('networkInterfaces', doc.networkInterfaces) //update loadavg widget
-			}
-		}
-	]
-}))
-
-/**
-* start with range, "last 300000 ms / 5min"
-* moved inside that Pipeline.init
-*/
-// pipelines[0].fireEvent('range', { Range: 'posix '+ ( Date.now() - 300000) +'-'+Date.now()+'/*' })
 
 export default {
   name: 'PageIndex',
+  props: {
+    EventBus: {
+      type: [Object],
+       default: () => ({})
+    },
+  },
   components: { osstats },
   data () {
     return {
-      EventBus : EventBus,
+      // EventBus : EventBus,
       // list: [
       //   {title: 'first chart'},
       //   {title: 'second chart'},
       // ]
     }
   },
-  // updated () {
-  //   this.$q.loading.hide()
-  // },
 }
 </script>

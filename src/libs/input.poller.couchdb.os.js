@@ -221,6 +221,7 @@ export default new Class({
 
       if(view.options.args[0] == 'search' && view.options.args[1] == 'hosts'){
         this.hosts = []
+
         Array.each(resp.rows, function(row){
           // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
           this.hosts.push(row.key)
@@ -235,6 +236,8 @@ export default new Class({
           }
 
         }.bind(this))
+
+        this.fireEvent('onPeriodicalDoc', [{ data: {hosts: this.hosts } }, {type: 'periodical', input_type: this, app: null}]);
       }
       else{
         // if(view.options.args[2].limit == 1 && resp.rows[0]){
