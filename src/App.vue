@@ -174,14 +174,14 @@ pipelines.push(new Pipeline({
 			}
 			else if(doc.uptime){
         // console.log(doc)
-				EventBus.$emit('uptime', doc.uptime) //update uptime widget
+				EventBus.$emit('uptime', doc) //update uptime widget
 			}
 			else if(doc.loadavg){
         // console.log(doc)
-				EventBus.$emit('loadavg', doc.loadavg) //update loadavg widget
+				EventBus.$emit('loadavg', doc) //update loadavg widget
 			}
 			else if(doc.networkInterfaces){
-				EventBus.$emit('networkInterfaces', doc.networkInterfaces) //update loadavg widget
+				EventBus.$emit('networkInterfaces', doc) //update loadavg widget
 			}
 		}
 	]

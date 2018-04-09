@@ -1,5 +1,9 @@
 import Vue from 'vue'
 
+export const current = (state, host) => {
+  state.current = host
+}
+
 export const add = (state, host) => {
   state.all.push(host)
 }

@@ -110,18 +110,21 @@
       >
         <!-- <q-list-header>Essential Links</q-list-header> -->
         <q-item>
-          <at-select v-model="selectedHost"
+          <at-select
+            v-model="currentHost"
             filterable
             size="large"
             style="width: 100%"
-            v-for="(host) in selectHosts"
+            v-for="(host) in hosts"
             :key="'selectHosts_'+host.value"
+            :disabled="hosts.length <= 1"
             >
-            <at-option value="host">{{host}}</at-option>
+
+            <at-option :value="host">{{host}}</at-option>
           </at-select>
 
         </q-item>
-        <q-item @click.native="openURL('http://quasar-framework.org')">
+        <!-- <q-item @click.native="openURL('http://quasar-framework.org')">
           <q-item-side icon="school" />
           <q-item-main label="Docs" sublabel="quasar-framework.org" />
         </q-item>
@@ -140,7 +143,7 @@
         <q-item @click.native="openURL('https://twitter.com/quasarframework')">
           <q-item-side icon="rss feed" />
           <q-item-main label="Twitter" sublabel="@quasarframework" />
-        </q-item>
+        </q-item> -->
       </q-list>
     </q-layout-drawer>
 
@@ -176,6 +179,7 @@
 
 <script>
 import { openURL } from 'quasar'
+import { mapState } from 'vuex'
 
 export default {
   name: 'LayoutDefault',
@@ -189,7 +193,7 @@ export default {
     return {
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
-      selectedHost: 'colo',
+      // selectedHost: 'colo',
       // selectHosts: [
       //   {
       //     label: 'localhost',
@@ -198,22 +202,36 @@ export default {
       // ]
     }
   },
-  computed: {
-    selectHosts: {
+  // mounted () {
+  //   if(this.currentHost == '' && this.hosts.length == 1){
+  //     // this.$store.commit('hosts/current', 'colo')
+  //     this.currentHost = this.hosts[0]
+  //   }
+  //
+  // },
+  computed: Object.merge({
+      currentHost: {
+        get () {
+          let host = this.$store.state.hosts.current
+          if(host == '' && this.hosts.length == 1){
+            host = this.hosts[0]
+            this.$store.commit('hosts/current', host)
+          }
+          return host
+        },
+        // setter
+        set (value) {
+          console.log('setting host...', value)
+          this.$store.commit('hosts/current', value)
+        }
+      }
+    },
+    mapState({
+      // arrow functions can make the code very succinct!
+      hosts: state => state.hosts.all,
 
-      get () {
-        let select = []
-        Array.each(this.$store.state.hosts.all, function(host, index){
-          select.push(host)
-        })
-        console.log(select)
-        return select
-      },
-      // set (val) {
-      //   this.$store.commit('showcase/updateDrawerState', val)
-      // }
-    }
-  },
+    })
+  ),
   methods: {
     openURL
   }

@@ -168,7 +168,7 @@ export default {
       // self.networkInterfaces.timestamp = JSON.parse(JSON.stringify(self.timestamps.getLast()));
 
       self.networkInterfaces.push({
-        value: doc,
+        value: doc.networkInterfaces,
         timestamp: self.timestamps.getLast() + 0
       })
 
@@ -178,6 +178,8 @@ export default {
         -this.timestamps.length -1,
         length - this.timestamps.length
       )
+
+      this.$store.commit('hosts/'+doc.host+'/stats/networkInterfaces', doc.networkInterfaces)
 		})
 
 
@@ -194,7 +196,7 @@ export default {
 			// self.loadavg.timestamp = self.timestamps.getLast();
 
       self.loadavg.push({
-        value: doc,
+        value: doc.loadavg,
         timestamp: self.timestamps.getLast() + 0
       })
 
@@ -204,10 +206,12 @@ export default {
         -this.timestamps.length -1,
         length - this.timestamps.length
       )
+
+      this.$store.commit('hosts/'+doc.host+'/stats/loadavg', doc.loadavg)
 		})
 
     this.EventBus.$on('uptime', doc => {
-      // //console.log('recived doc via Event uptime', doc)
+      // console.log('recived doc via Event uptime', doc)
 
 
       // self.$set(self.uptime, 'prev', {
@@ -219,7 +223,7 @@ export default {
 			// self.uptime.timestamp = self.timestamps.getLast();
 
       self.uptime.push({
-        value: doc,
+        value: doc.uptime,
         timestamp: self.timestamps.getLast() + 0
       })
 
@@ -229,6 +233,8 @@ export default {
         -this.timestamps.length -1,
         length - this.timestamps.length
       )
+
+      this.$store.commit('hosts/'+doc.host+'/stats/uptime', doc.uptime)
 
 		})
 
@@ -264,6 +270,13 @@ export default {
         -this.timestamps.length -1,
         length - this.timestamps.length
       )
+
+      this.$store.commit('hosts/'+doc.host+'/stats/mem', {
+        total: doc.totalmem,
+        free: doc.freemem,
+        percentage: percentage,
+        timestamp: self.timestamps.getLast() + 0
+      })
       // self.$set(self.mem, 'prev', {
       //   total: JSON.parse(JSON.stringify(self.mem.total)),
       //   free: JSON.parse(JSON.stringify(self.mem.free)),
@@ -320,6 +333,13 @@ export default {
         -this.timestamps.length -1,
         length - this.timestamps.length
       )
+
+      this.$store.commit('hosts/'+doc.host+'/stats/mem', {
+        total: doc.total,
+        idle: doc.idle,
+        timestamp: self.timestamps.getLast() + 0,
+        percentage: cpu.percentage
+      })
 
       // if(doc.total != self.cpu.total){
       //   self.$set(self.cpu, 'prev', {

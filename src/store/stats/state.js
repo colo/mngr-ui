@@ -1,5 +1,10 @@
 export default function() {
   return {
-    timestamps: []
+    timestamps: [],
+    loadavgs: [],
+    uptimes: [],
+    networkInterfaces: [],
+    mem: [],
+    cpu: []
   }
 }
