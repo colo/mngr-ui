@@ -1,6 +1,7 @@
 <template>
 
     <div>
+
       <!-- OS stats -->
 
      <q-collapsible
@@ -57,6 +58,8 @@
 
 <script>
 
+// import { mapState } from 'vuex'
+
 import Dygraph from 'dygraphs'
 import 'dygraphs/src/extras/smooth-plotter'
 
@@ -92,14 +95,14 @@ export default {
       type: [Array],
       default: () => ([])
     },
-    // mem: {
-    //   type: [Object],
-    //   default: () => ({})
-    // },
-    // cpu: {
-    //   type: [Object],
-    //    default: () => ({})
-    // },
+    mem: {
+      type: [Object],
+      default: () => ({})
+    },
+    cpu: {
+      type: [Object],
+       default: () => ({})
+    },
     uptime: {
       type: [Array],
       default: () => ([])
@@ -186,50 +189,92 @@ export default {
     }.bind(this))
 
   },
-
+  // computed: Object.merge(
+  //   // {
+  //   //   uptime: function(){
+  //   //     let uptime = []
+  //   //     if(this.$store.state.hosts.current){
+  //   //       let currentHost = this.$store.state.hosts.current
+  //   //       uptime = this.$store.state.hosts[currentHost].stats.uptime
+  //   //     }
+  //   //
+  //   //     return uptime
+  //   //   }
+  //   // },
+  //   // {
+  //   //   'stats.uptime.data': function () {
+  //   //     let self = this
+  //   //     let data = this.stats.uptime.data
+  //   //
+  //   //     Array.each(self.$store.state.hosts[this.currentHost].stats.uptimes, function(uptime){
+  //   //       console.log('self.$store.state.hosts[this.currentHost].stats.uptimes', uptime)
+  //   //       data.push([new Date(uptime.timestamp), uptime.value])
+  //   //     })
+  //   //
+  //   //     if(
+  //   //       this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
+  //   //       this.$options.visibles['uptime'] == true
+  //   //     ){
+  //   //       // this.sync_charts()
+  //   //       this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
+  //   //       this.stats.uptime.lastupdate = Date.now()
+  //   //       // this.$forceUpdate()
+  //   //     }
+  //   //
+  //   //     return data
+  //   //   },
+  //   // },
+  //   // {
+  //   //   currentHost: {
+  //   //     get () {
+  //   //       let host = this.$store.state.hosts.current
+  //   //       if(host == '' && this.hosts.length == 1){
+  //   //         host = this.hosts[0]
+  //   //         this.$store.commit('hosts/current', host)
+  //   //       }
+  //   //       return host
+  //   //     },
+  //   //     // setter
+  //   //     set (value) {
+  //   //       console.log('setting host...', value)
+  //   //       this.$store.commit('hosts/current', value)
+  //   //     }
+  //   //   }
+  //   // },
+  //   mapState({
+  //     // arrow functions can make the code very succinct!
+  //     hosts: state => state.hosts.all,
+  //     currentHost: state => state.hosts.current,
+  //     uptime: function(state){
+  //       let uptime = []
+  //       if(state.hosts.current){
+  //         let currentHost = state.hosts.current
+  //         uptime = state.hosts[currentHost].stats.uptime
+  //       }
+  //
+  //       return uptime
+  //     },
+  //     loadavg: function(state){
+  //       let loadavg = []
+  //       if(state.hosts.current){
+  //         let currentHost = state.hosts.current
+  //         loadavg = state.hosts[currentHost].stats.loadavg
+  //       }
+  //
+  //       return loadavg
+  //     }
+  //   })
+  //
+  //   // self.$store.state.hosts[doc.host].stats.
+  // ),
   watch: {
-    // 'mem.percentage': function(val){
-    //   if(this.$refs['mem']){
-    //     // if(this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval){
-    //
-    //       val = val.toFixed(2)
-    //       this.stats.mem.data = [['Used', val], ['Free', 100 - val]]
-    //
-    //     //
-    //     //   this.charts.mem.arrows[0].setValue(val);
-    //     //   this.charts.mem.axes[0].setTopText(val + " %");
-    //     //
-    //     //   // adjust darker band to new value
-    //     //   this.charts.mem.axes[0].bands[1].setEndValue(val);
-    //     //
-    //     //   this.stats.mem.lastupdate = Date.now()
-    //     // }
-    //   }
-    // },
-    // 'cpu.percentage': function(val){
-    //   if(this.$refs['cpu']){
-    //     // if(this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval){
-    //     //
-    //
-    //       val = val.toFixed(2)
-    //       this.stats.cpu.data = [['Used', val], ['Free', 100 - val]]
-    //
-    //     //   this.charts.cpu.arrows[0].setValue(val);
-    //     //   this.charts.cpu.axes[0].setTopText(val + " %");
-    //     //
-    //     //   // adjust darker band to new value
-    //     //   this.charts.cpu.axes[0].bands[1].setEndValue(val);
-    //     //
-    //     //   this.stats.cpu.lastupdate = Date.now()
-    //     // }
-    //   }
-    //
-		// },
+
     uptime: function(val){
-       //console.log('uptime', val)
+
+       // console.log('uptime', val)
       // //console.log(this.$refs['uptime'])
 
-      if(this.$refs['uptime']){
+      if(this.$refs['uptime'] && val.length > 0){
 
         let data = []
         Array.each(val, function(uptime){
@@ -238,20 +283,6 @@ export default {
 
         this.$set(this.stats.uptime, 'data', data)
 
-        // let data = this.stats.uptime.data
-
-        // data.push([new Date(this.uptime.timestamp), val])
-
-
-        // let length = data.length
-
-        // this.stats.uptime.data.splice(
-        //   -this.timestamps.length -1,
-        //   length - this.timestamps.length
-        // )
-
-
-        //
         if(
           this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
           this.$options.visibles['uptime'] == true
@@ -267,7 +298,7 @@ export default {
     loadavg: function(val){
       //console.log('loadavg', val)
 
-      if(this.$refs['loadavg']){
+      if(this.$refs['loadavg'] && val.length > 0){
 
         let data = []
 
@@ -302,215 +333,217 @@ export default {
       // console.log('networkInterfaces', networkInterfaces)
 
       let self = this
+      if(networkInterfaces.getLast() !== null){
 
-      let val = networkInterfaces.getLast().value
-      let ifaces = Object.keys(val)
-      let properties = Object.keys(val[ifaces[0]])
-      let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
+        let val = networkInterfaces.getLast().value
+        let ifaces = Object.keys(val)
+        let properties = Object.keys(val[ifaces[0]])
+        let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
 
 
-      Array.each(ifaces, function(iface){
-        if(!self.networkInterfaces_stats[iface])
-          self.$set(self.networkInterfaces_stats, iface, {})
+        Array.each(ifaces, function(iface){
+          if(!self.networkInterfaces_stats[iface])
+            self.$set(self.networkInterfaces_stats, iface, {})
 
-        /**
-        * turn data property->messure (ex: transmited { bytes: .. }),
-        * to: messure->property (ex: bytes {transmited:.., recived: ... })
-        **/
-        Array.each(messures, function(messure){// "bytes" | "packets"
-          if(!self.networkInterfaces_stats[iface][messure])
-            self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
+          /**
+          * turn data property->messure (ex: transmited { bytes: .. }),
+          * to: messure->property (ex: bytes {transmited:.., recived: ... })
+          **/
+          Array.each(messures, function(messure){// "bytes" | "packets"
+            if(!self.networkInterfaces_stats[iface][messure])
+              self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
 
-            // let data = []
-            // let stat = []
-            // let data = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
-            let data = []
-            Array.each(networkInterfaces, function(stats, index){
-              let timestamp =  new Date(stats.timestamp)
+              // let data = []
+              // let stat = []
+              // let data = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
+              let data = []
+              Array.each(networkInterfaces, function(stats, index){
+                let timestamp =  new Date(stats.timestamp)
 
-              let recived = 0
-              let transmited = 0
-              let prev_recived = 0
-              let prev_transmited = 0
+                let recived = 0
+                let transmited = 0
+                let prev_recived = 0
+                let prev_transmited = 0
 
-              let current_recived = stats.value[iface]['recived'][messure]
-              let current_transmited = stats.value[iface]['transmited'][messure]
+                let current_recived = stats.value[iface]['recived'][messure]
+                let current_transmited = stats.value[iface]['transmited'][messure]
 
-              if(index > 0 && networkInterfaces[index - 1].value[iface]){
-                prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
-                prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
-              }
+                if(index > 0 && networkInterfaces[index - 1].value[iface]){
+                  prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
+                  prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
+                }
 
-              // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
-              recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
+                // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
+                recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
 
-              // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
-              transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
+                // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
+                transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
 
-              if(messure == 'bytes'){ //bps -> Kbps
-                  transmited = transmited / 128
-                  recived = recived / 128
-              }
+                if(messure == 'bytes'){ //bps -> Kbps
+                    transmited = transmited / 128
+                    recived = recived / 128
+                }
 
-              data.push([timestamp, recived, transmited])
-            })
+                data.push([timestamp, recived, transmited])
+              })
 
-            self.$set(self.networkInterfaces_stats[iface][messure], 'data', data)
+              self.$set(self.networkInterfaces_stats[iface][messure], 'data', data)
 
-            // Array.each(properties, function(property){// "recived" | "transmited"
-            //   if(property == 'recived' || property == 'transmited'){
-            //     // let prev = 0
-            //
-            //
-            //     Array.each(networkInterfaces, function(stats, index){
-            //       // stat[0] = stats.timestamp
-            //       // //console.log('stats.value', stats.value[iface][property][messure])
-            //
-            //       let current = stats.value[iface][property][messure]
-            //       let prev = (index > 0) ? networkInterfaces[index - 1].value[iface][property][messure] : 0
-            //       let value = current - prev + 0
-            //
-            //       // if(messure == 'bytes')
-            //       //   value = value / 1024
-            //
-            //       if(property == 'recived')//negative, so it end up ploting under X axis
-            //         value = 0 - value
-            //
-            //       // stat.push(value)
-            //       let data = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
-            //
-            //       let last = data.getLast()
-            //       if(last == null || last.length == 3){//no data yet || has timestamp,OUT,IN values already
-            //         let timestamp = JSON.parse(JSON.stringify(stats.timestamp + 0))
-            //         last = [timestamp, value]
-            //         data.push(last)
-            //       }
-            //       else if(last.length < 3){//has timestamp
-            //         last.push(value)
-            //         // data.push(last)
-            //       }
-            //
-            //       // prev = current
-            //       // data.push(stat)
-            //
-            //       // self.$set(self.networkInterfaces_stats[iface][messure], 'data', JSON.parse(JSON.stringify(data)))
-            //
-            //     }.bind(this))
-            //
-            //     // //console.log(data)
-            //
-            //     // self.networkInterfaces_stats[iface][messure].data = data
-            //     // self.$set(self.networkInterfaces_stats[iface][messure], 'data', JSON.parse(JSON.stringify(data)))
-            //
-            //     // let current = val[iface][property][messure]
-            //     // let prev = self.networkInterfaces.prev.value[iface][property][messure]
-            //     // let data = current - prev + 0
-            //     //
-            //     // if(messure == 'bytes')
-            //     //   data = data / 1024
-            //     // // let serie = {}
-            //     //
-            //     // if(property == 'recived')//negative, so it end up ploting under X axis
-            //     //   data = 0 - data
-            //     //
-            //     // let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
-            //     //
-            //     // let value = copy.getLast()
-            //     // if(value == null || value.length == 3){//no data yet || has timestamp,OUT,IN values already
-            //     //   let timestamp = JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
-            //     //   value = [timestamp, data]
-            //     //   copy.push(value)
-            //     // }
-            //     // else if(value.length < 3){//has timestamp
-            //     //   value.push(data)
-            //     //   copy.push(value)
-            //     // }
-            //     //
-            //     // let length = copy.length
-            //     //
-            //     // copy.splice(
-            //     //   -self.timestamps.length -1,
-            //     //   length - self.timestamps.length
-            //     // )
-            //     //
-            //     // self.networkInterfaces_stats[iface][messure].data = JSON.parse(JSON.stringify(copy))
-            //
-            //   }
-            // })
+              // Array.each(properties, function(property){// "recived" | "transmited"
+              //   if(property == 'recived' || property == 'transmited'){
+              //     // let prev = 0
+              //
+              //
+              //     Array.each(networkInterfaces, function(stats, index){
+              //       // stat[0] = stats.timestamp
+              //       // //console.log('stats.value', stats.value[iface][property][messure])
+              //
+              //       let current = stats.value[iface][property][messure]
+              //       let prev = (index > 0) ? networkInterfaces[index - 1].value[iface][property][messure] : 0
+              //       let value = current - prev + 0
+              //
+              //       // if(messure == 'bytes')
+              //       //   value = value / 1024
+              //
+              //       if(property == 'recived')//negative, so it end up ploting under X axis
+              //         value = 0 - value
+              //
+              //       // stat.push(value)
+              //       let data = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
+              //
+              //       let last = data.getLast()
+              //       if(last == null || last.length == 3){//no data yet || has timestamp,OUT,IN values already
+              //         let timestamp = JSON.parse(JSON.stringify(stats.timestamp + 0))
+              //         last = [timestamp, value]
+              //         data.push(last)
+              //       }
+              //       else if(last.length < 3){//has timestamp
+              //         last.push(value)
+              //         // data.push(last)
+              //       }
+              //
+              //       // prev = current
+              //       // data.push(stat)
+              //
+              //       // self.$set(self.networkInterfaces_stats[iface][messure], 'data', JSON.parse(JSON.stringify(data)))
+              //
+              //     }.bind(this))
+              //
+              //     // //console.log(data)
+              //
+              //     // self.networkInterfaces_stats[iface][messure].data = data
+              //     // self.$set(self.networkInterfaces_stats[iface][messure], 'data', JSON.parse(JSON.stringify(data)))
+              //
+              //     // let current = val[iface][property][messure]
+              //     // let prev = self.networkInterfaces.prev.value[iface][property][messure]
+              //     // let data = current - prev + 0
+              //     //
+              //     // if(messure == 'bytes')
+              //     //   data = data / 1024
+              //     // // let serie = {}
+              //     //
+              //     // if(property == 'recived')//negative, so it end up ploting under X axis
+              //     //   data = 0 - data
+              //     //
+              //     // let copy = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
+              //     //
+              //     // let value = copy.getLast()
+              //     // if(value == null || value.length == 3){//no data yet || has timestamp,OUT,IN values already
+              //     //   let timestamp = JSON.parse(JSON.stringify(self.networkInterfaces.timestamp + 0))
+              //     //   value = [timestamp, data]
+              //     //   copy.push(value)
+              //     // }
+              //     // else if(value.length < 3){//has timestamp
+              //     //   value.push(data)
+              //     //   copy.push(value)
+              //     // }
+              //     //
+              //     // let length = copy.length
+              //     //
+              //     // copy.splice(
+              //     //   -self.timestamps.length -1,
+              //     //   length - self.timestamps.length
+              //     // )
+              //     //
+              //     // self.networkInterfaces_stats[iface][messure].data = JSON.parse(JSON.stringify(copy))
+              //
+              //   }
+              // })
 
+
+          })
 
         })
 
-      })
-
-      //console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+        //console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
 
-      Object.each(this.networkInterfaces_stats, function(stat, iface){
+        Object.each(this.networkInterfaces_stats, function(stat, iface){
 
-        Object.each(stat, function(value, messure){
-
-
-          if(document.getElementById(iface+'-'+messure)){
-
-            if(!this.networkInterfaces_charts[iface+'-'+messure]){
-              //console.log('---validatin---', iface+'-'+messure)
+          Object.each(stat, function(value, messure){
 
 
-              let option = JSON.parse(JSON.stringify(this.$options.net_stats.options))
-              // Array.each(option.valueAxes, function(axis, index){
-              //   axis.id = iface+'-'+messure+'-'+axis.id
-              //   option.graphs[index].valueAxis = axis.id
-              // })
+            if(document.getElementById(iface+'-'+messure)){
 
-              this.$set(this.networkInterfaces_charts,
-                iface+'-'+messure,
-                new Dygraph(
-                    document.getElementById(iface+'-'+messure),  // containing div
-                    this.networkInterfaces_stats[iface][messure].data,
-                    option
-                  )
-              )
+              if(!this.networkInterfaces_charts[iface+'-'+messure]){
+                //console.log('---validatin---', iface+'-'+messure)
 
 
-              if(this.$options.net_stats.init)
-                this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
+                let option = JSON.parse(JSON.stringify(this.$options.net_stats.options))
+                // Array.each(option.valueAxes, function(axis, index){
+                //   axis.id = iface+'-'+messure+'-'+axis.id
+                //   option.graphs[index].valueAxis = axis.id
+                // })
 
-              // this.sync_charts()
-              // this.expanded.push(iface+'-'+messure)
+                this.$set(this.networkInterfaces_charts,
+                  iface+'-'+messure,
+                  new Dygraph(
+                      document.getElementById(iface+'-'+messure),  // containing div
+                      this.networkInterfaces_stats[iface][messure].data,
+                      option
+                    )
+                )
+
+
+                if(this.$options.net_stats.init)
+                  this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
+
+                // this.sync_charts()
+                // this.expanded.push(iface+'-'+messure)
+              }
+              // else{
+
+              if(
+                value.lastupdate < Date.now() - this.$options.net_stats.interval &&
+                this.$options.visibles[iface+'-'+messure] == true
+              ){
+
+                this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
+                   'file': value.data,
+                   'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
+                 });
+                value.lastupdate = Date.now()
+
+              }
             }
-            // else{
 
-            if(
-              value.lastupdate < Date.now() - this.$options.net_stats.interval &&
-              this.$options.visibles[iface+'-'+messure] == true
-            ){
-
-              this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
-                 'file': value.data,
-                 'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
-               });
-              value.lastupdate = Date.now()
-
-            }
-          }
-
+          }.bind(this))
         }.bind(this))
-      }.bind(this))
 
-      // if( this.$options.sync == null &&
-      //   (this.networkInterfaces_charts.length == this.networkInterfaces_stats.length)
-      // ){
-      //   this.sync_charts()
-      // }
+        // if( this.$options.sync == null &&
+        //   (this.networkInterfaces_charts.length == this.networkInterfaces_stats.length)
+        // ){
+        //   this.sync_charts()
+        // }
 
+      }
     },
   },
-  computed: {
-    formated_timestamps: function(){
-      return this.format_timestamps(this.timestamps)
-    }
-  },
+  // computed: {
+  //   formated_timestamps: function(){
+  //     return this.format_timestamps(this.timestamps)
+  //   }
+  // },
   methods: {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id] = isVisible

@@ -1,8 +1,8 @@
 export default function() {
   return {
     timestamps: [],
-    loadavgs: [],
-    uptimes: [],
+    loadavg: [],
+    uptime: [],
     networkInterfaces: [],
     mem: [],
     cpu: []

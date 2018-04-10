@@ -3,11 +3,11 @@
  }
 
  export const loadavg = (state, loadavg) => {
-   state.loadavgs.push(loadavg)
+   state.loadavg.push(loadavg)
  }
 
  export const uptime = (state, loadavg) => {
-   state.uptimes.push(loadavg)
+   state.uptime.push(loadavg)
  }
 
  export const networkInterfaces = (state, networkInterfaces) => {
@@ -22,10 +22,10 @@
    state.cpu.push(cpu)
  }
 
- export const splice = (state, n) => {
-   let length = state.timestamps.length
-   state.timestamps.splice(
-     -n -1,
-     length - n
+ export const splice = (state, payload) => {
+   let length = state[payload.stat].length
+   state[payload.stat].splice(
+     -payload.length -1,
+     length - payload.length
    )
  }

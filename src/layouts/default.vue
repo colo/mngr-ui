@@ -209,7 +209,8 @@ export default {
   //   }
   //
   // },
-  computed: Object.merge({
+  computed: Object.merge(
+    {
       currentHost: {
         get () {
           let host = this.$store.state.hosts.current

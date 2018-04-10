@@ -55,13 +55,23 @@ pipelines.push(new Pipeline({
           next(doc.data)
         }
         else{
-    			let mem = { host: doc.metadata.host, totalmem: doc.data.totalmem, freemem: doc.data.freemem }
+    			let mem = {
+            timestamp: doc.metadata.timestamp,
+            host: doc.metadata.host,
+            totalmem: doc.data.totalmem,
+            freemem: doc.data.freemem
+          }
           // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
-          let cpu = { host: doc.metadata.host, total: 0, idle: 0 }
-          let timestamp = { host: doc.metadata.host, timestamp: doc.metadata.timestamp }
-          let uptime = { host: doc.metadata.host, uptime: doc.data.uptime }
-    			let loadavg = { host: doc.metadata.host, loadavg: doc.data.loadavg }
-    			let networkInterfaces = { host: doc.metadata.host, networkInterfaces: doc.data.networkInterfaces }
+          let cpu = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, total: 0, idle: 0 }
+          // let timestamp = { host: doc.metadata.host, timestamp: doc.metadata.timestamp }
+          let uptime = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, uptime: doc.data.uptime }
+    			let loadavg = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, loadavg: doc.data.loadavg }
+
+          let networkInterfaces = {
+            timestamp: doc.metadata.timestamp,
+            host: doc.metadata.host,
+            networkInterfaces: doc.data.networkInterfaces
+          }
           // let core = doc.data.cpus[0]//test
 
           Array.each(doc.data.cpus, function(core){
@@ -79,7 +89,7 @@ pipelines.push(new Pipeline({
 
   				next(mem)
   				next(cpu)
-  				next(timestamp)
+  				// next(timestamp)
   				next(uptime)
   				next(loadavg)
   				next(networkInterfaces)
@@ -91,65 +101,6 @@ pipelines.push(new Pipeline({
       }
 
 		},
-    // function(doc, opts, next){//range docs
-    //
-		// 	// console.log('filter', opts, doc)
-    //
-    //   if(opts.type == 'range'){
-    //     Array.each(doc, function(row, index){
-    //
-    //     })
-    //
-  	// 		// let mem = {totalmem: doc.data.totalmem, freemem: doc.data.freemem}
-    //     // // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
-    //     // let cpu = { total: 0, idle: 0 }
-    //     // let timestamp = { timestamp: doc.metadata.timestamp }
-    //     // let uptime = {uptime: doc.data.uptime }
-  	// 		// let loadavg = {loadavg: doc.data.loadavg }
-  	// 		// let networkInterfaces = {networkInterfaces: doc.data.networkInterfaces }
-    //     // // let core = doc.data.cpus[0]//test
-    //     //
-    //     // Array.each(doc.data.cpus, function(core){
-    //     //   Object.each(core.times, function(value, key){
-    //     //
-    //     //     if(key == 'idle')
-    //     //       cpu.idle += value
-    //     //
-    //     //     cpu.total += value
-    //     //
-    //     //
-    //     //   })
-    //     // })
-    //     //
-  	// 		// // if(buffer_size > 1){
-  	// 		// // 	if(buffer.length < buffer_size){
-  	// 		// // 		buffer.push([mem,cpu,timestamp,uptime,loadavg,networkInterfaces])
-  	// 		// // 	}
-  	// 		// // 	else{
-  	// 		// // 		Array.each(buffer, function(docs){
-  	// 		// // 			Array.each(docs, function(doc){
-  	// 		// // 				next(doc)
-  	// 		// // 			})
-  	// 		// // 		})
-    //     // //
-  	// 		// // 		buffer = []
-  	// 		// // 	}
-  	// 		// // }
-  	// 		// // else{
-  	// 		// 	next(mem)
-  	// 		// 	next(cpu)
-  	// 		// 	next(timestamp)
-  	// 		// 	next(uptime)
-  	// 		// 	next(loadavg)
-  	// 		// 	next(networkInterfaces)
-  	// 		// // }
-    //
-    //   }
-    //   else{
-    //     next(doc)
-    //   }
-    //
-		// }
 	],
 	output: [
 		function(doc){
@@ -168,10 +119,10 @@ pipelines.push(new Pipeline({
         // console.log(doc)
 				EventBus.$emit('cpu', doc) //update cpu widget
 			}
-			else if(doc.timestamp){
-        // console.log(doc)
-				EventBus.$emit('timestamp', doc) //update timestamp
-			}
+			// else if(doc.timestamp){
+      //   // console.log(doc)
+			// 	EventBus.$emit('timestamp', doc) //update timestamp
+			// }
 			else if(doc.uptime){
         // console.log(doc)
 				EventBus.$emit('uptime', doc) //update uptime widget
