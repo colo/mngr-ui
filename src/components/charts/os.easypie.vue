@@ -26,14 +26,23 @@
             :ref="name"
             v-observe-visibility="visibilityChanged"
             >
-              <q-knob v-if="stat.component == 'q-knob'"
+              <stat.component.type
+                :is="stat.component.type"
+                v-bind="stat.component.options"
+                :attr="stat.component.attr"
+                :class="stat.component.class"
+                readonly
+              />
+              <!-- v-model="stat.component['v-model']" -->
+              <!-- v-bind="stat.component.options" -->
+              <!-- <q-knob v-if="stat.component == 'q-knob'"
                v-model="stats[name].data"
                readonly
                v-bind="stat.options"
               >
               <q-icon class="on-left" :name="stat.icon" />{{stats[name].data}} %
               </q-knob>
-             <vue-easy-pie-chart v-else v-bind="stat.options" :percent="stats[name].data"/>
+             <vue-easy-pie-chart v-else v-bind="stat.options" :percent="stats[name].data"/> -->
 
              <!-- <p>{{name}}</p> -->
            </div>
@@ -183,7 +192,7 @@ export default {
     },
     cpu: function(val){
       // console.log('cpu val', val)
-      // if(this.$refs['cpu']){
+      if(this.$refs['cpu']){
         if(
           this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval &&
           this.$options.visibles['cpu'] == true
@@ -199,7 +208,7 @@ export default {
           this.stats.cpu.lastupdate = Date.now()
         }
 
-      // }
+      }
 
 		},
   },
