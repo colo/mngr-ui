@@ -26,13 +26,16 @@
             :ref="name"
             v-observe-visibility="visibilityChanged"
             >
-              <stat.component.type
+              <!-- https://github.com/vuejs/babel-plugin-transform-vue-jsx/issues/86 -->
+              <component
                 :is="stat.component.type"
-                v-bind="stat.component.options"
-                :attr="stat.component.attr"
                 :class="stat.component.class"
-                readonly
+                v-model="stats[name].data"
+                v-bind="stat.component.options"
               />
+
+
+              <!-- v-bind="stat.component.options" -->
               <!-- v-model="stat.component['v-model']" -->
               <!-- v-bind="stat.component.options" -->
               <!-- <q-knob v-if="stat.component == 'q-knob'"
@@ -126,6 +129,7 @@ export default {
 
       this.$set(this.stats, name, {lastupdate: 0, 'data': 0 })
 
+
       // this.$set(this.charts, name, new Dygraph(
       //     document.getElementById(name),  // containing div
       //     this.stats[name].data,
@@ -141,32 +145,34 @@ export default {
   mounted () {
 
     // Object.each(this.$options.stats, function(stat, name){
-    //
-    //   let data = [[]]
-    //   if(stat.options.labels)
-    //     Array.each(stat.options.labels, function(label, index){
-    //       if(index == 0){
-    //         data[0].push(Date.now())
-    //       }
-    //       else{
-    //         data[0].push(0)
-    //       }
-    //
-    //
-    //     })
-    //
-    //   this.$set(this.stats, name, {lastupdate: 0, 'data': data })
-    //   // stat.option.dataProvider = this.stats[name].data
-    //   this.$set(this.charts, name, new Dygraph(
-    //       document.getElementById(name),  // containing div
-    //       this.stats[name].data,
-    //       stat.options
-    //     ))
-    //
-    //   if(stat.init)
-    //     stat.init(this.charts[name], this.stats[name])
-    //
-    //   this.expanded.push(name)
+    // //
+    // //   let data = [[]]
+    // //   if(stat.options.labels)
+    // //     Array.each(stat.options.labels, function(label, index){
+    // //       if(index == 0){
+    // //         data[0].push(Date.now())
+    // //       }
+    // //       else{
+    // //         data[0].push(0)
+    // //       }
+    // //
+    // //
+    // //     })
+    // //
+    // //   this.$set(this.stats, name, {lastupdate: 0, 'data': data })
+    // //   // stat.option.dataProvider = this.stats[name].data
+    // //   this.$set(this.charts, name, new Dygraph(
+    // //       document.getElementById(name),  // containing div
+    // //       this.stats[name].data,
+    // //       stat.options
+    // //     ))
+    // //
+    // //   if(stat.init)
+    // //     stat.init(this.charts[name], this.stats[name])
+    // //
+    // //   this.expanded.push(name)
+    //   // this.$set(this.$refs[name][0],'value', this.stats[name].data)
+    //   console.log('this.$refs', name, this.$refs[name])
     // }.bind(this))
 
   },

@@ -10,12 +10,15 @@ export default {
       //   // stats['mem'].data
       // },
       // class: "readonly",
+      'data': 'v-model',
       "options": {
-        value: 0,
+        // value: 10,
         min: 0,
         max: 100,
         color: "primary",
         size: "100px",
+        readonly: true,
+        // 'v-model': "stats[name].data"
         // 'track-color': "yellow-3",
         // "line-width": "5px"
       }
