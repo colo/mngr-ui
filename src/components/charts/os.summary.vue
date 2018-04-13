@@ -27,25 +27,28 @@
             v-observe-visibility="visibilityChanged"
             >
               <!-- https://github.com/vuejs/babel-plugin-transform-vue-jsx/issues/86 -->
-              <component
+              <!-- <component
                 :is="stat.component.type"
                 :class="stat.component.class"
                 v-model="stats[name].data"
                 v-bind="stat.component.options"
               />
+                <slot v-bind:content="stat.component.content">
+                  {{ content }}
+                </slot>
 
-
+              </component> -->
               <!-- v-bind="stat.component.options" -->
               <!-- v-model="stat.component['v-model']" -->
               <!-- v-bind="stat.component.options" -->
-              <!-- <q-knob v-if="stat.component == 'q-knob'"
+              <q-knob v-if="stat.component == 'q-knob'"
                v-model="stats[name].data"
                readonly
                v-bind="stat.options"
               >
               <q-icon class="on-left" :name="stat.icon" />{{stats[name].data}} %
               </q-knob>
-             <vue-easy-pie-chart v-else v-bind="stat.options" :percent="stats[name].data"/> -->
+             <vue-easy-pie-chart v-else v-bind="stat.options" :percent="stats[name].data"/>
 
              <!-- <p>{{name}}</p> -->
            </div>
@@ -61,12 +64,12 @@
 import VueEasyPieChart from 'vue-easy-pie-chart'
 import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
 
-import stats from './js/os.easypie'
+import stats from './js/os.summary'
 
 
 export default {
   // name: 'App',
-  name: 'oseasypie',
+  name: 'osresume',
 
   visibles: {},
   // uptime_chart: null,

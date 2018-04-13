@@ -1,7 +1,7 @@
 <template>
   <div class="col-sm-12 col-md-19">
     <q-list>
-      <oseasypie
+      <ossummary
         :mem="mem"
         :cpu="cpu"
       />
@@ -25,7 +25,7 @@
 import { mapState } from 'vuex'
 
 import osdygraphs from './charts/os.dygraphs'
-import oseasypie from './charts/os.easypie'
+import ossummary from './charts/os.summary'
 
 import hostStats from '../store/stats'
 
@@ -34,7 +34,7 @@ export default {
 
   components: {
     osdygraphs,
-    oseasypie
+    ossummary
   },
   // template: '<div><osdygraphs '+
   //           ':mem="mem" :cpu="cpu" '+
