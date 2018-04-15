@@ -1,13 +1,13 @@
 <template>
   <div class="col-sm-12 col-md-19">
     <q-list>
-      <ossummary
+      <os-summary
         :mem="mem"
         :cpu="cpu"
       />
       <!-- :timestamps="timestamps" -->
 
-      <osdygraphs
+      <os-dashboard
         :networkInterfaces="networkInterfaces"
         :uptime="uptime"
         :loadavg="loadavg"
@@ -24,8 +24,8 @@
 
 import { mapState } from 'vuex'
 
-import osdygraphs from './charts/os.dygraphs'
-import ossummary from './charts/os.summary'
+import osDashboard from './charts/os.dashboard'
+import osSummary from './charts/os.summary'
 
 import hostStats from '../store/stats'
 
@@ -33,8 +33,8 @@ export default {
   name: 'osstats',
 
   components: {
-    osdygraphs,
-    ossummary
+    osDashboard,
+    osSummary
   },
   // template: '<div><osdygraphs '+
   //           ':mem="mem" :cpu="cpu" '+
