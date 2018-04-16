@@ -1,9 +1,17 @@
 <template>
+  <div :id="id+'-container' "class="netdata-container-with-legend" :style="options.style">
+     <div
+       :id="id"
+       :class="options.class"
+     >
 
-   <div
-     :id="id"
-   ></div>
-
+    </div>
+    <div
+    class="netdata-chart-legend"
+    :id="id+'-netdata-chart-legend'"
+    >
+    </div>
+  </div>
 </template>
 
 <script>
@@ -54,10 +62,13 @@ export default {
       //console.log('creating chart...', this.id, this.stat.data)
       if(val.length > 1 && this.chart == null){
 
+        if(this.options.options.labelsDiv)
+          this.options.options.labelsDiv = this.id+'-'+this.options.options.labelsDiv
+          
         this.chart = new Dygraph(
           document.getElementById(this.id),  // containing div
           this.stat.data,
-          this.options
+          this.options.options
         )
 
         if(this.stat.init)
@@ -87,6 +98,9 @@ export default {
     // }
   },
   methods: {
+    // getDygraph (){
+    //   return document.getElementById(this.id)
+    // },
     updateOptions (options){
       let self = this
       // //console.log('updating chart...', this.id, self.stat.data)

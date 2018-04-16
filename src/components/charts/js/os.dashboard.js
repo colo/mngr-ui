@@ -2,10 +2,13 @@
 
 export default {
   "uptime": {
-    // "class": "chart-with-legend-right dygraph-with-legend-right",
-    "style": "width:100%; height:120px;",
+    "style": "width:100%; height:126px;",
+    "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
     "options": {
+      "hideOverlayOnMouseOut": false,
+      "labelsDiv": "netdata-chart-legend",
+      "legend": "always",
       fillGraph: true,
       // axes: {
       //   x: {
@@ -55,8 +58,12 @@ export default {
   "loadavg": {
     // "class": "chart-with-legend-right dygraph-with-legend-right",
     "style": "width:100%; height:126px;",
+    "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
     "options": {
+      "hideOverlayOnMouseOut": false,
+      "labelsDiv": "netdata-chart-legend",
+      "legend": "always",
       fillGraph: true,
       // drawPoints: true,
       showRoller: false,
