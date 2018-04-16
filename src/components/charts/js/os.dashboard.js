@@ -6,6 +6,10 @@ export default {
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
     "options": {
+      highlightCallback: function(event, x, points, row, seriesName){
+        console.log('highlightCallback', event, x, points, row, seriesName)
+      },
+      drawGrid: true,
       "hideOverlayOnMouseOut": false,
       "labelsDiv": "netdata-chart-legend",
       "legend": "always",
@@ -60,7 +64,24 @@ export default {
     "style": "width:100%; height:126px;",
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
+    // init: function (vue){
+    //   // console.log('init', vue)
+    //   this.$vm = vue
+    //   // EventBus.$emit('cpu', doc) //update cpu widget
+    // },
     "options": {
+      highlightCallback: function(event, x, points, row, seriesName){
+        // console.log('highlightCallback', event, x, points, row, seriesName)
+        // console.log('highlightCallback', window.EventBus)
+        window.EventBus.$emit('highlightCallback', [event, x, points, row, seriesName])
+      },
+      unhighlightCallback: function(event){
+        // console.log('highlightCallback', event, x, points, row, seriesName)
+        // console.log('highlightCallback', window.EventBus)
+        window.EventBus.$emit('unhighlightCallback', event)
+      },
+      drawGrid: true,
+      labelsSeparateLines: true,
       "hideOverlayOnMouseOut": false,
       "labelsDiv": "netdata-chart-legend",
       "legend": "always",

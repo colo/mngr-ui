@@ -58,7 +58,7 @@
            <dygraph-vue
             :ref="iface+'-'+messure"
             :id="iface+'-'+messure"
-            :options="$options.net_stats"
+            :options="JSON.parse(JSON.stringify($options.net_stats))"
             :stat="networkInterfaces_stats[iface][messure]"
             v-observe-visibility="visibilityChanged"
             >
@@ -104,6 +104,10 @@ export default {
     // VueCharts
   },
   props: {
+    EventBus: {
+      type: [Object],
+       default: () => ({})
+    },
     timestamps: {
       type: [Array],
       default: () => ([])
@@ -151,6 +155,8 @@ export default {
     this.$q.loading.hide()
   },
   created () {
+    
+
     Object.each(this.$options.stats, function(stat, name){
 
       let data = [[]]

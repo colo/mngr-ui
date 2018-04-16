@@ -77,6 +77,10 @@ export default {
     VueEasyPieChart
   },
   props: {
+    EventBus: {
+      type: [Object],
+       default: () => ({})
+    },
     timestamps: {
       type: [Array],
       default: () => ([])

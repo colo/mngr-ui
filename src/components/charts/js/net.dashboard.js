@@ -3,6 +3,8 @@ export default {
   "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
   "interval": 0,
   "options": {
+    drawGrid: true,
+    labelsSeparateLines: true,
     "hideOverlayOnMouseOut": false,
     "labelsDiv": "netdata-chart-legend",
     "legend": "always",
@@ -12,31 +14,31 @@ export default {
     // valueRange: [0.0, 1.2],
     labels: ['Date', 'OUT', 'IN'],
     series: {
-     'OUT': {
-       plotter: smoothPlotter,
-       // color: 'red',
-       strokeWidth: 2
-     },
-     'IN': {
-       plotter: smoothPlotter,
-       // color: 'red',
-       strokeWidth: 2
-     }
-
-   },
-    axis : {
-      x : {
-        // valueFormatter: Dygraph.dateString_,
-        valueFormatter: function(x){
-          console.log('valueFormatter',x)
-          return x
-        },
-        valueParser: function(x) {
-          console.log('valueParser',x)
-          return x
-        },
-        // ticker: Dygraph.dateTicker
+      'OUT': {
+         plotter: smoothPlotter,
+         // color: 'red',
+         strokeWidth: 2
+      },
+      'IN': {
+         plotter: smoothPlotter,
+         // color: 'red',
+         strokeWidth: 2
       }
-    }
+
+    },
+    // axis : {
+    //   x : {
+    //     // valueFormatter: Dygraph.dateString_,
+    //     valueFormatter: function(x){
+    //       console.log('valueFormatter',x)
+    //       return x
+    //     },
+    //     valueParser: function(x) {
+    //       console.log('valueParser',x)
+    //       return x
+    //     },
+    //     // ticker: Dygraph.dateTicker
+    //   }
+    // }
   }
 }

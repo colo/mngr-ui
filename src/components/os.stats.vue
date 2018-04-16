@@ -4,6 +4,7 @@
       <os-summary
         :mem="mem"
         :cpu="cpu"
+        :EventBus="EventBus"
       />
       <!-- :timestamps="timestamps" -->
 
@@ -11,6 +12,7 @@
         :networkInterfaces="networkInterfaces"
         :uptime="uptime"
         :loadavg="loadavg"
+        :EventBus="EventBus"
       />
       <!-- :timestamps="timestamps" -->
 
@@ -239,6 +241,12 @@ export default {
     }
   },
   created: function(){
+    if(!window['EventBus'])
+      window['EventBus'] = this.EventBus
+      
+    // Object.assign(window, this.EventBus)
+    // console.log('window', window)
+
     let self = this;
 
     // this.EventBus.$on('timestamp', doc => {
