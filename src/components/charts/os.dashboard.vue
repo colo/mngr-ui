@@ -139,6 +139,7 @@ export default {
 
   data () {
     return {
+      highlighted: false,
       expanded: [],
       // charts : {},
       stats: {},
@@ -148,14 +149,23 @@ export default {
     }
   },
   updated () {
-    this.$nextTick(function () {
-      this.sync_charts()
-    })
+    // this.$nextTick(function () {
+    //   this.sync_charts()
+    // })
 
     this.$q.loading.hide()
   },
   created () {
-
+    window.EventBus.$on('highlightCallback', params => {
+      this.highlighted = true
+      //console.log('event OS.DASHBOARD highlightCallback', params)
+      this.sync_charts()
+		})
+    window.EventBus.$on('unhighlightCallback', event => {
+      this.highlighted = false
+      //console.log('event OS.DASHBOARD unhighlightCallback', event)
+      this.unsync_charts()
+		})
 
     Object.each(this.$options.stats, function(stat, name){
 
@@ -191,8 +201,8 @@ export default {
   watch: {
 
     uptime: function(val){
-      // //console.log('gonna update')
-      // //console.log(this.$refs['uptime'][0])
+      // ////console.log('gonna update')
+      // ////console.log(this.$refs['uptime'][0])
 
       if(this.$refs['uptime'] && val.length > 0){
 
@@ -205,8 +215,9 @@ export default {
 
         if(
           this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
-          // this.$options.visibles['uptime'] == true &&
-          this.$refs['uptime'][0].chart != null
+          this.$refs['uptime'][0].chart != null &&
+          // this.$options.visibles['uptime'] != false &&
+          this.highlighted == false
         ){
 
 
@@ -221,7 +232,7 @@ export default {
 
     },
     loadavg: function(val){
-      ////console.log('loadavg', val)
+      //////console.log('loadavg', val)
 
       if(this.$refs['loadavg'] && val.length > 0){
 
@@ -238,14 +249,15 @@ export default {
           data.push(avg)
         })
 
-        // ////console.log(data)
+        // //////console.log(data)
         this.$set(this.stats.loadavg, 'data', data)
 
 
         if(
           this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval &&
-          // this.$options.visibles['loadavg'] == true &&
-          this.$refs['loadavg'][0].chart != null
+          this.$refs['loadavg'][0].chart != null &&
+          // this.$options.visibles['loadavg'] != false &&
+          this.highlighted == false
         ){
           // this.sync_charts()
           // this.charts.loadavg.updateOptions( { 'file': this.stats.loadavg.data, 'dateWindow': this.charts.loadavg.xAxisExtremes() } )
@@ -257,7 +269,7 @@ export default {
 
     },
     networkInterfaces: function(networkInterfaces){
-      // //console.log('networkInterfaces', networkInterfaces)
+      // ////console.log('networkInterfaces', networkInterfaces)
 
       let self = this
       if(networkInterfaces.getLast() !== null){
@@ -340,7 +352,7 @@ export default {
 
         })
 
-        //console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+        ////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
 
         Object.each(this.networkInterfaces_stats, function(stat, iface){
@@ -352,7 +364,7 @@ export default {
             if(this.$refs[iface+'-'+messure]){
 
               // if(!this.networkInterfaces_charts[iface+'-'+messure]){
-              //   ////console.log('---validatin---', iface+'-'+messure)
+              //   //////console.log('---validatin---', iface+'-'+messure)
               //
               //
               //   let option = JSON.parse(JSON.stringify(this.$options.net_stats.options))
@@ -378,8 +390,9 @@ export default {
 
               if(
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
-                // this.$options.visibles[iface+'-'+messure] == true &&
-                this.$refs[iface+'-'+messure][0].chart != null
+                this.$refs[iface+'-'+messure][0].chart != null &&
+                // this.$options.visibles[iface+'-'+messure] != false &&
+                this.highlighted == false
               ){
 
                 // this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
@@ -429,63 +442,78 @@ export default {
       return target;
     },
     visibilityChanged (isVisible, entry) {
-      this.$options.visibles[entry.target.id] = isVisible
+      this.$options.visibles[entry.target.id.replace('-container','')] = isVisible
+
+      //console.log('visible', isVisible, entry.target.id.replace('-container',''))
 
       // if(this.$refs[entry.target.id.replace('-container','')]){
       //   this.$refs[entry.target.id.replace('-container','')][0].chart.setSelection(
       //     this.$refs[entry.target.id.replace('-container','')][0].chart.numRows() - 1
       //   )
       // }
-      this.sync_charts()
-      console.log('visible', isVisible, entry.target.id.replace('-container',''))
+
+      // this.sync_charts()
+
     },
     sync_charts(){
-      // if(this.$options.sync == null){
+      if(this.$options.sync == null){
         let gs = []
-        // //console.log(this.charts)
-        Object.each(this.$refs, function(ref, name){
-          console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+        // let sync = []
 
-          if(ref[0].chart instanceof Dygraph && this.$options.visibles[name+'-container'] == true){
+        // ////console.log(this.charts)
+        Object.each(this.$refs, function(ref, name){
+
+          if(ref[0].chart instanceof Dygraph && this.$options.visibles[name] != false){
+            //console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+
           // if(ref[0].chart instanceof Dygraph){
 
             gs.push(ref[0].chart)
+            // sync.push(ref[0])
           }
         }.bind(this))
 
         // Object.each(this.charts, function(dygraph, name){
         //   if(this.$options.visibles[name] == true){
-        //     // //console.log('charts', dygraph)
+        //     // ////console.log('charts', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
         //
         // Object.each(this.networkInterfaces_charts, function(dygraph, name){
         //   if(this.$options.visibles[name] == true){
-        //     // //console.log('networkInterfaces', dygraph)
+        //     // ////console.log('networkInterfaces', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
 
-        // //console.log(this.networkInterfaces_charts)
-      //
-      if(this.$options.sync){
-        // //console.log('detaching', this.$options.sync)
-        this.$options.sync.detach()
-      }
+        // ////console.log(this.networkInterfaces_charts)
+        //
 
-      // console.log(gs)
 
-      if(gs.length > 1){
-        this.$options.sync = synchronize(gs, {
-          zoom: true,
-          // selection: true,
-          range: false
-        })
+        // //console.log(gs)
+        this.unsync_charts()
+
+        if(gs.length > 1){
+          this.$options.sync = synchronize(gs, {
+            zoom: true,
+            // selection: true,
+            range: false
+          })
+
+          // Object.each(sync, function (ref){
+          //   ref.updateOptions({ 'dateWindow': ref.chart.xAxisExtremes() })
+          // }.bind(this))
+        }
       }
-      // }
     },
-
+    unsync_charts(){
+      if(this.$options.sync){
+        // ////console.log('detaching', this.$options.sync)
+        this.$options.sync.detach()
+        this.$options.sync = null
+      }
+    },
     // format_timestamps(timestamps){
     //
     //   let formated = []
@@ -515,10 +543,10 @@ export default {
     //
     //     formated[index] = date;
     //
-    //     // //////////console.log('---timestamps---',formated)
+    //     // ////////////console.log('---timestamps---',formated)
     //   })
     //
-    //   // //////////console.log('---timestamps---',formated)
+    //   // ////////////console.log('---timestamps---',formated)
     //   return formated;
     //
     // }
@@ -552,10 +580,10 @@ export default {
 
         data[index][0] = date;
 
-        // //////////console.log('---timestamps---',formated)
+        // ////////////console.log('---timestamps---',formated)
       })
 
-      // //////////console.log('---timestamps---',formated)
+      // ////////////console.log('---timestamps---',formated)
       return data;
 
     }
@@ -565,42 +593,6 @@ export default {
 </script>
 
 <style>
-html,
-body {
-    /*font-family: Calibri,"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;*/
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-style: normal;
-    font-variant: normal;
-    color: #878b90;
-}
-
-/* fixes for default slate theme */
-code {
-    color: #bbb; /*#c7254e;*/
-    background-color: #555; /* #f9f2f4; */
-}
-
-.dashboard-sidebar .nav > .active > a,
-.dashboard-sidebar .nav > .active:hover > a,
-.dashboard-sidebar .nav > .active:focus > a {
-    color: #765d9c;
-    border-left: 2px solid #765d9c;
-}
-
-.morelink {
-    color: #765d9c;
-    text-decoration: none;
-}
-
-.morelink:hover {
-    color: #563d7c;
-    text-decoration: none;
-}
-
-.morelink:focus {
-    color: #765d9c;
-    text-decoration: none;
-}
 
 .netdata-chart-alignment {
     margin-left: 55px;
@@ -1156,169 +1148,5 @@ code {
 
 .popover-content {
     font-size: 11px;
-}
-
-/* ----------------------------------------------------------------------------
-   perfect-scrollbar settings
- */
-
-.ps-container {
-    -ms-touch-action: auto;
-    touch-action: auto;
-    overflow: hidden !important;
-    -ms-overflow-style: none;
-}
-
-@supports (-ms-overflow-style: none) {
-    .ps-container {
-        overflow: auto !important;
-    }
-}
-
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-    .ps-container {
-        overflow: auto !important;
-    }
-}
-
-.ps-container.ps-active-x > .ps-scrollbar-x-rail,
-.ps-container.ps-active-y > .ps-scrollbar-y-rail {
-    display: block;
-    background-color: transparent;
-}
-
-.ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
-    background-color: transparent; /* background color when dragged away */
-    opacity: 0.9;
-}
-
-.ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
-    background-color: #aaa; /* scrollbar color when dragged away */
-    height: 5px;
-}
-
-.ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-    background-color: transparent; /* background color when dragged away */
-    opacity: 0.9;
-}
-
-.ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
-    background-color: #aaa; /* scrollbar color when dragged away */
-    width: 5px;
-}
-
-.ps-container > .ps-scrollbar-x-rail {
-    display: none;
-    position: absolute;
-    /* please don't change 'position' */
-    opacity: 0.2; /* the opacity when not on hover of the content */
-    -webkit-transition: background-color .2s linear, opacity .2s linear;
-    -o-transition: background-color .2s linear, opacity .2s linear;
-    -moz-transition: background-color .2s linear, opacity .2s linear;
-    transition: background-color .2s linear, opacity .2s linear;
-    bottom: 0px;
-    /* there must be 'bottom' for ps-scrollbar-x-rail */
-    height: 15px;
-}
-
-.ps-container > .ps-scrollbar-x-rail > .ps-scrollbar-x {
-    position: absolute;
-    /* please don't change 'position' */
-    background-color: #666; /* #aaa; the color on content hover */
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
-    -webkit-transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, -webkit-border-radius .2s ease-in-out;
-    transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, -webkit-border-radius .2s ease-in-out;
-    -o-transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out;
-    -moz-transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out, -moz-border-radius .2s ease-in-out;
-    transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out;
-    transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out, -webkit-border-radius .2s ease-in-out, -moz-border-radius .2s ease-in-out;
-    bottom: 2px;
-    /* there must be 'bottom' for ps-scrollbar-x */
-    height: 5px; /* the width of the scrollbar */
-}
-
-.ps-container > .ps-scrollbar-x-rail:hover > .ps-scrollbar-x, .ps-container > .ps-scrollbar-x-rail:active > .ps-scrollbar-x {
-    height: 5px;
-}
-
-.ps-container > .ps-scrollbar-y-rail {
-    display: none;
-    position: absolute;
-    /* please don't change 'position' */
-    opacity: 0.2; /* the opacity when not on hover of the content */
-    -webkit-transition: background-color .2s linear, opacity .2s linear;
-    -o-transition: background-color .2s linear, opacity .2s linear;
-    -moz-transition: background-color .2s linear, opacity .2s linear;
-    transition: background-color .2s linear, opacity .2s linear;
-    right: 0;
-    /* there must be 'right' for ps-scrollbar-y-rail */
-    width: 15px;
-}
-
-.ps-container > .ps-scrollbar-y-rail > .ps-scrollbar-y {
-    position: absolute;
-    /* please don't change 'position' */
-    background-color: #666; /* #aaa; the color on content hover */
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
-    -webkit-transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, -webkit-border-radius .2s ease-in-out;
-    transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, -webkit-border-radius .2s ease-in-out;
-    -o-transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out;
-    -moz-transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out, -moz-border-radius .2s ease-in-out;
-    transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out;
-    transition: background-color .2s linear, height .2s linear, width .2s ease-in-out, border-radius .2s ease-in-out, -webkit-border-radius .2s ease-in-out, -moz-border-radius .2s ease-in-out;
-    right: 2px;
-    /* there must be 'right' for ps-scrollbar-y */
-    width: 5px; /* the width of the scrollbar */
-}
-
-.ps-container > .ps-scrollbar-y-rail:hover > .ps-scrollbar-y, .ps-container > .ps-scrollbar-y-rail:active > .ps-scrollbar-y {
-    width: 5px;
-}
-
-.ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
-    background-color: transparent; /* background color when dragged */
-    opacity: 0.9;
-}
-
-.ps-container:hover.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail > .ps-scrollbar-x {
-    background-color: #bbb; /* scrollbar color when dragged */
-    height: 5px;
-}
-
-.ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-    background-color: transparent; /* background color when dragged */
-    opacity: 0.9;
-}
-
-.ps-container:hover.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail > .ps-scrollbar-y {
-    background-color: #bbb; /* scrollbar color when dragged */
-    width: 5px;
-}
-
-.ps-container:hover > .ps-scrollbar-x-rail,
-.ps-container:hover > .ps-scrollbar-y-rail {
-    opacity: 0.6;
-}
-
-.ps-container:hover > .ps-scrollbar-x-rail:hover {
-    background-color: transparent; /* the background color on hover of the scrollbar */
-    opacity: 0.9;
-}
-
-.ps-container:hover > .ps-scrollbar-x-rail:hover > .ps-scrollbar-x {
-    background-color: #999; /* scrollbar color on hover */
-}
-
-.ps-container:hover > .ps-scrollbar-y-rail:hover {
-    background-color: transparent; /* the background color on hover of the scrollbar */
-    opacity: 0.9;
-}
-
-.ps-container:hover > .ps-scrollbar-y-rail:hover > .ps-scrollbar-y {
-    background-color: #999; /* scrollbar color on hover */
 }
 </style>

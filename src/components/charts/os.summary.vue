@@ -179,14 +179,14 @@ export default {
     // //
     // //   this.expanded.push(name)
     //   // this.$set(this.$refs[name][0],'value', this.stats[name].data)
-    //   console.log('this.$refs', name, this.$refs[name])
+    //   //console.log('this.$refs', name, this.$refs[name])
     // }.bind(this))
 
   },
 
   watch: {
     mem: function(val){
-      // console.log('mem val', val)
+      // //console.log('mem val', val)
       // if(this.$refs['mem']){
         if(
           this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval &&
@@ -204,13 +204,13 @@ export default {
       // }
     },
     cpu: function(val){
-      // console.log('cpu val', val)
+      // //console.log('cpu val', val)
       if(this.$refs['cpu']){
         if(
           this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval &&
           this.$options.visibles['cpu'] == true
         ){
-          // console.log('update cpu')
+          // //console.log('update cpu')
           let last = val.getLast()
 
           if(last == null)
@@ -231,7 +231,7 @@ export default {
   methods: {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id] = isVisible
-      console.log('visible', isVisible, entry.target)
+      //console.log('visible', isVisible, entry.target)
     },
   },
 }

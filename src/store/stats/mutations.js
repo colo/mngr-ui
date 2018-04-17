@@ -22,6 +22,10 @@
    state.cpu.push(cpu)
  }
 
+ export const cpu_simple = (state, cpu_simple) => {
+   state.cpu_simple.push(cpu_simple)
+ }
+
  export const splice = (state, payload) => {
    let length = state[payload.stat].length
    state[payload.stat].splice(

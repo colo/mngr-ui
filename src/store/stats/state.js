@@ -5,6 +5,7 @@ export default function() {
     uptime: [],
     networkInterfaces: [],
     mem: [],
-    cpu: []
+    cpu: [],
+    cpu_simple: []
   }
 }

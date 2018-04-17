@@ -29,8 +29,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						host:'192.168.0.40',
-            // host:'192.168.0.180',
+						// host:'192.168.0.40',
+            host:'192.168.0.180',
 						// host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
@@ -49,7 +49,7 @@ pipelines.push(new Pipeline({
 	filters: [
 		function(doc, opts, next){//periodical docs
 
-			// console.log('filter', doc)
+			// //console.log('filter', doc)
 
       if(opts.type == 'periodical'){
         if(doc.data.hosts){
@@ -63,7 +63,12 @@ pipelines.push(new Pipeline({
             freemem: doc.data.freemem
           }
           // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
-          let cpu = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, total: 0, idle: 0 }
+          let cpu = {
+            timestamp: doc.metadata.timestamp,
+            host: doc.metadata.host,
+            // total: 0, idle: 0,
+            cpu: doc.data.cpus
+          }
           // let timestamp = { host: doc.metadata.host, timestamp: doc.metadata.timestamp }
           let uptime = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, uptime: doc.data.uptime }
     			let loadavg = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, loadavg: doc.data.loadavg }
@@ -75,17 +80,17 @@ pipelines.push(new Pipeline({
           }
           // let core = doc.data.cpus[0]//test
 
-          Array.each(doc.data.cpus, function(core){
-            Object.each(core.times, function(value, key){
-
-              if(key == 'idle')
-                cpu.idle += value
-
-              cpu.total += value
-
-
-            })
-          })
+          // Array.each(doc.data.cpus, function(core){
+          //   Object.each(core.times, function(value, key){
+          //
+          //     if(key == 'idle')
+          //       cpu.idle += value
+          //
+          //     cpu.total += value
+          //
+          //
+          //   })
+          // })
 
 
   				next(mem)
@@ -109,27 +114,27 @@ pipelines.push(new Pipeline({
 			doc = JSON.decode(doc)
 
       if(doc.hosts){
-				// console.log(doc)
+				// //console.log(doc)
 				EventBus.$emit('hosts', doc) //update mem widget
 			}
       else if(doc.totalmem){
-				// console.log(doc)
+				// //console.log(doc)
 				EventBus.$emit('mem', doc) //update mem widget
 			}
-			else if(doc.idle){
-        // console.log(doc)
+			else if(doc.cpu){
+        // //console.log(doc)
 				EventBus.$emit('cpu', doc) //update cpu widget
 			}
 			// else if(doc.timestamp){
-      //   // console.log(doc)
+      //   // //console.log(doc)
 			// 	EventBus.$emit('timestamp', doc) //update timestamp
 			// }
 			else if(doc.uptime){
-        // console.log(doc)
+        // //console.log(doc)
 				EventBus.$emit('uptime', doc) //update uptime widget
 			}
 			else if(doc.loadavg){
-        // console.log(doc)
+        // //console.log(doc)
 				EventBus.$emit('loadavg', doc) //update loadavg widget
 			}
 			else if(doc.networkInterfaces){
@@ -152,7 +157,7 @@ export default {
   },
   created: function(){
     this.EventBus.$on('hosts', doc => {
-			// console.log('recived doc via Event hosts', doc)
+			// //console.log('recived doc via Event hosts', doc)
       this.$store.commit('hosts/set', doc.hosts)
       Array.each(doc.hosts, function(host){
         if(!this.$store.state.hosts[host])

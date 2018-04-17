@@ -60,22 +60,22 @@ export default {
   created () {
     window.EventBus.$on('highlightCallback', params => {
       this.highlighted = true
-      console.log('event highlightCallback', params)
+      //console.log('event highlightCallback', params)
 		})
     window.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      console.log('event unhighlightCallback', event)
+      //console.log('event unhighlightCallback', event)
 		})
 
     // keypath
     let unwatch = this.$watch('stat.data', function (val, oldVal) {
-      //console.log('creating chart...', this.id, this.stat.data)
+      ////console.log('creating chart...', this.id, this.stat.data)
       if(val.length > 1 && this.chart == null){
 
         if(this.options.options.labelsDiv)
           this.options.options.labelsDiv = this.id+'-'+this.options.options.labelsDiv
 
-        console.log('labelsDiv', this.id, this.options.options.labelsDiv, document.getElementById(this.options.options.labelsDiv))
+        //console.log('labelsDiv', this.id, this.options.options.labelsDiv, document.getElementById(this.options.options.labelsDiv))
 
         this.chart = new Dygraph(
           document.getElementById(this.id),  // containing div
@@ -95,7 +95,7 @@ export default {
   },
   watch: {
     // 'stat.data': function(val){
-    //   // //console.log('creating chart...', this.id, this.stat.data)
+    //   // ////console.log('creating chart...', this.id, this.stat.data)
     //   if(this.stat.data.length > 1 && this.chart == null){
     //
     //     this.chart = new Dygraph(
@@ -115,7 +115,8 @@ export default {
     // },
     updateOptions (options){
       let self = this
-      // //console.log('updating chart...', this.id, self.stat.data)
+      //console.log('updating chart...', this.id, self.stat.data)
+
       if(this.highlighted == false){
         this.chart.updateOptions(
           Object.merge(
@@ -127,7 +128,7 @@ export default {
         );
 
 
-          this.chart.setSelection(this.chart.numRows() - 1)
+        this.chart.setSelection(this.chart.numRows() - 1, {}, false)
 
       }
 

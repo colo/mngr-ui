@@ -3,7 +3,7 @@
     <q-list>
       <os-summary
         :mem="mem"
-        :cpu="cpu"
+        :cpu="cpu_simple"
         :EventBus="EventBus"
       />
       <!-- :timestamps="timestamps" -->
@@ -149,6 +149,15 @@ export default {
 
         return cpu
       },
+      cpu_simple: function(state){
+        let cpu_simple = []
+        if(state.hosts.current){
+          let currentHost = state.hosts.current
+          cpu_simple = state.hosts[currentHost].stats.cpu_simple
+        }
+
+        return cpu_simple
+      },
       networkInterfaces: function(state){
         let networkInterfaces = []
         if(state.hosts.current){
@@ -243,7 +252,7 @@ export default {
   created: function(){
     if(!window['EventBus'])
       window['EventBus'] = this.EventBus
-      
+
     // Object.assign(window, this.EventBus)
     // console.log('window', window)
 
@@ -389,14 +398,29 @@ export default {
     this.EventBus.$on('cpu', doc => {
       // console.log('recived doc via Event cpu', doc)
 
-      let cpu = {
-        total: doc.total,
-        idle: doc.idle,
+      let doc_simple = { idle: 0, total: 0 }
+      Array.each(doc.cpu, function(core){
+        Object.each(core.times, function(value, key){
+
+          if(key == 'idle')
+            doc_simple.idle += value
+
+          doc_simple.total += value
+
+
+        })
+      })
+
+      let cpu_simple = {
+        total: doc_simple.total,
+        idle: doc_simple.idle,
         timestamp: doc.timestamp
       }
 
+
+
       // let last = self.cpu.getLast()
-      let last = self.$store.state.hosts[doc.host].stats.cpu.getLast()
+      let last = self.$store.state.hosts[doc.host].stats.cpu_simple.getLast()
 
       // console.log('cpu last', last)
 
@@ -407,15 +431,15 @@ export default {
           timestamp: 0
         }
 
-      let diff_time = cpu.timestamp - last.timestamp
-      let diff_total = cpu.total - last.total;
-      let diff_idle = cpu.idle - last.idle;
+      let diff_time = cpu_simple.timestamp - last.timestamp
+      let diff_total = cpu_simple.total - last.total;
+      let diff_idle = cpu_simple.idle - last.idle;
 
       //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
       let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / 10
       // self.cpu.percentage = (percentage.toFixed(2) > 100) ? 100 : percentage.toFixed(2);
 
-      cpu.percentage = (percentage > 100) ? 100 : percentage
+      cpu_simple.percentage = (percentage > 100) ? 100 : percentage
 
       // self.cpu.push(cpu)
       //
@@ -426,13 +450,20 @@ export default {
       //   length - this.$store.state.hosts[doc.host].stats.timestamps.length
       // )
 
-      this.$store.commit('hosts/'+doc.host+'/stats/cpu', {
-        total: doc.total,
-        idle: doc.idle,
-        percentage: cpu.percentage,
+      this.$store.commit('hosts/'+doc.host+'/stats/cpu_simple', {
+        total: doc_simple.total,
+        idle: doc_simple.idle,
+        percentage: cpu_simple.percentage,
         timestamp: doc.timestamp
       })
 
+      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu_simple', length: this.seconds })
+
+      this.$store.commit('hosts/'+doc.host+'/stats/cpu', {
+        value: doc.cpu,
+        timestamp: doc.timestamp
+      })
+      
       this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu', length: this.seconds })
 
 		})
