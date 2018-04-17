@@ -58,7 +58,7 @@
            <dygraph-vue
             :ref="iface+'-'+messure"
             :id="iface+'-'+messure"
-            :options="JSON.parse(JSON.stringify($options.net_stats))"
+            :options="networkInterfaces_stats[iface][messure].options"
             :stat="networkInterfaces_stats[iface][messure]"
             v-observe-visibility="visibilityChanged"
             >
@@ -155,7 +155,7 @@ export default {
     this.$q.loading.hide()
   },
   created () {
-    
+
 
     Object.each(this.$options.stats, function(stat, name){
 
@@ -277,8 +277,26 @@ export default {
           * to: messure->property (ex: bytes {transmited:.., recived: ... })
           **/
           Array.each(messures, function(messure){// "bytes" | "packets"
-            if(!self.networkInterfaces_stats[iface][messure])
-              self.$set(self.networkInterfaces_stats[iface], messure, { lastupdate: 0, data: [] })
+            if(!self.networkInterfaces_stats[iface][messure]){
+              /**
+              * ugly hack:
+              * Due to JavaScript deep cloning
+              */
+              //deep clone/stringify object to loose any refere (loosing any "function" declarations)
+              let options = JSON.parse(JSON.stringify(self.$options.net_stats))
+
+              /**
+              * deep clone object with completeAssign (keep references), and merge the two,
+              * recovering "function" declarations
+              */
+              options = Object.merge(options, self.completeAssign({}, self.$options.net_stats ))
+
+              self.$set(self.networkInterfaces_stats[iface], messure, {
+                options: options,
+                lastupdate: 0,
+                data: []
+              })
+            }
               // self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
 
               // let data = []
@@ -390,10 +408,36 @@ export default {
   //   }
   // },
   methods: {
+    /**
+    * @source: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/assign
+    */
+    completeAssign(target, ...sources) {
+      sources.forEach(source => {
+        let descriptors = Object.keys(source).reduce((descriptors, key) => {
+          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+          return descriptors;
+        }, {});
+        // por defecto, Object.assign copia las propiedades de tipo Symbol que sean enumerables
+        Object.getOwnPropertySymbols(source).forEach(sym => {
+          let descriptor = Object.getOwnPropertyDescriptor(source, sym);
+          if (descriptor.enumerable) {
+            descriptors[sym] = descriptor;
+          }
+        });
+        Object.defineProperties(target, descriptors);
+      });
+      return target;
+    },
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id] = isVisible
+
+      // if(this.$refs[entry.target.id.replace('-container','')]){
+      //   this.$refs[entry.target.id.replace('-container','')][0].chart.setSelection(
+      //     this.$refs[entry.target.id.replace('-container','')][0].chart.numRows() - 1
+      //   )
+      // }
       this.sync_charts()
-      console.log('visible', isVisible, entry.target)
+      console.log('visible', isVisible, entry.target.id.replace('-container',''))
     },
     sync_charts(){
       // if(this.$options.sync == null){
@@ -403,6 +447,7 @@ export default {
           console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           if(ref[0].chart instanceof Dygraph && this.$options.visibles[name+'-container'] == true){
+          // if(ref[0].chart instanceof Dygraph){
 
             gs.push(ref[0].chart)
           }
@@ -429,7 +474,7 @@ export default {
         this.$options.sync.detach()
       }
 
-      console.log(gs)
+      // console.log(gs)
 
       if(gs.length > 1){
         this.$options.sync = synchronize(gs, {

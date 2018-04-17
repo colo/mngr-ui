@@ -116,7 +116,7 @@ export default {
     updateOptions (options){
       let self = this
       // //console.log('updating chart...', this.id, self.stat.data)
-      if(this.highlighted == false)
+      if(this.highlighted == false){
         this.chart.updateOptions(
           Object.merge(
             {
@@ -125,6 +125,14 @@ export default {
             options
           )
         );
+
+
+          this.chart.setSelection(this.chart.numRows() - 1)
+
+      }
+
+
+
     }
   }
 }

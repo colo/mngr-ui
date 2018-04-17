@@ -3,6 +3,16 @@ export default {
   "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
   "interval": 0,
   "options": {
+    highlightCallback: function(event, x, points, row, seriesName){
+      console.log('highlightCallback', event, x, points, row, seriesName)
+      // console.log('highlightCallback', window.EventBus)
+      window.EventBus.$emit('highlightCallback', [event, x, points, row, seriesName])
+    },
+    unhighlightCallback: function(event){
+      // console.log('highlightCallback', event, x, points, row, seriesName)
+      // console.log('highlightCallback', window.EventBus)
+      window.EventBus.$emit('unhighlightCallback', event)
+    },
     drawGrid: true,
     labelsSeparateLines: true,
     "hideOverlayOnMouseOut": false,

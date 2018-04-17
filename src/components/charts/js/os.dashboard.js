@@ -6,8 +6,34 @@ export default {
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
     "options": {
+      // legendFormatter: function(data) {
+      //   console.log('legendFormatter', data)
+      //   if (data.x == null) {
+      //     // This happens when there's no selection and {legend: 'always'} is set.
+      //     return '<br>' + data.series.map(function(series) { return series.dashHTML + ' ' + series.labelHTML }).join('<br>');
+      //   }
+      //
+      //   // return data.xHTML + data.series.map(v => v.labelHTML + ': ' + v.yHTML).join(' ');
+      //   var html = this.getLabels()[0] + ': ' + data.xHTML;
+      //   data.series.forEach(function(series) {
+      //     if (!series.isVisible) return;
+      //     var labeledData = series.labelHTML + ': ' + series.yHTML;
+      //     if (series.isHighlighted) {
+      //       labeledData = '<b>' + labeledData + '</b>';
+      //     }
+      //     html += '<br>' + series.dashHTML + ' ' + labeledData;
+      //   });
+      //   return html;
+      // },
       highlightCallback: function(event, x, points, row, seriesName){
         console.log('highlightCallback', event, x, points, row, seriesName)
+        // console.log('highlightCallback', window.EventBus)
+        window.EventBus.$emit('highlightCallback', [event, x, points, row, seriesName])
+      },
+      unhighlightCallback: function(event){
+        // console.log('highlightCallback', event, x, points, row, seriesName)
+        // console.log('highlightCallback', window.EventBus)
+        window.EventBus.$emit('unhighlightCallback', event)
       },
       drawGrid: true,
       "hideOverlayOnMouseOut": false,
