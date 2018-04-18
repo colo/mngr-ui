@@ -20,14 +20,17 @@ export default new Class({
 				{
 					sort_by_path: function(req, next, app){
             // //console.log('req.opt.range', req.opt.range)
+            // console.log('sort_by_path', next)
             if(app.hosts.length > 0){
               Array.each(app.hosts, function(host){
+                // console.log('sort_by_path', host)
 
                 if(!app.hosts_range_started.contains(host)){
                   // app.hosts_range_started.push(host)
                   //console.log('req.opt.range', req.opt.range, host)
 
-                  next(app.view({
+                  // next(
+                  app.view({
       							uri: 'dashboard',
                     args: [
                       'sort',
@@ -47,7 +50,8 @@ export default new Class({
         								include_docs: true
         							}
                     ]
-      						}))
+      						})
+                  // )
 
                 }
 
@@ -64,7 +68,10 @@ export default new Class({
 			periodical: [
         {
 					search_hosts: function(req, next, app){
-						next(app.view({
+            console.log('search_hosts', next)
+
+						// next(
+            app.view({
 							uri: 'dashboard',
               args: [
                 'search',
@@ -78,15 +85,20 @@ export default new Class({
                   // include_docs: true
   							}
               ]
-						}))
+						})
+            // )
 					}
 				},
 				{
 					sort_by_path: function(req, next, app){
-            // //console.log('sort_by_path', app.hosts)
+            // console.log('sort_by_path', app.hosts)
+            // console.log('sort_by_path', next)
+
             if(app.hosts.length > 0){
               Array.each(app.hosts, function(host){
-                next(app.view({
+                // next(
+                // console.log('sort_by_path', host)
+                app.view({
     							uri: 'dashboard',
                   args: [
                     'sort',
@@ -106,7 +118,8 @@ export default new Class({
       								include_docs: true
       							}
                   ]
-    						}))
+    						})
+              // )
               })
             }
 
@@ -226,7 +239,7 @@ export default new Class({
           // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
           this.hosts.push(row.key)
 
-          //console.log('this.hosts_range_started', this.hosts_range_started)
+          // console.log('this.hosts_range_started', this.hosts_range_started)
           if(!this.hosts_range_started.contains(row.key)){//if no range for this host yet
             /**
             * start with range, "last 300000 ms / 5min"

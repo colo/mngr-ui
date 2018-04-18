@@ -51,12 +51,12 @@ export default {
        default: () => ({})
     },
   },
-  computed: {
-    hosts () {
-      console.log('computed.hosts')
-      return this.$store.state.hosts.all
-    }
-  },
+  // computed: {
+  //   hosts () {
+  //     console.log('computed.hosts')
+  //     return this.$store.state.hosts.all
+  //   }
+  // },
   computed: Object.merge(
     // {
     //   uptime: function(){
@@ -118,8 +118,9 @@ export default {
         if(state.hosts.current){
           let currentHost = state.hosts.current
           uptime = state.hosts[currentHost].stats.uptime
+          console.log('current uptime host', currentHost)
         }
-
+      
         return uptime
       },
       loadavg: function(state){
@@ -463,7 +464,7 @@ export default {
         value: doc.cpu,
         timestamp: doc.timestamp
       })
-      
+
       this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu', length: this.seconds })
 
 		})

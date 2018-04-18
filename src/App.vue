@@ -29,8 +29,8 @@ pipelines.push(new Pipeline({
 				conn: [
 					{
 						scheme: 'http',
-						// host:'192.168.0.40',
-            host:'192.168.0.180',
+						host:'192.168.0.40',
+            // host:'192.168.0.180',
 						// host:'127.0.0.1',
 						port: 5984,
 						//module: require('./lib/os.stats'),
@@ -49,13 +49,15 @@ pipelines.push(new Pipeline({
 	filters: [
 		function(doc, opts, next){//periodical docs
 
-			// //console.log('filter', doc)
+
 
       if(opts.type == 'periodical'){
         if(doc.data.hosts){
           next(doc.data)
         }
         else{
+          console.log('filter', doc.metadata.host)
+          
     			let mem = {
             timestamp: doc.metadata.timestamp,
             host: doc.metadata.host,
@@ -178,12 +180,12 @@ export default {
 		})
   },
   beforeCreate () {
-    this.$q.loading.show({
-      delay: 0, // ms
-      spinner: 'QSpinnerGears',
-      spinnerColor: 'blue',
-      customClass : 'bg-white'
-    })
+    // this.$q.loading.show({
+    //   delay: 0, // ms
+    //   spinner: 'QSpinnerGears',
+    //   spinnerColor: 'blue',
+    //   customClass : 'bg-white'
+    // })
   },
 }
 </script>

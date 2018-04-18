@@ -110,19 +110,29 @@
       >
         <!-- <q-list-header>Essential Links</q-list-header> -->
         <q-item>
-          <at-select
+          <!-- <at-select
             v-model="currentHost"
             filterable
             size="large"
             style="width: 100%"
-            v-for="(host) in hosts"
-            :key="'selectHosts_'+host.value"
+            :multiple="false"
             :disabled="hosts.length <= 1"
             >
 
-            <at-option :value="host">{{host}}</at-option>
-          </at-select>
-
+            <template v-for="(host) in hosts">
+              <at-option
+              :value="host"
+              :key="'selectHosts_'+host"
+              >
+              {{host}}
+              </at-option>
+            </template>
+          </at-select> -->
+          <q-select
+            style="width: 100%"
+            v-model="currentHost"
+            :options="hosts"
+          />
         </q-item>
         <!-- <q-item @click.native="openURL('http://quasar-framework.org')">
           <q-item-side icon="school" />
@@ -202,22 +212,37 @@ export default {
       // ]
     }
   },
-  // mounted () {
-  //   if(this.currentHost == '' && this.hosts.length == 1){
-  //     // this.$store.commit('hosts/current', 'colo')
-  //     this.currentHost = this.hosts[0]
-  //   }
-  //
+  // created (){
+  //   this.currentHost = 0
   // },
+  mounted () {
+    // let currentHost = this.currentHost
+    // if(this.currentHost == '' && this.hosts.length == 1){
+    //   // this.$store.commit('hosts/current', 'colo')
+    //   this.currentHost = this.hosts[0]
+    // }
+
+  },
   computed: Object.merge(
     {
       currentHost: {
         get () {
           let host = this.$store.state.hosts.current
-          if(host == '' && this.hosts.length == 1){
-            host = this.hosts[0]
+          console.log('current host', host);
+          if((host == '' || !host) && this.$store.state.hosts.all.length > 0){
+            host = this.$store.state.hosts.all[0]
             this.$store.commit('hosts/current', host)
+            // host = 0
           }
+          // else if (this.hosts.length > 0){
+          //   console.log('current host indexOf', host);
+          //   host = this.$store.state.hosts.all.indexOf(host)
+          // }
+          // else{
+          //   host = 0
+          // }
+
+          console.log('current host', host);
           return host
         },
         // setter
@@ -229,7 +254,19 @@ export default {
     },
     mapState({
       // arrow functions can make the code very succinct!
-      hosts: state => state.hosts.all,
+      // hosts: state => state.hosts.all,
+      hosts: function(state){
+        let hosts = []
+        Array.each(state.hosts.all, function(val, index){
+          let host = {
+            value: val,
+            label: val
+          }
+          hosts.push(host)
+        })
+
+        return hosts
+      }
 
     })
   ),
