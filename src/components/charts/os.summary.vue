@@ -20,10 +20,10 @@
            <div
             v-for="(stat, name) in $options.stats"
             class="col-sm-2 col-md-3 justify-center"
-            :id="name"
+            :id="host+'_'+name"
             :style="stat.style"
-            :key="name"
-            :ref="name"
+            :key="host+'_'+name"
+            :ref="host+'_'+name"
             v-observe-visibility="visibilityChanged"
             >
               <!-- https://github.com/vuejs/babel-plugin-transform-vue-jsx/issues/86 -->
@@ -80,6 +80,10 @@ export default {
     EventBus: {
       type: [Object],
        default: () => ({})
+    },
+    host: {
+      type: [String],
+      default: () => ('')
     },
     timestamps: {
       type: [Array],
@@ -187,10 +191,10 @@ export default {
   watch: {
     mem: function(val){
       // //console.log('mem val', val)
-      // if(this.$refs['mem']){
+      if(this.$refs[this.host+'_mem']){
         if(
-          this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval &&
-          this.$options.visibles['mem'] == true
+          this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval
+          && this.$options.visibles[this.host+'_mem'] == true
         ){
           let last = val.getLast()
 
@@ -201,14 +205,14 @@ export default {
           this.stats.mem.data = last.percentage
           this.stats.mem.lastupdate = Date.now()
         }
-      // }
+      }
     },
     cpu: function(val){
       // //console.log('cpu val', val)
-      if(this.$refs['cpu']){
+      if(this.$refs[this.host+'_cpu']){
         if(
-          this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval &&
-          this.$options.visibles['cpu'] == true
+          this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval
+          && this.$options.visibles[this.host+'_cpu'] == true
         ){
           // //console.log('update cpu')
           let last = val.getLast()
@@ -231,7 +235,7 @@ export default {
   methods: {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id] = isVisible
-      //console.log('visible', isVisible, entry.target)
+      // console.log('visible', isVisible, entry.target.id)
     },
   },
 }

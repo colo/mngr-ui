@@ -228,26 +228,26 @@ export default {
       currentHost: {
         get () {
           let host = this.$store.state.hosts.current
-          console.log('current host', host);
+          //console.log('current host', host);
           if((host == '' || !host) && this.$store.state.hosts.all.length > 0){
             host = this.$store.state.hosts.all[0]
             this.$store.commit('hosts/current', host)
             // host = 0
           }
           // else if (this.hosts.length > 0){
-          //   console.log('current host indexOf', host);
+          //   //console.log('current host indexOf', host);
           //   host = this.$store.state.hosts.all.indexOf(host)
           // }
           // else{
           //   host = 0
           // }
 
-          console.log('current host', host);
+          //console.log('current host', host);
           return host
         },
         // setter
         set (value) {
-          console.log('setting host...', value)
+          //console.log('setting host...', value)
           this.$store.commit('hosts/current', value)
         }
       }

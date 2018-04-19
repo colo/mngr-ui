@@ -5,6 +5,8 @@
         :mem="mem"
         :cpu="cpu_simple"
         :EventBus="EventBus"
+        :host="currentHost"
+        :key="'os-summary'+currentHost"
       />
       <!-- :timestamps="timestamps" -->
 
@@ -13,6 +15,8 @@
         :uptime="uptime"
         :loadavg="loadavg"
         :EventBus="EventBus"
+        :host="currentHost"
+        :key="'os-dashboard'+currentHost"
       />
       <!-- :timestamps="timestamps" -->
 
@@ -120,7 +124,7 @@ export default {
           uptime = state.hosts[currentHost].stats.uptime
           console.log('current uptime host', currentHost)
         }
-      
+
         return uptime
       },
       loadavg: function(state){

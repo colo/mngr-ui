@@ -56,8 +56,8 @@ pipelines.push(new Pipeline({
           next(doc.data)
         }
         else{
-          console.log('filter', doc.metadata.host)
-          
+          //console.log('filter', doc.metadata.host)
+
     			let mem = {
             timestamp: doc.metadata.timestamp,
             host: doc.metadata.host,
@@ -116,27 +116,27 @@ pipelines.push(new Pipeline({
 			doc = JSON.decode(doc)
 
       if(doc.hosts){
-				// //console.log(doc)
+				// ////console.log(doc)
 				EventBus.$emit('hosts', doc) //update mem widget
 			}
       else if(doc.totalmem){
-				// //console.log(doc)
+				// ////console.log(doc)
 				EventBus.$emit('mem', doc) //update mem widget
 			}
 			else if(doc.cpu){
-        // //console.log(doc)
+        // ////console.log(doc)
 				EventBus.$emit('cpu', doc) //update cpu widget
 			}
 			// else if(doc.timestamp){
-      //   // //console.log(doc)
+      //   // ////console.log(doc)
 			// 	EventBus.$emit('timestamp', doc) //update timestamp
 			// }
 			else if(doc.uptime){
-        // //console.log(doc)
+        // ////console.log(doc)
 				EventBus.$emit('uptime', doc) //update uptime widget
 			}
 			else if(doc.loadavg){
-        // //console.log(doc)
+        // ////console.log(doc)
 				EventBus.$emit('loadavg', doc) //update loadavg widget
 			}
 			else if(doc.networkInterfaces){
@@ -159,7 +159,7 @@ export default {
   },
   created: function(){
     this.EventBus.$on('hosts', doc => {
-			// //console.log('recived doc via Event hosts', doc)
+			// ////console.log('recived doc via Event hosts', doc)
       this.$store.commit('hosts/set', doc.hosts)
       Array.each(doc.hosts, function(host){
         if(!this.$store.state.hosts[host])
@@ -180,12 +180,12 @@ export default {
 		})
   },
   beforeCreate () {
-    // this.$q.loading.show({
-    //   delay: 0, // ms
-    //   spinner: 'QSpinnerGears',
-    //   spinnerColor: 'blue',
-    //   customClass : 'bg-white'
-    // })
+    this.$q.loading.show({
+      delay: 0, // ms
+      spinner: 'QSpinnerGears',
+      spinnerColor: 'blue',
+      customClass : 'bg-white'
+    })
   },
 }
 </script>

@@ -23,10 +23,11 @@
           >
         </div> -->
         <dygraph-vue
-         :ref="name"
-         :id="name"
+         :ref="host+'_'+name"
+         :id="host+'_'+name"
          :options="stat"
          :stat="stats[name]"
+         :EventBus="EventBus"
          v-observe-visibility="visibilityChanged"
          >
         </dygraph-vue>
@@ -56,10 +57,11 @@
              v-observe-visibility="visibilityChanged"
            ></div> -->
            <dygraph-vue
-            :ref="iface+'-'+messure"
-            :id="iface+'-'+messure"
+            :ref="host+'_'+iface+'-'+messure"
+            :id="host+'_'+iface+'-'+messure"
             :options="networkInterfaces_stats[iface][messure].options"
             :stat="networkInterfaces_stats[iface][messure]"
+            :EventBus="EventBus"
             v-observe-visibility="visibilityChanged"
             >
            </dygraph-vue>
@@ -107,6 +109,10 @@ export default {
     EventBus: {
       type: [Object],
        default: () => ({})
+    },
+    host: {
+      type: [String],
+      default: () => ('')
     },
     timestamps: {
       type: [Array],
@@ -156,55 +162,68 @@ export default {
     this.$q.loading.hide()
   },
   created () {
-    window.EventBus.$on('highlightCallback', params => {
+    ////console.log(this.$refs, this.host)
+
+    let self = this
+
+    this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      //console.log('event OS.DASHBOARD highlightCallback', params)
-      this.sync_charts()
+      ////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      self.sync_charts()
 		})
-    window.EventBus.$on('unhighlightCallback', event => {
+
+    this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      //console.log('event OS.DASHBOARD unhighlightCallback', event)
-      this.unsync_charts()
+      //////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      self.unsync_charts()
 		})
 
-    Object.each(this.$options.stats, function(stat, name){
+    // let unwatch = this.$watch('host', function (val, oldVal) {
+    //   if(val.length > 1){
 
-      let data = [[]]
-      if(stat.options.labels)
-        Array.each(stat.options.labels, function(label, index){
-          if(index == 0){
-            data[0].push(Date.now())
-          }
-          else{
-            data[0].push(0)
-          }
+        Object.each(this.$options.stats, function(stat, name){
+
+          let data = [[]]
+          if(stat.options.labels)
+            Array.each(stat.options.labels, function(label, index){
+              if(index == 0){
+                data[0].push(Date.now())
+              }
+              else{
+                data[0].push(0)
+              }
 
 
-        })
+            })
 
-      this.$set(this.stats, name, {lastupdate: 0, 'data': data })
+          this.$set(this.stats, name, {lastupdate: 0, 'data': data })
 
-      // this.$set(this.charts, name, new Dygraph(
-      //     document.getElementById(name),  // containing div
-      //     this.stats[name].data,
-      //     stat.options
-      //   ))
-      //
-      // if(stat.init)
-      //   stat.init(this.charts[name], this.stats[name])
+          // this.$set(this.charts, name, new Dygraph(
+          //     document.getElementById(name),  // containing div
+          //     this.stats[name].data,
+          //     stat.options
+          //   ))
+          //
+          // if(stat.init)
+          //   stat.init(this.charts[name], this.stats[name])
 
-      this.expanded.push(name)
-    }.bind(this))
+          this.expanded.push(name)
+        }.bind(this))
+    //     unwatch()
+    //   }
+    // }.bind(this))
+
+
 
   },
 
   watch: {
 
     uptime: function(val){
-      // ////console.log('gonna update')
-      // ////console.log(this.$refs['uptime'][0])
+      // ////////console.log('gonna update')
+      // ////////console.log(this.$refs['uptime'][0])
 
-      if(this.$refs['uptime'] && val.length > 0){
+      if(this.$refs[this.host+'_uptime'] && val.length > 0){
 
         let data = []
         Array.each(val, function(uptime){
@@ -215,8 +234,8 @@ export default {
 
         if(
           this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
-          this.$refs['uptime'][0].chart != null &&
-          // this.$options.visibles['uptime'] != false &&
+          this.$refs[this.host+'_uptime'][0].chart != null &&
+          this.$options.visibles['uptime'] != false &&
           this.highlighted == false
         ){
 
@@ -224,7 +243,7 @@ export default {
 
           // this.sync_charts()
           // this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
-          this.$refs['uptime'][0].updateOptions({ 'dateWindow': this.$refs['uptime'][0].chart.xAxisExtremes() })
+          this.$refs[this.host+'_uptime'][0].updateOptions({ 'dateWindow': this.$refs[this.host+'_uptime'][0].chart.xAxisExtremes() })
           this.stats.uptime.lastupdate = Date.now()
           // this.$forceUpdate()
         }
@@ -232,9 +251,9 @@ export default {
 
     },
     loadavg: function(val){
-      //////console.log('loadavg', val)
+      //////////console.log('loadavg', val)
 
-      if(this.$refs['loadavg'] && val.length > 0){
+      if(this.$refs[this.host+'_loadavg'] && val.length > 0){
 
         let data = []
 
@@ -249,19 +268,19 @@ export default {
           data.push(avg)
         })
 
-        // //////console.log(data)
+        // //////////console.log(data)
         this.$set(this.stats.loadavg, 'data', data)
 
 
         if(
           this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval &&
-          this.$refs['loadavg'][0].chart != null &&
-          // this.$options.visibles['loadavg'] != false &&
+          this.$refs[this.host+'_loadavg'][0].chart != null &&
+          this.$options.visibles['loadavg'] != false &&
           this.highlighted == false
         ){
           // this.sync_charts()
           // this.charts.loadavg.updateOptions( { 'file': this.stats.loadavg.data, 'dateWindow': this.charts.loadavg.xAxisExtremes() } )
-          this.$refs['loadavg'][0].updateOptions({ 'dateWindow': this.$refs['loadavg'][0].chart.xAxisExtremes() })
+          this.$refs[this.host+'_loadavg'][0].updateOptions({ 'dateWindow': this.$refs[this.host+'_loadavg'][0].chart.xAxisExtremes() })
           this.stats.loadavg.lastupdate = Date.now()
         }
 
@@ -269,7 +288,7 @@ export default {
 
     },
     networkInterfaces: function(networkInterfaces){
-      // ////console.log('networkInterfaces', networkInterfaces)
+      // ////////console.log('networkInterfaces', networkInterfaces)
 
       let self = this
       if(networkInterfaces.getLast() !== null){
@@ -352,7 +371,7 @@ export default {
 
         })
 
-        ////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+        ////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
 
         Object.each(this.networkInterfaces_stats, function(stat, iface){
@@ -361,10 +380,10 @@ export default {
 
 
             // if(document.getElementById(iface+'-'+messure)){
-            if(this.$refs[iface+'-'+messure]){
+            if(this.$refs[this.host+'_'+iface+'-'+messure]){
 
               // if(!this.networkInterfaces_charts[iface+'-'+messure]){
-              //   //////console.log('---validatin---', iface+'-'+messure)
+              //   //////////console.log('---validatin---', iface+'-'+messure)
               //
               //
               //   let option = JSON.parse(JSON.stringify(this.$options.net_stats.options))
@@ -390,8 +409,8 @@ export default {
 
               if(
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
-                this.$refs[iface+'-'+messure][0].chart != null &&
-                // this.$options.visibles[iface+'-'+messure] != false &&
+                this.$refs[this.host+'_'+iface+'-'+messure][0].chart != null &&
+                this.$options.visibles[iface+'-'+messure] != false &&
                 this.highlighted == false
               ){
 
@@ -400,7 +419,7 @@ export default {
                 //    'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
                 //  });
 
-                this.$refs[iface+'-'+messure][0].updateOptions({ 'dateWindow': this.$refs[iface+'-'+messure][0].chart.xAxisExtremes() })
+                this.$refs[this.host+'_'+iface+'-'+messure][0].updateOptions({ 'dateWindow': this.$refs[this.host+'_'+iface+'-'+messure][0].chart.xAxisExtremes() })
 
                 value.lastupdate = Date.now()
 
@@ -444,7 +463,7 @@ export default {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id.replace('-container','')] = isVisible
 
-      //console.log('visible', isVisible, entry.target.id.replace('-container',''))
+      ////console.log('visible', isVisible, entry.target.id.replace('-container',''))
 
       // if(this.$refs[entry.target.id.replace('-container','')]){
       //   this.$refs[entry.target.id.replace('-container','')][0].chart.setSelection(
@@ -460,10 +479,12 @@ export default {
         let gs = []
         // let sync = []
 
-        // ////console.log(this.charts)
+        ////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          if(ref[0].chart instanceof Dygraph && this.$options.visibles[name] != false){
+          // //console.log('charts', name, ref)
+
+          if(ref[0] && ref[0].chart instanceof Dygraph && this.$options.visibles[name] != false){
             //console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
@@ -475,23 +496,23 @@ export default {
 
         // Object.each(this.charts, function(dygraph, name){
         //   if(this.$options.visibles[name] == true){
-        //     // ////console.log('charts', dygraph)
+        //     // ////////console.log('charts', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
         //
         // Object.each(this.networkInterfaces_charts, function(dygraph, name){
         //   if(this.$options.visibles[name] == true){
-        //     // ////console.log('networkInterfaces', dygraph)
+        //     // ////////console.log('networkInterfaces', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
 
-        // ////console.log(this.networkInterfaces_charts)
+        // ////////console.log(this.networkInterfaces_charts)
         //
 
 
-        // //console.log(gs)
+        // //////console.log(gs)
         this.unsync_charts()
 
         if(gs.length > 1){
@@ -509,7 +530,7 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // ////console.log('detaching', this.$options.sync)
+        // ////////console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
@@ -543,10 +564,10 @@ export default {
     //
     //     formated[index] = date;
     //
-    //     // ////////////console.log('---timestamps---',formated)
+    //     // ////////////////console.log('---timestamps---',formated)
     //   })
     //
-    //   // ////////////console.log('---timestamps---',formated)
+    //   // ////////////////console.log('---timestamps---',formated)
     //   return formated;
     //
     // }
@@ -580,10 +601,10 @@ export default {
 
         data[index][0] = date;
 
-        // ////////////console.log('---timestamps---',formated)
+        // ////////////////console.log('---timestamps---',formated)
       })
 
-      // ////////////console.log('---timestamps---',formated)
+      // ////////////////console.log('---timestamps---',formated)
       return data;
 
     }
