@@ -10,8 +10,8 @@
       :inverted="$q.theme === 'ios'" -->
         <q-btn
           flat
-          dense
-          round
+          outline
+          no-ripple
           @click="leftDrawerOpen = !leftDrawerOpen"
           aria-label="Menu"
         >
@@ -131,9 +131,21 @@
           <q-select
             style="width: 100%"
             v-model="currentHost"
+            color="primary"
+            frame-color="primary"
+            class="no-margin"
+            inverted
+            :disable="hosts.length <= 1"
             :options="hosts"
           />
         </q-item>
+
+
+
+
+        <!-- filter -->
+
+
         <!-- <q-item @click.native="openURL('http://quasar-framework.org')">
           <q-item-side icon="school" />
           <q-item-main label="Docs" sublabel="quasar-framework.org" />
@@ -166,8 +178,10 @@
         color="primary"
         class="fixed-bottom-right animate-pop justify-center"
         style="margin: 0 15px 15px 0"
+        no-ripple
+        flat
       >
-        <q-icon name="keyboard_arrow_up" />
+        <q-icon name="keyboard_arrow_up"/>
       </q-btn>
     </q-page-container>
 

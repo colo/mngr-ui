@@ -7,7 +7,8 @@ module.exports = function (ctx) {
       'i18n',
       'axios',
       'atui',
-      'vue-observe-visibility'
+      'vue-observe-visibility',
+      'AddressbarColor'
     ],
     css: [
       'app.styl'
