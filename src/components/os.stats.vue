@@ -115,6 +115,10 @@ export default {
     // },
     mapState({
       // arrow functions can make the code very succinct!
+      seconds: function(state){
+        let seconds = state.app.range[0] - state.app.range[1]
+        return seconds
+      },
       hosts: state => state.hosts.all,
       currentHost: state => state.hosts.current,
       uptime: function(state){
@@ -122,7 +126,7 @@ export default {
         if(state.hosts.current){
           let currentHost = state.hosts.current
           uptime = state.hosts[currentHost].stats.uptime
-          console.log('current uptime host', currentHost)
+          // console.log('current uptime host', currentHost)
         }
 
         return uptime
@@ -191,7 +195,7 @@ export default {
   },
   data () {
     return {
-      seconds: 300, //define the N timestamps to show
+      // seconds: 300, //define the N timestamps to show
 			/**
 			* mem
 			*/

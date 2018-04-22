@@ -396,7 +396,7 @@ export default {
   methods: {
     // openURL
     selectedDateRange () {
-      console.log(this.dateRange[0].getTime())
+      this.$store.commit('app/range', {start: this.dateRange[0].getTime(), end: this.dateRange[1].getTime()})
     }
   }
 }

@@ -6,7 +6,7 @@ module.exports = function (ctx) {
     plugins: [
       'i18n',
       'axios',
-      // 'atui',
+      'atui',
       'element-ui',
       'vue-observe-visibility',
       'AddressbarColor'

@@ -2,12 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import hosts from './hosts'
+import app from './app'
 
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
   modules: {
-    hosts
+    hosts,
+    app
   }
 })
 
@@ -19,6 +21,10 @@ if (process.env.DEV && module.hot) {
   module.hot.accept(['./hosts'], () => {
     const newHosts = require('./hosts').default
     store.hotUpdate({ modules: { hosts: newHosts } })
+  })
+  module.hot.accept(['./app'], () => {
+    const newApp = require('./app').default
+    store.hotUpdate({ modules: { app: newApp } })
   })
 }
 

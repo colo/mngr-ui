@@ -157,7 +157,36 @@ export default {
       // ]
     }
   },
+  watch: {
+    '$store.state.app.range' : function(val){
+      console.log('store.state.app.range', val)
+      Array.each(pipelines, function(pipe){
+        console.log('firing range...', pipe)
+        pipe.fireEvent('range', { Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })
+
+      })
+    }
+  },
   created: function(){
+    // this.EventBus.$on('selectedDateRange', doc => {
+    //   console.log('selectedDateRange event', doc, pipelines)
+    //
+    //   Array.each(pipelines, function(pipe){
+    //     console.log('firing range...', pipe)
+    //     pipe.fireEvent('range', { Range: 'posix '+ doc[0].getTime() +'-'+ doc[1].getTime() +'/*' })
+    //     // Array.each(pipe.input, function(input){
+    //     //
+    //     //
+    //     //
+    //     // })
+    //
+    //
+    //   })
+    //
+    //
+    // })
+
+
     this.EventBus.$on('hosts', doc => {
 			// ////console.log('recived doc via Event hosts', doc)
       this.$store.commit('hosts/set', doc.hosts)

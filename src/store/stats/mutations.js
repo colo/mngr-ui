@@ -1,3 +1,4 @@
+ 
  export const timestamp = (state, epoc) => {
    state.timestamps.push(epoc)
  }
