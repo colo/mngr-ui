@@ -19,17 +19,41 @@
         </q-btn>
 
         <q-toolbar-title class="gt-sm">
-          Quasar App
-          <div slot="subtitle">Running on Quasar v{{ $q.version }}</div>
+          <!-- Quasar App -->
+          <el-select
+            v-model="currentHost"
+            placeholder="Select"
+            size="small"
+            :disabled="hosts.length <= 1"
+            filterable
+            >
+            <el-option
+              v-for="host in hosts"
+              :key="host.value"
+              :label="host.label"
+              :value="host.value">
+            </el-option>
+          </el-select>
+
+          <el-date-picker
+            size="small"
+            v-model="dateRange"
+            type="datetimerange"
+            :picker-options="DateRangeOptions"
+            range-separator="To"
+            start-placeholder="Start date"
+            end-placeholder="End date"
+            align="right"
+            @change="selectedDateRange"
+            >
+          </el-date-picker>
+
+          <!-- <div slot="subtitle">
+            Running on Quasar v{{ $q.version }}
+          </div> -->
+
         </q-toolbar-title>
 
-        <!-- Single Selection as a simple List -->
-        <!-- <q-select
-          color="none"
-          v-model="selectedHost"
-          style="width: 240px"
-          :options="selectHosts"
-        /> -->
 
       </q-toolbar>
 
@@ -37,18 +61,35 @@
 
       <q-card class="absolute-top-right" flat inline>
         <q-card-main>
-          <at-button type="text" icon="icon-bell">
+
+          <!-- <at-button type="text" icon="icon-bell">
             Alarms
             <at-badge :value="123" status="info" :max-num="99"></at-badge>
-          </at-button>
-
-
-          <at-dropdown placement="bottom-left">
+          </at-button> -->
+          <!-- <at-dropdown placement="bottom-left">
             <at-button size="normal" icon="icon-user">User <i class="icon icon-chevron-down"></i></at-button>
             <at-dropdown-menu slot="menu">
               <at-dropdown-item name="settings" divided><i class="icon icon-settings"></i> Settings</at-dropdown-item>
             </at-dropdown-menu>
-          </at-dropdown>
+          </at-dropdown> -->
+
+          <!-- <el-badge :value="200" :max="99" class="item"> -->
+          <el-badge is-dot>
+            <!-- <el-button size="small">Alarms</el-button> -->
+            <el-button icon="el-icon-bell" size="small"></el-button>
+          </el-badge>
+
+
+
+          <el-dropdown size="small" split-button type="primary">
+            <i class="icon icon-user"></i> User
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item><i class="icon icon-settings"></i> Settings</el-dropdown-item>
+              <el-dropdown-item divided> More...</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+
+
         </q-card-main>
       </q-card>
 
@@ -128,7 +169,8 @@
               </at-option>
             </template>
           </at-select> -->
-          <q-select
+
+          <!-- <q-select
             style="width: 100%"
             v-model="currentHost"
             color="primary"
@@ -137,7 +179,23 @@
             inverted
             :disable="hosts.length <= 1"
             :options="hosts"
-          />
+          /> -->
+
+          <!-- <el-select
+            v-model="currentHost"
+            placeholder="Select"
+            style="width: 100%"
+            size="small"
+            :disabled="hosts.length <= 1"
+            filterable
+            >
+            <el-option
+              v-for="host in hosts"
+              :key="host.value"
+              :label="host.label"
+              :value="host.value">
+            </el-option>
+          </el-select> -->
         </q-item>
 
 
@@ -217,6 +275,57 @@ export default {
     return {
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
+      DateRangeOptions: {
+        shortcuts: [
+          {
+            text: 'Last 5 minutes',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 300 * 1000);
+              picker.$emit('pick', [start, end]);
+            }
+          },
+          {
+            text: 'Last hour',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000);
+              picker.$emit('pick', [start, end]);
+            }
+          },
+          {
+            text: 'Last 24Hs',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24);
+              picker.$emit('pick', [start, end]);
+            }
+          },
+          {
+            text: 'Last week',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          },
+          {
+            text: 'Last month',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }
+
+        ]
+      },
+      dateRange: ''
       // selectedHost: 'colo',
       // selectHosts: [
       //   {
@@ -285,7 +394,10 @@ export default {
     })
   ),
   methods: {
-    openURL
+    // openURL
+    selectedDateRange () {
+      console.log(this.dateRange[0].getTime())
+    }
   }
 }
 </script>
