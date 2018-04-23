@@ -116,7 +116,9 @@ export default {
     mapState({
       // arrow functions can make the code very succinct!
       seconds: function(state){
-        let seconds = state.app.range[0] - state.app.range[1]
+        let seconds = (state.app.range[1] - state.app.range[0]) / 1000
+
+        console.log('seconds to trim', seconds)
         return seconds
       },
       hosts: state => state.hosts.all,

@@ -287,41 +287,50 @@ export default {
             }
           },
           {
-            text: 'Last hour',
+            text: 'Last 15 minutes',
             onClick(picker) {
               const end = new Date();
               const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000);
+              start.setTime(start.getTime() - 900 * 1000);
               picker.$emit('pick', [start, end]);
             }
           },
-          {
-            text: 'Last 24Hs',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: 'Last week',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: 'Last month',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }
+          // {
+          //   text: 'Last hour',
+          //   onClick(picker) {
+          //     const end = new Date();
+          //     const start = new Date();
+          //     start.setTime(start.getTime() - 3600 * 1000);
+          //     picker.$emit('pick', [start, end]);
+          //   }
+          // },
+          // {
+          //   text: 'Last 24Hs',
+          //   onClick(picker) {
+          //     const end = new Date();
+          //     const start = new Date();
+          //     start.setTime(start.getTime() - 3600 * 1000 * 24);
+          //     picker.$emit('pick', [start, end]);
+          //   }
+          // },
+          // {
+          //   text: 'Last week',
+          //   onClick(picker) {
+          //     const end = new Date();
+          //     const start = new Date();
+          //     start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+          //     picker.$emit('pick', [start, end]);
+          //   }
+          // },
+          // {
+          //   text: 'Last month',
+          //   onClick(picker) {
+          //     const end = new Date();
+          //     const start = new Date();
+          //     start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+          //     picker.$emit('pick', [start, end]);
+          //   }
+          // }
 
         ]
       },

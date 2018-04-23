@@ -14,18 +14,23 @@ export default new Class({
 
   options: {
 
+    range: [
+      Date.now() - 300000,
+      Date.now()
+    ],
+
 		requests : {
       range: [
 				//{ get: {uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
 				{
 					sort_by_path: function(req, next, app){
-            // ////console.log('req.opt.range', req.opt.range)
+            console.log('req.opt.range', req.opt.range)
             // //console.log('sort_by_path', next)
             if(app.hosts.length > 0){
               Array.each(app.hosts, function(host){
                 // //console.log('sort_by_path', host)
 
-                if(!app.hosts_range_started.contains(host)){
+                // if(!app.hosts_range_started.contains(host)){
                   // app.hosts_range_started.push(host)
                   ////console.log('req.opt.range', req.opt.range, host)
 
@@ -53,7 +58,7 @@ export default new Class({
       						})
                   // )
 
-                }
+                // }
 
 
               }.bind(app))
@@ -240,13 +245,13 @@ export default new Class({
           this.hosts.push(row.key)
 
           // //console.log('this.hosts_range_started', this.hosts_range_started)
-          if(!this.hosts_range_started.contains(row.key)){//if no range for this host yet
-            /**
-            * start with range, "last 300000 ms / 5min"
-            */
-            this.fireEvent('range', { Range: 'posix '+ ( Date.now() - 300000) +'-'+Date.now()+'/*' })
-            this.hosts_range_started.push(row.key)
-          }
+          // if(!this.hosts_range_started.contains(row.key)){//if no range for this host yet
+          //   /**
+          //   * start with range, "last 300000 ms / 5min"
+          //   */
+          //   this.fireEvent('range', { Range: 'posix '+ this.options.range[0] +'-'+ this.options.range[1] +'/*' })
+          //   this.hosts_range_started.push(row.key)
+          // }
 
         }.bind(this))
 

@@ -107,6 +107,12 @@ export default {
 
         unwatch()
       }
+      // else if(val.length > 1 && val.length != oldVal.length){
+      //   console.log('destroying...')
+      //   this.$destroy()
+      // }
+
+
     })
   },
   mounted () {

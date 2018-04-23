@@ -22,16 +22,17 @@
           v-observe-visibility="visibilityChanged"
           >
         </div> -->
-        <dygraph-vue
-         :ref="host+'_'+name"
-         :id="host+'_'+name"
-         :options="stat"
-         :stat="stats[name]"
-         :EventBus="EventBus"
-         v-observe-visibility="visibilityChanged"
-         >
-        </dygraph-vue>
-
+        <keep-alive>
+          <dygraph-vue
+           :ref="host+'_'+name"
+           :id="host+'_'+name"
+           :options="stat"
+           :stat="stats[name]"
+           :EventBus="EventBus"
+           v-observe-visibility="visibilityChanged"
+           >
+          </dygraph-vue>
+        </keep-alive>
 
        </at-card>
      </q-collapsible>
@@ -56,15 +57,17 @@
              :style="$options.net_stats.style"
              v-observe-visibility="visibilityChanged"
            ></div> -->
-           <dygraph-vue
-            :ref="host+'_'+iface+'-'+messure"
-            :id="host+'_'+iface+'-'+messure"
-            :options="networkInterfaces_stats[iface][messure].options"
-            :stat="networkInterfaces_stats[iface][messure]"
-            :EventBus="EventBus"
-            v-observe-visibility="visibilityChanged"
-            >
-           </dygraph-vue>
+           <keep-alive>
+             <dygraph-vue
+              :ref="host+'_'+iface+'-'+messure"
+              :id="host+'_'+iface+'-'+messure"
+              :options="networkInterfaces_stats[iface][messure].options"
+              :stat="networkInterfaces_stats[iface][messure]"
+              :EventBus="EventBus"
+              v-observe-visibility="visibilityChanged"
+              >
+             </dygraph-vue>
+           </keep-alive>
          </at-card>
      </q-collapsible>
     </template>

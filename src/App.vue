@@ -118,6 +118,7 @@ pipelines.push(new Pipeline({
       if(doc.hosts){
 				// ////console.log(doc)
 				EventBus.$emit('hosts', doc) //update mem widget
+
 			}
       else if(doc.totalmem){
 				// ////console.log(doc)
@@ -162,12 +163,22 @@ export default {
       console.log('store.state.app.range', val)
       Array.each(pipelines, function(pipe){
         console.log('firing range...', pipe)
-        pipe.fireEvent('range', { Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })
+
+        pipe.fireEvent('onRange', { Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })
+        // pipe.fireEvent('onSuspend')
 
       })
     }
   },
   created: function(){
+    // let range = this.$store.state.app.range
+    // Array.each(pipelines, function(pipe){
+    //   console.log('created->firing range...', pipe)
+    //
+    //   pipe.fireEvent('range', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+    //
+    // })
+
     // this.EventBus.$on('selectedDateRange', doc => {
     //   console.log('selectedDateRange event', doc, pipelines)
     //
@@ -185,6 +196,21 @@ export default {
     //
     //
     // })
+
+    let unwatch = this.$watch('$store.state.hosts.all', function (newVal, oldVal) {
+      console.log('hosts changed')
+
+      let range = this.$store.state.app.range
+
+      Array.each(pipelines, function(pipe){
+        console.log('created->firing range...', pipe)
+
+        pipe.fireEvent('range', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+        // pipe.fireEvent('onSuspend')//suspend timer
+
+      })
+    })
 
 
     this.EventBus.$on('hosts', doc => {
@@ -206,15 +232,17 @@ export default {
         if(!doc.hosts.contains(host))
           this.$store.unregisterModule(['hosts', host])
       }.bind(this))
+
+
 		})
   },
   beforeCreate () {
-    this.$q.loading.show({
-      delay: 0, // ms
-      spinner: 'QSpinnerGears',
-      spinnerColor: 'blue',
-      customClass : 'bg-white'
-    })
+    // this.$q.loading.show({
+    //   delay: 0, // ms
+    //   spinner: 'QSpinnerGears',
+    //   spinnerColor: 'blue',
+    //   customClass : 'bg-white'
+    // })
   },
 }
 </script>
