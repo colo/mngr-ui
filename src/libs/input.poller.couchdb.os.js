@@ -8,11 +8,13 @@ export default new Class({
   Extends: App,
 
   // host: 'colo',
-  hosts: [],
-  hosts_range_started: [],
+  // hosts: [],
+  // hosts_range_started: [],
 
 
   options: {
+
+    stat_host: null,
 
     range: [
       Date.now() - 300000,
@@ -26,8 +28,10 @@ export default new Class({
 					sort_by_path: function(req, next, app){
             console.log('req.opt.range', req.opt.range)
             // //console.log('sort_by_path', next)
-            if(app.hosts.length > 0){
-              Array.each(app.hosts, function(host){
+
+            // if(app.hosts.length > 0){
+            if(app.options.stat_host){
+              // Array.each(app.hosts, function(host){
                 // //console.log('sort_by_path', host)
 
                 // if(!app.hosts_range_started.contains(host)){
@@ -41,8 +45,8 @@ export default new Class({
                       'sort',
                       'by_path',
                       {
-        								startkey: ["os", host, "periodical", req.opt.range.start],
-        								endkey: ["os", host, "periodical",req.opt.range.end],
+        								startkey: ["os", app.options.stat_host, "periodical", req.opt.range.start],
+        								endkey: ["os", app.options.stat_host, "periodical",req.opt.range.end],
         								/**
         								 * pouchdb
         								 * */
@@ -61,7 +65,7 @@ export default new Class({
                 // }
 
 
-              }.bind(app))
+              // }.bind(app))
             }
 
 
@@ -71,36 +75,37 @@ export default new Class({
 
 			],
 			periodical: [
-        {
-					search_hosts: function(req, next, app){
-            //console.log('search_hosts', next)
-
-						// next(
-            app.view({
-							uri: 'dashboard',
-              args: [
-                'search',
-                'hosts',
-                {
-                  //limit: 1,
-                  reduce: true, //avoid geting duplicate host
-                  group: true,
-                  //descending: true,
-                  //inclusive_end: true,
-                  // include_docs: true
-  							}
-              ]
-						})
-            // )
-					}
-				},
+        // {
+				// 	search_hosts: function(req, next, app){
+        //     //console.log('search_hosts', next)
+        //
+				// 		// next(
+        //     app.view({
+				// 			uri: 'dashboard',
+        //       args: [
+        //         'search',
+        //         'hosts',
+        //         {
+        //           //limit: 1,
+        //           reduce: true, //avoid geting duplicate host
+        //           group: true,
+        //           //descending: true,
+        //           //inclusive_end: true,
+        //           // include_docs: true
+  			// 				}
+        //       ]
+				// 		})
+        //     // )
+				// 	}
+				// },
 				{
 					sort_by_path: function(req, next, app){
             // //console.log('sort_by_path', app.hosts)
             // //console.log('sort_by_path', next)
 
-            if(app.hosts.length > 0){
-              Array.each(app.hosts, function(host){
+            // if(app.hosts.length > 0){
+            if(app.options.stat_host){
+              // Array.each(app.hosts, function(host){
                 // next(
                 // //console.log('sort_by_path', host)
                 app.view({
@@ -109,8 +114,8 @@ export default new Class({
                     'sort',
                     'by_path',
                     {
-      								startkey: ["os", host, "periodical",Date.now() + 0],
-      								endkey: ["os", host, "periodical", Date.now() - 1000],
+      								startkey: ["os", app.options.stat_host, "periodical",Date.now() + 0],
+      								endkey: ["os", app.options.stat_host, "periodical", Date.now() - 1000],
       								/**
       								 * pouchdb
       								 * */
@@ -125,7 +130,7 @@ export default new Class({
                   ]
     						})
               // )
-              })
+              // })
             }
 
 					}
@@ -283,6 +288,7 @@ export default new Class({
 		}
 	},
   initialize: function(options){
+    console.log('input.poller.couchdb.os', options)
 		this.parent(options);//override default options
 
 		this.profile('root_init');//start profiling
@@ -295,28 +301,28 @@ export default new Class({
   connect: function(){
 		// //////console.log('this.connect');
 
-		try{
-			//this.os.api.get({uri: 'hostname'});
-			//this.get({uri: '/'}, this._first_connect.bind(this));
-			this.request(
-        {
-          opts: {
-            path: '/'
-          }
-        },
-        this._first_connect.bind(this)
-      );
-
-		}
-		catch(e){
-			//////console.log(e);
-		}
+		// try{
+		// 	//this.os.api.get({uri: 'hostname'});
+		// 	//this.get({uri: '/'}, this._first_connect.bind(this));
+		// 	this.request(
+    //     {
+    //       opts: {
+    //         path: '/'
+    //       }
+    //     },
+    //     this._first_connect.bind(this)
+    //   );
+    //
+		// }
+		// catch(e){
+		// 	//////console.log(e);
+		// }
 	},
-	_first_connect: function(err, result, body, opts){
-		// ////console.log('first_connect %o', result.uuid);
-		this.options.id = result.uuid;//set ID
-
-    // this.fireEvent('ON_RANGE', {})
-	}
+	// _first_connect: function(err, result, body, opts){
+	// 	// ////console.log('first_connect %o', result.uuid);
+	// 	this.options.id = 'os-'+result.uuid;//set ID
+  //
+  //   // this.fireEvent('ON_RANGE', {})
+	// }
 
 });
