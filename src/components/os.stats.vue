@@ -2,6 +2,7 @@
   <div class="col-sm-12 col-md-19">
     <q-list>
       <os-summary
+        v-if="reset == false"
         :mem="mem"
         :cpu="cpu_simple"
         :EventBus="EventBus"
@@ -11,6 +12,7 @@
       <!-- :timestamps="timestamps" -->
 
       <os-dashboard
+        v-if="reset == false"
         :networkInterfaces="networkInterfaces"
         :uptime="uptime"
         :loadavg="loadavg"
@@ -55,12 +57,12 @@ export default {
        default: () => ({})
     },
   },
-  // computed: {
-  //   hosts () {
-  //     console.log('computed.hosts')
-  //     return this.$store.state.hosts.all
-  //   }
-  // },
+  data () {
+    return {
+      // reset: false
+      // seconds: 300, //define the N timestamps to show
+    }
+  },
   computed: Object.merge(
     // {
     //   uptime: function(){
@@ -114,11 +116,12 @@ export default {
     //   }
     // },
     mapState({
+      reset: state => state.app.reset,
       // arrow functions can make the code very succinct!
       seconds: function(state){
         let seconds = (state.app.range[1] - state.app.range[0]) / 1000
 
-        console.log('seconds to trim', seconds)
+        // console.log('seconds to trim', seconds)
         return seconds
       },
       hosts: state => state.hosts.all,
@@ -182,12 +185,21 @@ export default {
 
   ),
   watch:{
+    // '$store.state.app.range' : function(val){
+    //
+    //   this.$store.commit('app/reset', true)
+    //
+    //   // this.reset = true
+    //   // let currentHost = this.$store.state.hosts.current
+    //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
+    //   // console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
+    // },
     '$store.state.hosts.all' : function(val){
       // console.log('$store.state.hosts.all', this.$store.state.hosts.all)
       Array.each(this.$store.state.hosts.all, function(host){
         // register a nested module `nested/myModule`
         if(!this.$store.state.hosts[host].stats){
-          console.log('registering....', host, hostStats)
+          // console.log('registering....', host, hostStats)
           this.$store.registerModule(['hosts', host, 'stats'], hostStats)
         }
           // this.$store.commit('hosts/'+host+'/seconds', self.seconds)
@@ -195,70 +207,8 @@ export default {
 
     }
   },
-  data () {
-    return {
-      // seconds: 300, //define the N timestamps to show
-			/**
-			* mem
-			*/
-      // mem: {
-      //   total: 0,
-      //   free: 0,
-      //   percentage: 0,
-      //   prev: {
-      //     total: 0,
-      //     free: 0,
-      //     percentage: 0
-      //   },
-      // },
-      // mem: [],
-      // timestamps: [],
-      // uptime: {
-      //   value: 0,
-      //   timestamp: 0,
-      //   prev: {
-      //     value: 0,
-      //     timestamp: 0
-      //   }
-      // },
-      // uptime: [],
-
-      // loadavg: {
-      //   value: 0,
-      //   timestamp: 0,
-      //   prev: {
-      //     value: 0,
-      //     timestamp: 0
-      //   }
-      // },
-      // loadavg: [],
-
-      // networkInterfaces: {
-      //   value: {},
-      //   timestamp: 0,
-      //   prev: {
-      //     value: {},
-      //     timestamp: 0,
-      //   }
-      // },
-      // networkInterfaces: [],
-
-      // cpu: {
-      //   total: 0,
-      //   idle: 0,
-      //   timestamp: 0,
-      //   percentage: 0,
-      //   prev: {
-      //     total: 0,
-      //     idle: 0,
-      //     timestamp: 0,
-      //     percentage: 0
-      //   }
-      // },
-      // cpu: []
-			/** **/
-
-    }
+  updated: function(){
+    this.$store.commit('app/reset', false)
   },
   created: function(){
     if(!window['EventBus'])
@@ -269,23 +219,14 @@ export default {
 
     let self = this;
 
-    // this.EventBus.$on('timestamp', doc => {
-		// 	// // console.log('recived doc via Event timestamp', doc)
-    //   //
-    //   // self.timestamps.push( doc.timestamp );
-    //   // // self.$store.state.hosts[doc.host].stats.timestamps = self.$store.state.hosts[doc.host].stats.timestamps.slice(-self.seconds)
-    //   // let length = self.timestamps.length
-    //   // self.timestamps.splice(
-    //   //   -self.seconds -1,
-    //   //   length - self.seconds
-    //   // )
+    // this.EventBus.$on('range', doc => {
+    //   console.log('os.stats.vue->range', doc)
+    //   this.$store.commit('hosts/'+doc.host+'/stats/networkInterfaces', {
+    //     value: {},
+    //     timestamp: 0
+    //   })
     //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/timestamp', doc.timestamp)
-    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'timestamps', length: this.seconds })
-    //
-    //   // console.log(this.$store)
-    //
-    //
+    //   // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'networkInterfaces', length: 0 })
 		// })
 
     this.EventBus.$on('networkInterfaces', doc => {

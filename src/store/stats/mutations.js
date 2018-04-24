@@ -1,4 +1,4 @@
- 
+
  export const timestamp = (state, epoc) => {
    state.timestamps.push(epoc)
  }
@@ -26,6 +26,30 @@
  export const cpu_simple = (state, cpu_simple) => {
    state.cpu_simple.push(cpu_simple)
  }
+
+ // export const reset = (state, payload) => {
+ //   if(!payload){
+ //     Object.each(state, function(value, key){
+ //       console.log('reseting state key', key)
+ //       if(Array.isArray(value)){
+ //         state[key] = []
+ //       }
+ //       else{
+ //         state[key] = {}
+ //       }
+ //     })
+ //   }
+ //   else{
+ //     if(Array.isArray(state[payload])){
+ //       state[payload] = []
+ //     }
+ //     else{
+ //       state[payload] = {}
+ //     }
+ //   }
+ //
+ //   console.log('reseting state', state)
+ // }
 
  export const splice = (state, payload) => {
    let length = state[payload.stat].length

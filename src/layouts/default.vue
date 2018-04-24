@@ -280,19 +280,19 @@ export default {
           {
             text: 'Last 5 minutes',
             onClick(picker) {
-              const end = new Date();
+              // const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 300 * 1000);
-              picker.$emit('pick', [start, end]);
+              picker.$emit('pick', [start, null]);
             }
           },
           {
             text: 'Last 15 minutes',
             onClick(picker) {
-              const end = new Date();
+              // const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 900 * 1000);
-              picker.$emit('pick', [start, end]);
+              picker.$emit('pick', [start, null]);
             }
           },
           // {
@@ -405,7 +405,12 @@ export default {
   methods: {
     // openURL
     selectedDateRange () {
-      this.$store.commit('app/range', {start: this.dateRange[0].getTime(), end: this.dateRange[1].getTime()})
+      if(this.dateRange[1] instanceof Date){
+        this.$store.commit('app/range', {start: this.dateRange[0].getTime(), end: this.dateRange[1].getTime()})
+      }
+      else{
+        this.$store.commit('app/range', {start: this.dateRange[0].getTime(), end: null})
+      }
     }
   }
 }

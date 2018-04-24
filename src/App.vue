@@ -23,23 +23,30 @@ const EventBus = new Vue()
 * @todo: create InputPollerCouchDBOS/Pipeline for each Host??
 **/
 
+let default_conn = {
+  scheme: 'http',
+  host:'192.168.0.40',
+  // host:'192.168.0.180',
+  // host:'127.0.0.1',
+  port: 5984,
+  //module: require('./lib/os.stats'),
+  //load: ['apps/info/os/']
+}
+
 let get_hosts_pipeline = new Pipeline({
 	input: [
 		{
 			poll: {
 				id: "input.hosts",
 				conn: [
-					{
-            id: 'input.hosts',
-						scheme: 'http',
-						// host:'192.168.0.40',
-            host:'192.168.0.180',
-						// host:'127.0.0.1',
-						port: 5984,
-						//module: require('./lib/os.stats'),
-						module: InputPollerCouchDBHosts,
-						//load: ['apps/info/os/']
-					}
+          Object.merge(
+            Object.clone(default_conn),
+            {
+              id: 'input.hosts',
+              module: InputPollerCouchDBHosts,
+            }
+          )
+
 				],
 				connect_retry_count: 5,
 				connect_retry_periodical: 1000,
@@ -70,16 +77,12 @@ let host_pipeline_template = {
 			poll: {
 				id: "input.os",
 				conn: [
-					{
-						scheme: 'http',
-						// host:'192.168.0.40',
-            host:'192.168.0.180',
-						// host:'127.0.0.1',
-						port: 5984,
-						//module: require('./lib/os.stats'),
-						module: InputPollerCouchDBOS,
-						//load: ['apps/info/os/']
-					}
+          Object.merge(
+            Object.clone(default_conn),
+            {
+              module: InputPollerCouchDBOS,
+            }
+          )
 				],
 				connect_retry_count: 5,
 				connect_retry_periodical: 1000,
@@ -92,7 +95,7 @@ let host_pipeline_template = {
 	filters: [
 		function(doc, opts, next){//periodical docs
 
-      if(opts.type == 'periodical'){
+      if(doc != null && opts.type == 'periodical'){
 
   			let mem = {
           timestamp: doc.metadata.timestamp,
@@ -126,7 +129,7 @@ let host_pipeline_template = {
 
 
       }
-      else{
+      else if(doc != null){
         next(doc)
       }
 
@@ -189,9 +192,22 @@ export default {
         if(pipe.inputs[0].options.id == 'input.os-'+host){
           // console.log('firing onResume...')
 
+          // let null_range = (range[1] == null) ? true : false
+
+          if(range[1] == null){
+            range[1] = new Date().getTime()
+          }
+
           pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
 
-          pipe.fireEvent('onResume')
+          // if(null_range == false){
+          //   pipe.fireEvent('onSuspend')
+          // }
+          // else{
+            pipe.fireEvent('onResume')
+          // }
+
+          // pipe.fireEvent('onResume')
         }
         else{
           pipe.fireEvent('onSuspend')
@@ -227,13 +243,39 @@ export default {
 
 
     },
-    '$store.state.app.range' : function(val){
+    '$store.state.app.range' : function(range){
       // console.log('store.state.app.range', val)
 
       Array.each(this.hosts_pipelines, function(pipe){
-        console.log('firing range...', pipe)
+        // console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
 
-        pipe.fireEvent('onRange', { Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })
+        // let host = pipe.inputs[0].options.conn[0].stat_host
+
+        let null_range = (range[1] == null) ? true : false
+        if(range[1] == null){
+          range[1] = new Date().getTime()
+        }
+
+
+        pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
+
+        this.$store.commit('app/reset', true)
+
+        this.$q.loading.show({
+          delay: 0, // ms
+          spinner: 'QSpinnerGears',
+          spinnerColor: 'blue',
+          customClass : 'bg-white'
+        })
+
+        // if(null_range == false){
+        //   pipe.fireEvent('onSuspend')
+        // }
+        // else{
+        //   pipe.fireEvent('onResume')
+        // }
+
+        // this.EventBus.$emit('range', { host: host, Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })
 
         // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
 
@@ -242,47 +284,6 @@ export default {
     }
   },
   created: function(){
-    // let range = this.$store.state.app.range
-    // Array.each(pipelines, function(pipe){
-    //   console.log('created->firing range...', pipe)
-    //
-    //   pipe.fireEvent('range', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-    //
-    // })
-
-    // this.EventBus.$on('selectedDateRange', doc => {
-    //   console.log('selectedDateRange event', doc, pipelines)
-    //
-    //   Array.each(pipelines, function(pipe){
-    //     console.log('firing range...', pipe)
-    //     pipe.fireEvent('range', { Range: 'posix '+ doc[0].getTime() +'-'+ doc[1].getTime() +'/*' })
-    //     // Array.each(pipe.input, function(input){
-    //     //
-    //     //
-    //     //
-    //     // })
-    //
-    //
-    //   })
-    //
-    //
-    // })
-
-    // let unwatch = this.$watch('$store.state.hosts.all', function (newVal, oldVal) {
-    //   console.log('hosts changed')
-    //
-    //   let range = this.$store.state.app.range
-    //
-    //   Array.each(this.hosts_pipelines, function(pipe){
-    //     console.log('created->firing range...', pipe)
-    //
-    //     pipe.fireEvent('range', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-    //
-    //     // pipe.fireEvent('onSuspend')//suspend timer
-    //
-    //   })
-    // })
-
 
     this.EventBus.$on('hosts', doc => {
 			// ////console.log('recived doc via Event hosts', doc)
@@ -309,12 +310,12 @@ export default {
 		})
   },
   beforeCreate () {
-    // this.$q.loading.show({
-    //   delay: 0, // ms
-    //   spinner: 'QSpinnerGears',
-    //   spinnerColor: 'blue',
-    //   customClass : 'bg-white'
-    // })
+    this.$q.loading.show({
+      delay: 0, // ms
+      spinner: 'QSpinnerGears',
+      spinnerColor: 'blue',
+      customClass : 'bg-white'
+    })
   },
 }
 </script>

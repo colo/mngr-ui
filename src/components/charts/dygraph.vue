@@ -118,6 +118,10 @@ export default {
   mounted () {
 
   },
+  destroyed (){
+    console.log('destroyed', this.id)
+    if(this.chart) this.chart.destroy()
+  },
   watch: {
     // 'stat.data': function(val){
     //   // //////console.log('creating chart...', this.id, this.stat.data)
@@ -160,6 +164,8 @@ export default {
     //   return document.getElementById(this.id)
     // },
     updateOptions (options){
+      this.$q.loading.hide()
+      
       let self = this
       ////console.log('updating chart...', this.id, self.stat.data)
 

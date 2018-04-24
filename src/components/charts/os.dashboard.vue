@@ -162,7 +162,7 @@ export default {
     //   this.sync_charts()
     // })
 
-    this.$q.loading.hide()
+    // this.$q.loading.hide()
   },
   created () {
     ////console.log(this.$refs, this.host)
