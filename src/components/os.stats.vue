@@ -64,64 +64,17 @@ export default {
     }
   },
   computed: Object.merge(
-    // {
-    //   uptime: function(){
-    //     let uptime = []
-    //     if(this.$store.state.hosts.current){
-    //       let currentHost = this.$store.state.hosts.current
-    //       uptime = this.$store.state.hosts[currentHost].stats.uptime
-    //     }
-    //
-    //     return uptime
-    //   }
-    // },
-    // {
-    //   'stats.uptime.data': function () {
-    //     let self = this
-    //     let data = this.stats.uptime.data
-    //
-    //     Array.each(self.$store.state.hosts[this.currentHost].stats.uptimes, function(uptime){
-    //       console.log('self.$store.state.hosts[this.currentHost].stats.uptimes', uptime)
-    //       data.push([new Date(uptime.timestamp), uptime.value])
-    //     })
-    //
-    //     if(
-    //       this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
-    //       this.$options.visibles['uptime'] == true
-    //     ){
-    //       // this.sync_charts()
-    //       this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
-    //       this.stats.uptime.lastupdate = Date.now()
-    //       // this.$forceUpdate()
-    //     }
-    //
-    //     return data
-    //   },
-    // },
-    // {
-    //   currentHost: {
-    //     get () {
-    //       let host = this.$store.state.hosts.current
-    //       if(host == '' && this.hosts.length == 1){
-    //         host = this.hosts[0]
-    //         this.$store.commit('hosts/current', host)
-    //       }
-    //       return host
-    //     },
-    //     // setter
-    //     set (value) {
-    //       console.log('setting host...', value)
-    //       this.$store.commit('hosts/current', value)
-    //     }
-    //   }
-    // },
     mapState({
       reset: state => state.app.reset,
       // arrow functions can make the code very succinct!
       seconds: function(state){
-        let seconds = (state.app.range[1] - state.app.range[0]) / 1000
+        let end = new Date().getTime()
+        if(state.app.range[1] != null)
+          end = state.app.range[1]
 
-        // console.log('seconds to trim', seconds)
+        let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
+
+        console.log('seconds to trim', seconds)
         return seconds
       },
       hosts: state => state.hosts.all,

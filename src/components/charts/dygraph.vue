@@ -54,22 +54,42 @@ export default {
       type: [Object],
       default: () => ({})
     },
+
+    suspended: {
+      type: [Boolean],
+      default: () => (false)
+    },
   },
   data () {
     return {
       chart: null,
       highlighted: false,
+      ready: false,
+      // to_suspend: false,
     }
   },
   created () {
+    // let self = this
+    // this.EventBus.$on('suspend', function() {
+    //   // this.$set(this, 'suspended', true)
+    //   // this.to_suspend = true
+    //   this.$nextTick(() => this.to_suspend = true )
+    //   console.log('event suspend, suspended:', this.suspended)
+		// }.bind(self))
+    // this.EventBus.$on('resume', function() {
+    //   // this.$set(this, 'suspended', false)
+    //   this.suspended = false
+    //   this.to_suspend = false
+    //   console.log('event resume, suspended: ', this.suspended)
+		// }.bind(self))
 
     this.EventBus.$on('highlightCallback', params => {
       this.highlighted = true
-      ////console.log('event highlightCallback', params)
+      // console.log('event highlightCallback', params)
 		})
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      ////console.log('event unhighlightCallback', event)
+      // console.log('event unhighlightCallback', event)
 		})
 
     // keypath
@@ -102,6 +122,11 @@ export default {
           options
         )
 
+        this.chart.ready(function(){
+          // console.log('chart '+this.id+' ready')
+          this.ready = true
+        }.bind(this))
+
         if(this.options.init)
           this.options.init(this)
 
@@ -115,13 +140,32 @@ export default {
 
     })
   },
-  mounted () {
-
-  },
-  destroyed (){
-    console.log('destroyed', this.id)
-    if(this.chart) this.chart.destroy()
-  },
+  // mounted () {
+  //
+  //
+  // },
+  // destroyed (){
+  //   console.log('destroyed', this.id)
+  //   console.log('destroyed suspended', this.suspended)
+  //   if(this.to_suspend == true)
+  //     this.suspended = true//do update this time, next one ommit, so we get chart redraw
+  //
+  //
+  //   this.$off()
+  //   if(this.chart) this.chart.destroy()
+  // },
+  // updated (){
+  //   if(this.to_suspend == true)
+  //     this.suspended = true//do update this time, next one ommit, so we get chart redraw
+  //
+  //   console.log('updated suspended', this.suspended)
+  // },
+  // beforeUpdate (){
+  //   if(this.to_suspend == true)
+  //     this.suspended = true//do update this time, next one ommit, so we get chart redraw
+  //
+  //   console.log('beforeUpdate suspended', this.suspended)
+  // },
   watch: {
     // 'stat.data': function(val){
     //   // //////console.log('creating chart...', this.id, this.stat.data)
@@ -165,11 +209,13 @@ export default {
     // },
     updateOptions (options){
       this.$q.loading.hide()
-      
-      let self = this
-      ////console.log('updating chart...', this.id, self.stat.data)
 
-      if(this.highlighted == false){
+      let self = this
+
+      console.log('updating chart, suspended...', this.id, this.suspended)
+
+      if(this.highlighted == false && this.ready == true && this.suspended == false){
+
         this.chart.updateOptions(
           Object.merge(
             {
@@ -184,7 +230,10 @@ export default {
 
       }
 
-
+      // if(this.suspended == true){
+      //   this.chart.setSelection(this.chart.numRows() - 1, {}, false)
+      //   console.log('updating chart, suspended...', this.id, this.suspended)
+      // }
 
     }
   }

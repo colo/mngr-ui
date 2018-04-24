@@ -22,17 +22,18 @@
           v-observe-visibility="visibilityChanged"
           >
         </div> -->
-        <keep-alive>
+
           <dygraph-vue
            :ref="host+'_'+name"
            :id="host+'_'+name"
            :options="stat"
            :stat="stats[name]"
            :EventBus="EventBus"
+           :suspended="suspended"
            v-observe-visibility="visibilityChanged"
            >
           </dygraph-vue>
-        </keep-alive>
+
 
        </at-card>
      </q-collapsible>
@@ -57,17 +58,18 @@
              :style="$options.net_stats.style"
              v-observe-visibility="visibilityChanged"
            ></div> -->
-           <keep-alive>
+
              <dygraph-vue
               :ref="host+'_'+iface+'-'+messure"
               :id="host+'_'+iface+'-'+messure"
               :options="networkInterfaces_stats[iface][messure].options"
               :stat="networkInterfaces_stats[iface][messure]"
               :EventBus="EventBus"
+              :suspended="suspended"
               v-observe-visibility="visibilityChanged"
               >
              </dygraph-vue>
-           </keep-alive>
+
          </at-card>
      </q-collapsible>
     </template>
@@ -94,6 +96,8 @@ import '../../libs/synchronizer' //modified version
 
 import stats from './js/os.dashboard'
 import net_stats from './js/net.dashboard'
+
+import { mapState } from 'vuex'
 
 export default {
   // name: 'App',
@@ -153,22 +157,32 @@ export default {
       // charts : {},
       stats: {},
       networkInterfaces_stats: {},
+      // to_suspend: false,
+      suspended: false
       // networkInterfaces_charts: {},
       // uptime_stats: []
     }
   },
-  updated () {
-    // this.$nextTick(function () {
-    //   this.sync_charts()
-    // })
 
-    // this.$q.loading.hide()
-  },
   created () {
-    ////console.log(this.$refs, this.host)
+    // console.log('created to suspend')
+    //
+
+    //
+    // this.EventBus.$on('suspend', function() {
+    //   // this.$set(this, 'suspended', true)
+    //   self.to_suspend = true
+    //   // this.$nextTick(() => this.to_suspend = true )
+    //   console.log('event suspend, suspended:', this.to_suspend)
+		// }.bind(self))
+    // this.EventBus.$on('resume', function() {
+    //   // this.$set(this, 'suspended', false)
+    //   this.suspended = false
+    //   this.to_suspend = false
+    //   console.log('event resume, suspended: ', this.suspended)
+		// }.bind(self))
 
     let self = this
-
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
       ////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
@@ -437,11 +451,19 @@ export default {
       }
     },
   },
-  // computed: {
-  //   formated_timestamps: function(){
-  //     return this.format_timestamps(this.timestamps)
-  //   }
-  // },
+  computed: Object.merge(
+    mapState({
+      to_suspend: state => state.app.suspend,
+    })
+  ),
+  updated (){
+    if(this.to_suspend == true)
+      this.$nextTick(function(){this.suspended = true}.bind(this))
+      // this.suspended = true
+
+
+    console.log('updated suspended', this.to_suspend , this.suspended)
+  },
   methods: {
     /**
     * @source: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/assign

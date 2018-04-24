@@ -25,8 +25,8 @@ const EventBus = new Vue()
 
 let default_conn = {
   scheme: 'http',
-  host:'192.168.0.40',
-  // host:'192.168.0.180',
+  // host:'192.168.0.40',
+  host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
@@ -244,22 +244,31 @@ export default {
 
     },
     '$store.state.app.range' : function(range){
-      // console.log('store.state.app.range', val)
+      console.log('store.state.app.range', range)
 
       Array.each(this.hosts_pipelines, function(pipe){
+        let end = new Date().getTime()
         // console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
 
         // let host = pipe.inputs[0].options.conn[0].stat_host
 
-        let null_range = (range[1] == null) ? true : false
-        if(range[1] == null){
-          range[1] = new Date().getTime()
+        // let null_range = (range[1] == null) ? true : false
+
+        if(range[1] != null){
+          end = range[1]
+          this.$store.commit('app/suspend', true)
+          // this.EventBus.$emit('suspend')
+        }
+        else{
+          this.$store.commit('app/suspend', false)
+          // this.EventBus.$emit('resume')
         }
 
-
-        pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ range[1] +'/*' })
-
         this.$store.commit('app/reset', true)
+        
+        pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
+
+
 
         this.$q.loading.show({
           delay: 0, // ms
@@ -269,10 +278,12 @@ export default {
         })
 
         // if(null_range == false){
-        //   pipe.fireEvent('onSuspend')
+        //   //pipe.fireEvent('onSuspend')
+        //   this.EventBus.$emit('suspend')
         // }
         // else{
-        //   pipe.fireEvent('onResume')
+        //   // this.EventBus.$emit('resume')
+        //   //pipe.fireEvent('onResume')
         // }
 
         // this.EventBus.$emit('range', { host: host, Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })

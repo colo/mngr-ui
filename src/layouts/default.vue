@@ -406,6 +406,9 @@ export default {
     // openURL
     selectedDateRange () {
       if(this.dateRange[1] instanceof Date){
+
+        // window.EventBus.$emit('highlightCallback', {})
+
         this.$store.commit('app/range', {start: this.dateRange[0].getTime(), end: this.dateRange[1].getTime()})
       }
       else{
