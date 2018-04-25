@@ -216,7 +216,35 @@ export default {
 
       console.log('updating chart, suspended...', this.id, this.$options.freezed, this.freezed)
 
-      if(this.highlighted == false && this.ready == true && this.$options.freezed == false){
+      if(this.highlighted == false && this.ready == true
+        && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
+        // && this.freezed == false
+      ){
+
+        console.log('data length',self.stat.data.length)
+
+        // if(this.chart.rawData_.length !=  self.stat.data.length){
+        //   let columns = this.chart.rawData_[0].length - 1
+        //   let data = []
+        //   // data[0].fill(0, 0, columns)
+        //   for(let i = 0; i < self.stat.data.length; i++){
+        //     data[i] = []
+        //     for(let j = 0; j<= columns; j++){
+        //       data[i].push(0)
+        //     }
+        //   }
+        //
+        //
+        //   console.log('data', data)
+        //   this.chart.updateOptions(
+        //     Object.merge(
+        //       {
+        //         'file': data
+        //       },
+        //       options
+        //     )
+        //   );
+        // }
 
         this.chart.updateOptions(
           Object.merge(
@@ -227,14 +255,22 @@ export default {
           )
         );
 
+        // this.chart.adjustRoll(self.stat.data.length)
+
+
 
         this.chart.setSelection(this.chart.numRows() - 1, {}, false)
 
 
       }
 
-      this.$options.freezed = JSON.parse(JSON.stringify(this.freezed))
-
+      // this.$options.freezed = JSON.parse(JSON.stringify(this.freezed))
+      if(this.freezed == false){
+        this.$options.freezed = 0
+      }
+      else{
+        this.$options.freezed++
+      }
       // if(this.suspended == true){
       //   this.chart.setSelection(this.chart.numRows() - 1, {}, false)
       //   console.log('updating chart, suspended...', this.id, this.suspended)

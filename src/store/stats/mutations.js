@@ -1,30 +1,69 @@
+ import Vue from 'vue'
 
- export const timestamp = (state, epoc) => {
-   state.timestamps.push(epoc)
+ export const timestamp = (state, payload) => {
+   if(Array.isArray(payload)){
+     state.timestamps = payload
+   }
+   else {
+     state.timestamps.push(payload)
+   }
  }
 
- export const loadavg = (state, loadavg) => {
-   state.loadavg.push(loadavg)
+ export const loadavg = (state, payload) => {
+   if(Array.isArray(payload)){
+     state.loadavg = payload
+   }
+   else {
+     state.loadavg.push(payload)
+   }
  }
 
- export const uptime = (state, loadavg) => {
-   state.uptime.push(loadavg)
+ export const uptime = (state, payload) => {
+   if(Array.isArray(payload)){
+     state.uptime = payload
+   }
+   else {
+     state.uptime.push(payload)
+   }
  }
 
- export const networkInterfaces = (state, networkInterfaces) => {
-   state.networkInterfaces.push(networkInterfaces)
+ export const networkInterfaces = (state, payload) => {
+   if(Array.isArray(payload)){
+     // state.networkInterfaces = payload
+     Vue.set(state, 'networkInterfaces', payload)
+
+     console.log(state.networkInterfaces)
+   }
+   else {
+     state.networkInterfaces.push(payload)
+   }
  }
 
- export const mem = (state, mem) => {
-   state.mem.push(mem)
+ export const mem = (state, payload) => {
+   if(Array.isArray(payload)){
+     state.mem = payload
+   }
+   else {
+     state.mem.push(payload)
+   }
  }
 
- export const cpu = (state, cpu) => {
-   state.cpu.push(cpu)
+ export const cpu = (state, payload) => {
+   if(Array.isArray(payload)){
+     state.cpu = payload
+   }
+   else {
+     state.cpu.push(payload)
+   }
  }
 
- export const cpu_simple = (state, cpu_simple) => {
-   state.cpu_simple.push(cpu_simple)
+ export const cpu_simple = (state, payload) => {
+   if(Array.isArray(payload)){
+     state.cpu_simple = payload
+   }
+   else {
+     state.cpu_simple.push(payload)
+   }
  }
 
  // export const reset = (state, payload) => {

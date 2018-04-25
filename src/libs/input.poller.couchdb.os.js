@@ -242,38 +242,39 @@ export default new Class({
 		}
 		else{
 
-      if(view.options.args[0] == 'search' && view.options.args[1] == 'hosts'){
-        this.hosts = []
+      // if(view.options.args[0] == 'search' && view.options.args[1] == 'hosts'){
+      //   this.hosts = []
+      //
+      //   Array.each(resp.rows, function(row){
+      //     // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+      //     this.hosts.push(row.key)
+      //
+      //     // //console.log('this.hosts_range_started', this.hosts_range_started)
+      //     // if(!this.hosts_range_started.contains(row.key)){//if no range for this host yet
+      //     //   /**
+      //     //   * start with range, "last 300000 ms / 5min"
+      //     //   */
+      //     //   this.fireEvent('range', { Range: 'posix '+ this.options.range[0] +'-'+ this.options.range[1] +'/*' })
+      //     //   this.hosts_range_started.push(row.key)
+      //     // }
+      //
+      //   }.bind(this))
+      //
+      //   this.fireEvent('onPeriodicalDoc', [{ data: {hosts: this.hosts } }, {type: 'periodical', input_type: this, app: null}]);
+      // }
+      // else{
+        if(view.options.args[2].limit == 1 && resp.rows[0]){
+  				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
+  			}
+        else{//range docs
+          console.log('range docs', resp)
+          this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
 
-        Array.each(resp.rows, function(row){
-          // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
-          this.hosts.push(row.key)
-
-          // //console.log('this.hosts_range_started', this.hosts_range_started)
-          // if(!this.hosts_range_started.contains(row.key)){//if no range for this host yet
-          //   /**
-          //   * start with range, "last 300000 ms / 5min"
-          //   */
-          //   this.fireEvent('range', { Range: 'posix '+ this.options.range[0] +'-'+ this.options.range[1] +'/*' })
-          //   this.hosts_range_started.push(row.key)
-          // }
-
-        }.bind(this))
-
-        this.fireEvent('onPeriodicalDoc', [{ data: {hosts: this.hosts } }, {type: 'periodical', input_type: this, app: null}]);
-      }
-      else{
-        // if(view.options.args[2].limit == 1 && resp.rows[0]){
-  			// 	this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
-  			// }
-        // else{//range docs
-        //   this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
-
-          Array.each(resp.rows, function(row){
-            this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
-          }.bind(this))
-        // }
-      }
+          // Array.each(resp.rows, function(row){
+          //   this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+          // }.bind(this))
+        }
+      // }
 		}
   },
   request: function(err, resp){

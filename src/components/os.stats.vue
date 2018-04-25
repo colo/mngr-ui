@@ -74,7 +74,7 @@ export default {
 
         let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
 
-        console.log('seconds to trim', seconds)
+        console.log('seconds to splice', seconds)
         return seconds
       },
       hosts: state => state.hosts.all,
@@ -184,24 +184,8 @@ export default {
 
     this.EventBus.$on('networkInterfaces', doc => {
 
-      // self.networkInterfaces.push({
-      //   value: doc.networkInterfaces,
-      //   timestamp: self.$store.state.hosts[doc.host].stats.timestamps.getLast() + 0
-      // })
-      //
-      // let length = self.networkInterfaces.length
-      //
-      // self.networkInterfaces.splice(
-      //   -this.$store.state.hosts[doc.host].stats.timestamps.length -1,
-      //   length - this.$store.state.hosts[doc.host].stats.timestamps.length
-      // )
-
-      this.$store.commit('hosts/'+doc.host+'/stats/networkInterfaces', {
-        value: doc.networkInterfaces,
-        timestamp: doc.timestamp
-      })
-
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'networkInterfaces', length: this.seconds })
+      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
+      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
 		})
 
 
@@ -209,90 +193,59 @@ export default {
     this.EventBus.$on('loadavg', doc => {
 			////console.log('recived doc via Event loadavg', doc)
 
-      // self.loadavg.push({
-      //   value: doc.loadavg,
-      //   timestamp: self.$store.state.hosts[doc.host].stats.timestamps.getLast() + 0
-      // })
-      //
-      // let length = self.loadavg.length
-      //
-      // self.loadavg.splice(
-      //   -this.$store.state.hosts[doc.host].stats.timestamps.length -1,
-      //   length - this.$store.state.hosts[doc.host].stats.timestamps.length
-      // )
-
-      this.$store.commit('hosts/'+doc.host+'/stats/loadavg', {
-        value: doc.loadavg,
-        timestamp: doc.timestamp
-      })
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'loadavg', length: this.seconds })
+      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
+      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
 		})
 
     this.EventBus.$on('uptime', doc => {
 
-      // self.uptime.push({
-      //   value: doc.uptime,
-      //   timestamp: self.$store.state.hosts[doc.host].stats.timestamps.getLast() + 0
-      // })
-      //
-      // let length = self.uptime.length
-      //
-      // self.uptime.splice(
-      //   -this.$store.state.hosts[doc.host].stats.timestamps.length -1,
-      //   length - this.$store.state.hosts[doc.host].stats.timestamps.length
-      // )
-
-      this.$store.commit('hosts/'+doc.host+'/stats/uptime', {
-        value: doc.uptime,
-        timestamp: doc.timestamp
-      })
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'uptime', length: this.seconds })
+      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
+      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
 
 		})
 
 		this.EventBus.$on('mem', doc => {
       // console.log('recived doc via Event mem', doc)
 
-      let mem = {
-        total: doc.totalmem,
-        free: doc.freemem,
-        timestamp: doc.timestamp
+      let mem = null
+      if(Array.isArray(doc.data)){
+        mem = []
+
+        Array.each(doc.data, function(value){
+          let data = {
+            total: value.totalmem,
+            free: value.freemem,
+            timestamp: value.timestamp
+          }
+          let percentage = 100
+
+          if(data.total != 0)
+            percentage -= data.free * 100 / data.total;
+
+          data.percentage = percentage
+
+
+          mem.push(data)
+        })
       }
-
-      // let last = self.mem.getLast()
-      let last = self.$store.state.hosts[doc.host].stats.mem.getLast()
-
-      // console.log(last)
-
-      if(!last)
-        last = {
-          total: 0,
-          free: 0,
-          timestamp: 0
+      else{
+        mem = {
+          total: doc.data.totalmem,
+          free: doc.data.freemem,
+          timestamp: doc.data.timestamp
         }
 
-      let percentage = 100
+        let percentage = 100
 
-			if(mem.total != 0)
-				percentage -= mem.free * 100 / mem.total;
+  			if(mem.total != 0)
+  				percentage -= mem.free * 100 / mem.total;
 
-      mem.percentage = percentage
+        mem.percentage = percentage
 
-      // self.mem.push(mem)
 
-      // let length = self.mem.length
-      //
-      // self.mem.splice(
-      //   -this.$store.state.hosts[doc.host].stats.timestamps.length -1,
-      //   length - this.$store.state.hosts[doc.host].stats.timestamps.length
-      // )
+      }
 
-      this.$store.commit('hosts/'+doc.host+'/stats/mem', {
-        total: doc.totalmem,
-        free: doc.freemem,
-        percentage: percentage,
-        timestamp: doc.timestamp
-      })
+      this.$store.commit('hosts/'+doc.host+'/stats/mem', mem)
 
       this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'mem', length: this.seconds })
 
@@ -303,8 +256,47 @@ export default {
     this.EventBus.$on('cpu', doc => {
       // console.log('recived doc via Event cpu', doc)
 
+
+      let cpu_simple = null
+
+      if(Array.isArray(doc.data)){
+        cpu_simple = []
+        Array.each(doc.data, function(row, index){
+
+          let last = (!doc.data[index - 1]) ? null : self.format_cpu_simple(doc.data[index - 1])
+
+          // console.log('cpu_simple last', last)
+
+          cpu_simple.push(self.format_cpu_simple(row, last))
+        })
+
+        // console.log('cpu_simple', cpu_simple)
+      }
+      else{
+        let last = self.$store.state.hosts[doc.host].stats.cpu_simple.getLast()
+
+        cpu_simple = this.format_cpu_simple(doc.data, last)
+      }
+
+      this.$store.commit('hosts/'+doc.host+'/stats/cpu_simple', cpu_simple)
+
+      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu_simple', length: this.seconds })
+
+      // this.$store.commit('hosts/'+doc.host+'/stats/cpu', {
+      //   value: doc.cpu,
+      //   timestamp: doc.timestamp
+      // })
+      //
+      // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu', length: this.seconds })
+
+		})
+	},
+
+  methods: {
+    format_cpu_simple (doc, prev){
+
       let doc_simple = { idle: 0, total: 0 }
-      Array.each(doc.cpu, function(core){
+      Array.each(doc.value, function(core){
         Object.each(core.times, function(value, key){
 
           if(key == 'idle')
@@ -322,23 +314,16 @@ export default {
         timestamp: doc.timestamp
       }
 
-
-
-      // let last = self.cpu.getLast()
-      let last = self.$store.state.hosts[doc.host].stats.cpu_simple.getLast()
-
-      // console.log('cpu last', last)
-
-      if(last == null)
-        last = {
+      if(prev == null)
+        prev = {
           total: 0,
           idle: 0,
           timestamp: 0
         }
 
-      let diff_time = cpu_simple.timestamp - last.timestamp
-      let diff_total = cpu_simple.total - last.total;
-      let diff_idle = cpu_simple.idle - last.idle;
+      let diff_time = cpu_simple.timestamp - prev.timestamp
+      let diff_total = cpu_simple.total - prev.total;
+      let diff_idle = cpu_simple.idle - prev.idle;
 
       //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
       let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / 10
@@ -346,34 +331,8 @@ export default {
 
       cpu_simple.percentage = (percentage > 100) ? 100 : percentage
 
-      // self.cpu.push(cpu)
-      //
-      // let length = self.cpu.length
-      //
-      // self.cpu.splice(
-      //   -this.$store.state.hosts[doc.host].stats.timestamps.length -1,
-      //   length - this.$store.state.hosts[doc.host].stats.timestamps.length
-      // )
-
-      this.$store.commit('hosts/'+doc.host+'/stats/cpu_simple', {
-        total: doc_simple.total,
-        idle: doc_simple.idle,
-        percentage: cpu_simple.percentage,
-        timestamp: doc.timestamp
-      })
-
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu_simple', length: this.seconds })
-
-      this.$store.commit('hosts/'+doc.host+'/stats/cpu', {
-        value: doc.cpu,
-        timestamp: doc.timestamp
-      })
-
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu', length: this.seconds })
-
-		})
-	},
-
-
+      return cpu_simple
+    }
+  }
 }
 </script>

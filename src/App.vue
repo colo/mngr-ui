@@ -25,8 +25,8 @@ const EventBus = new Vue()
 
 let default_conn = {
   scheme: 'http',
-  host:'192.168.0.40',
-  // host:'192.168.0.180',
+  // host:'192.168.0.40',
+  host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
@@ -93,31 +93,59 @@ let host_pipeline_template = {
 		}
 	],
 	filters: [
-		function(doc, opts, next){//periodical docs
+		function(doc, opts, next){
 
       if(doc != null && opts.type == 'periodical'){
 
   			let mem = {
-          timestamp: doc.metadata.timestamp,
+          type: 'mem',
           host: doc.metadata.host,
-          totalmem: doc.data.totalmem,
-          freemem: doc.data.freemem
+          data: {
+            timestamp: doc.metadata.timestamp,
+            totalmem: doc.data.totalmem,
+            freemem: doc.data.freemem
+          },
         }
         // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
         let cpu = {
-          timestamp: doc.metadata.timestamp,
+          type: 'cpu',
           host: doc.metadata.host,
-          // total: 0, idle: 0,
-          cpu: doc.data.cpus
+          data: {
+            timestamp: doc.metadata.timestamp,
+            value: doc.data.cpus
+          }
         }
         // let timestamp = { host: doc.metadata.host, timestamp: doc.metadata.timestamp }
-        let uptime = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, uptime: doc.data.uptime }
-  			let loadavg = {timestamp: doc.metadata.timestamp, host: doc.metadata.host, loadavg: doc.data.loadavg }
+        let uptime = {
+          type: 'uptime',
+          host: doc.metadata.host,
+          data: {
+            timestamp: doc.metadata.timestamp,
+            value: doc.data.uptime
+          }
+
+        }
+
+        let loadavg = {
+          type: 'loadavg',
+          host: doc.metadata.host,
+          data: {
+            timestamp: doc.metadata.timestamp,
+            value: doc.data.loadavg
+          }
+        }
 
         let networkInterfaces = {
-          timestamp: doc.metadata.timestamp,
+          type: 'networkInterfaces',
           host: doc.metadata.host,
-          networkInterfaces: doc.data.networkInterfaces
+          // data: [{
+          //   timestamp: doc.metadata.timestamp,
+          //   value: doc.data.networkInterfaces
+          // }]
+          data: {
+            timestamp: doc.metadata.timestamp,
+            value: doc.data.networkInterfaces
+          }
         }
 
 				next(mem)
@@ -129,9 +157,75 @@ let host_pipeline_template = {
 
 
       }
-      else if(doc != null){
-        next(doc)
+      else if(doc != null && doc[0]){//range
+        console.log('range doc', doc)
+
+        let mem = {
+          type: 'mem',
+          host: doc[0].doc.metadata.host,
+          data: [],
+        }
+        // let cpu = { total: 0, idle: 0, timestamp: doc[0].doc.metadata.timestamp }
+        let cpu = {
+          type: 'cpu',
+          host: doc[0].doc.metadata.host,
+          data: []
+        }
+        // let timestamp = { host: doc[0].doc.metadata.host, timestamp: doc[0].doc.metadata.timestamp }
+        let uptime = {
+          type: 'uptime',
+          host: doc[0].doc.metadata.host,
+          data: []
+
+        }
+
+        let loadavg = {
+          type: 'loadavg',
+          host: doc[0].doc.metadata.host,
+          data: []
+        }
+
+        let networkInterfaces = {
+          type: 'networkInterfaces',
+          host: doc[0].doc.metadata.host,
+          data: []
+        }
+
+        Array.each(doc, function(row){
+          mem.data.push({
+            timestamp: row.doc.metadata.timestamp,
+            totalmem: row.doc.data.totalmem,
+            freemem: row.doc.data.freemem
+          })
+          cpu.data.push({
+            timestamp: row.doc.metadata.timestamp,
+            value: row.doc.data.cpus
+          })
+          uptime.data.push({
+            timestamp: row.doc.metadata.timestamp,
+            value: row.doc.data.uptime
+          })
+          loadavg.data.push({
+            timestamp: row.doc.metadata.timestamp,
+            value: row.doc.data.loadavg
+          })
+          networkInterfaces.data.push({
+            timestamp: row.doc.metadata.timestamp,
+            value: row.doc.data.networkInterfaces
+          })
+        })
+
+
+        next(mem)
+				next(cpu)
+				// // next(timestamp)
+				next(uptime)
+				next(loadavg)
+				next(networkInterfaces)
       }
+      // else if(doc != null){
+      //   next(doc)
+      // }
 
 		},
 	],
@@ -140,30 +234,32 @@ let host_pipeline_template = {
       doc = JSON.decode(doc)
 
       // console.log(doc.host)
+      let type = doc.type
+      EventBus.$emit(type, doc) //update mem widget
 
-      if(doc.totalmem){
-
-				EventBus.$emit('mem', doc) //update mem widget
-			}
-			else if(doc.cpu){
-        // ////console.log(doc)
-				EventBus.$emit('cpu', doc) //update cpu widget
-			}
-			// else if(doc.timestamp){
-      //   // ////console.log(doc)
-			// 	EventBus.$emit('timestamp', doc) //update timestamp
+      // if(doc.totalmem){
+      //
+			// 	EventBus.$emit('mem', doc) //update mem widget
 			// }
-			else if(doc.uptime){
-        // ////console.log(doc)
-				EventBus.$emit('uptime', doc) //update uptime widget
-			}
-			else if(doc.loadavg){
-        // ////console.log(doc)
-				EventBus.$emit('loadavg', doc) //update loadavg widget
-			}
-			else if(doc.networkInterfaces){
-				EventBus.$emit('networkInterfaces', doc) //update loadavg widget
-			}
+			// else if(doc.cpu){
+      //   // ////console.log(doc)
+			// 	EventBus.$emit('cpu', doc) //update cpu widget
+			// }
+			// // else if(doc.timestamp){
+      // //   // ////console.log(doc)
+			// // 	EventBus.$emit('timestamp', doc) //update timestamp
+			// // }
+			// else if(doc.uptime){
+      //   // ////console.log(doc)
+			// 	EventBus.$emit('uptime', doc) //update uptime widget
+			// }
+			// else if(doc.loadavg){
+      //   // ////console.log(doc)
+			// 	EventBus.$emit('loadavg', doc) //update loadavg widget
+			// }
+			// else if(doc.networkInterfaces){
+			// 	EventBus.$emit('networkInterfaces', doc) //update loadavg widget
+			// }
 		}
 	]
 }
@@ -193,7 +289,7 @@ export default {
       }.bind(this))
     },
     '$store.state.hosts.current': function(host){
-      // console.log('$store.state.hosts.current', host)
+      console.log('$store.state.hosts.current range', host)
       let range = this.$store.state.app.range
 
       Array.each(this.hosts_pipelines, function(pipe){
@@ -263,16 +359,18 @@ export default {
 
         // let host = pipe.inputs[0].options.conn[0].stat_host
 
-        let null_range = (range[1] == null) ? true : false
+        // let null_range = (range[1] == null) ? true : false
 
         if(range[1] != null){
           end = range[1]
-
-
+          
+          this.$nextTick(() => this.$store.commit('app/freeze', true))
+          // this.$nextTick(() => this.$store.commit('app/pause', true))
           // this.EventBus.$emit('suspend')
         }
         else{
           this.$store.commit('app/freeze', false)
+          // this.$store.commit('app/pause', false)
           // this.EventBus.$emit('resume')
         }
 
@@ -289,9 +387,9 @@ export default {
         //   customClass : 'bg-white'
         // })
 
-        if(null_range == false){
-          this.$nextTick(() => this.$store.commit('app/freeze', true))
-        }
+        // if(null_range == false){
+        //   this.$nextTick(() => this.$store.commit('app/freeze', true))
+        // }
         // else{
         //   // this.EventBus.$emit('resume')
         //   //pipe.fireEvent('onResume')
@@ -332,12 +430,12 @@ export default {
 		})
   },
   beforeCreate () {
-    this.$q.loading.show({
-      delay: 0, // ms
-      spinner: 'QSpinnerGears',
-      spinnerColor: 'blue',
-      customClass : 'bg-white'
-    })
+    // this.$q.loading.show({
+    //   delay: 0, // ms
+    //   spinner: 'QSpinnerGears',
+    //   spinnerColor: 'blue',
+    //   customClass : 'bg-white'
+    // })
   },
 }
 </script>
