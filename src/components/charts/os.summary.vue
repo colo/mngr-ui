@@ -15,7 +15,8 @@
     :label="name" -->
     <!-- v-for="(stat, name) in $options.stats" -->
 
-       <at-card :bordered="false">
+      <el-card shadow="hover">
+       <!-- <at-card :bordered="false"> -->
          <div class="row justify-center">
            <div
             v-for="(stat, name) in $options.stats"
@@ -53,7 +54,9 @@
              <!-- <p>{{name}}</p> -->
            </div>
         </div>
-       </at-card>
+       <!-- </at-card> -->
+     </el-card>
+     
     </q-collapsible>
 
 

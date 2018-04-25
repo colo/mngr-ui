@@ -24,7 +24,7 @@ import {
   Option,
   // OptionGroup,
   Button,
-  // ButtonGroup,
+  ButtonGroup,
   // Table,
   // TableColumn,
   DatePicker,
@@ -48,7 +48,7 @@ import {
   // Upload,
   // Progress,
   Badge,
-  // Card,
+  Card,
   // Rate,
   // Steps,
   // Step,
@@ -99,7 +99,7 @@ export default ({ app, router, Vue }) => {
   Vue.use(Option);
   // Vue.use(OptionGroup);
   Vue.use(Button);
-  // Vue.use(ButtonGroup);
+  Vue.use(ButtonGroup);
   // Vue.use(Table);
   // Vue.use(TableColumn);
   Vue.use(DatePicker);
@@ -123,7 +123,7 @@ export default ({ app, router, Vue }) => {
   // Vue.use(Upload);
   // Vue.use(Progress);
   Vue.use(Badge);
-  // Vue.use(Card);
+  Vue.use(Card);
   // Vue.use(Rate);
   // Vue.use(Steps);
   // Vue.use(Step);

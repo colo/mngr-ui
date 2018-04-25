@@ -15,7 +15,8 @@
       :name="name"
      >
 
-       <at-card :bordered="false">
+      <el-card shadow="hover">
+       <!-- <at-card :bordered="false"> -->
          <!-- <div
           :id="name"
           :style="stat.style"
@@ -29,13 +30,16 @@
            :options="stat"
            :stat="stats[name]"
            :EventBus="EventBus"
-           :suspended="suspended"
+           :freezed="freezed"
            v-observe-visibility="visibilityChanged"
            >
           </dygraph-vue>
 
+       <!-- </at-card> -->
+     </el-card>
 
-       </at-card>
+
+
      </q-collapsible>
 
      <template v-for="(stat, iface) in networkInterfaces_stats">
@@ -52,7 +56,8 @@
          :name="iface+'-'+messure"
        >
 
-         <at-card :bordered="false">
+        <el-card shadow="hover">
+         <!-- <at-card :bordered="false"> -->
            <!-- <div
              :id="iface+'-'+messure"
              :style="$options.net_stats.style"
@@ -65,12 +70,14 @@
               :options="networkInterfaces_stats[iface][messure].options"
               :stat="networkInterfaces_stats[iface][messure]"
               :EventBus="EventBus"
-              :suspended="suspended"
+              :freezed="freezed"
               v-observe-visibility="visibilityChanged"
               >
              </dygraph-vue>
 
-         </at-card>
+         <!-- </at-card> -->
+       </el-card>
+
      </q-collapsible>
     </template>
 
@@ -158,29 +165,14 @@ export default {
       stats: {},
       networkInterfaces_stats: {},
       // to_suspend: false,
-      suspended: false
+      // suspended: false
       // networkInterfaces_charts: {},
       // uptime_stats: []
     }
   },
 
   created () {
-    // console.log('created to suspend')
-    //
 
-    //
-    // this.EventBus.$on('suspend', function() {
-    //   // this.$set(this, 'suspended', true)
-    //   self.to_suspend = true
-    //   // this.$nextTick(() => this.to_suspend = true )
-    //   console.log('event suspend, suspended:', this.to_suspend)
-		// }.bind(self))
-    // this.EventBus.$on('resume', function() {
-    //   // this.$set(this, 'suspended', false)
-    //   this.suspended = false
-    //   this.to_suspend = false
-    //   console.log('event resume, suspended: ', this.suspended)
-		// }.bind(self))
 
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
@@ -253,7 +245,8 @@ export default {
           this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
           this.$refs[this.host+'_uptime'][0].chart != null &&
           this.$options.visibles['uptime'] != false &&
-          this.highlighted == false
+          this.highlighted == false &&
+          this.paused == false
         ){
 
 
@@ -293,7 +286,8 @@ export default {
           this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval &&
           this.$refs[this.host+'_loadavg'][0].chart != null &&
           this.$options.visibles['loadavg'] != false &&
-          this.highlighted == false
+          this.highlighted == false &&
+          this.paused == false
         ){
           // this.sync_charts()
           // this.charts.loadavg.updateOptions( { 'file': this.stats.loadavg.data, 'dateWindow': this.charts.loadavg.xAxisExtremes() } )
@@ -428,7 +422,8 @@ export default {
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
                 this.$refs[this.host+'_'+iface+'-'+messure][0].chart != null &&
                 this.$options.visibles[iface+'-'+messure] != false &&
-                this.highlighted == false
+                this.highlighted == false &&
+                this.paused == false
               ){
 
                 // this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
@@ -453,17 +448,18 @@ export default {
   },
   computed: Object.merge(
     mapState({
-      to_suspend: state => state.app.suspend,
+      paused: state => state.app.pause,
+      freezed: state => state.app.freeze,
     })
   ),
-  updated (){
-    if(this.to_suspend == true)
-      this.$nextTick(function(){this.suspended = true}.bind(this))
-      // this.suspended = true
-
-
-    console.log('updated suspended', this.to_suspend , this.suspended)
-  },
+  // updated (){
+  //   if(this.to_suspend == true)
+  //     this.$nextTick(function(){this.suspended = true}.bind(this))
+  //     // this.suspended = true
+  //
+  //
+  //   console.log('updated suspended', this.to_suspend , this.suspended)
+  // },
   methods: {
     /**
     * @source: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/assign

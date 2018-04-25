@@ -30,7 +30,7 @@
         </div> -->
 
         <div class="gt-sm col-md-2">
-          <at-menu mode="inline" active-name="0">
+          <!-- <at-menu mode="inline" active-name="0">
           <at-menu-item name="0" disabled><i class="icon icon-box"></i>Submenu</at-menu-item>
           <at-submenu>
             <template slot="title"><i class="icon icon-home"></i>Navigation One</template>
@@ -62,7 +62,7 @@
             <at-menu-item name="4-1">Submenu One</at-menu-item>
             <at-menu-item name="4-2">Submenu Two</at-menu-item>
           </at-submenu>
-        </at-menu>
+        </at-menu> -->
       </div>
 
     </template>

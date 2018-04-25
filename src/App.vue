@@ -25,8 +25,8 @@ const EventBus = new Vue()
 
 let default_conn = {
   scheme: 'http',
-  // host:'192.168.0.40',
-  host:'192.168.0.180',
+  host:'192.168.0.40',
+  // host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
@@ -181,6 +181,17 @@ export default {
     }
   },
   watch: {
+    '$store.state.app.suspend': function(bool){
+      Array.each(this.hosts_pipelines, function(pipe){
+        if(bool == false){
+          pipe.fireEvent('onResume')
+        }
+        else{
+          pipe.fireEvent('onSuspend')
+        }
+
+      }.bind(this))
+    },
     '$store.state.hosts.current': function(host){
       // console.log('$store.state.hosts.current', host)
       let range = this.$store.state.app.range
@@ -252,35 +263,35 @@ export default {
 
         // let host = pipe.inputs[0].options.conn[0].stat_host
 
-        // let null_range = (range[1] == null) ? true : false
+        let null_range = (range[1] == null) ? true : false
 
         if(range[1] != null){
           end = range[1]
-          this.$store.commit('app/suspend', true)
+
+
           // this.EventBus.$emit('suspend')
         }
         else{
-          this.$store.commit('app/suspend', false)
+          this.$store.commit('app/freeze', false)
           // this.EventBus.$emit('resume')
         }
 
-        this.$store.commit('app/reset', true)
-        
+        // this.$store.commit('app/reset', true)
+
         pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
 
 
 
-        this.$q.loading.show({
-          delay: 0, // ms
-          spinner: 'QSpinnerGears',
-          spinnerColor: 'blue',
-          customClass : 'bg-white'
-        })
+        // this.$q.loading.show({
+        //   delay: 0, // ms
+        //   spinner: 'QSpinnerGears',
+        //   spinnerColor: 'blue',
+        //   customClass : 'bg-white'
+        // })
 
-        // if(null_range == false){
-        //   //pipe.fireEvent('onSuspend')
-        //   this.EventBus.$emit('suspend')
-        // }
+        if(null_range == false){
+          this.$nextTick(() => this.$store.commit('app/freeze', true))
+        }
         // else{
         //   // this.EventBus.$emit('resume')
         //   //pipe.fireEvent('onResume')

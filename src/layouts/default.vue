@@ -52,6 +52,24 @@
             Running on Quasar v{{ $q.version }}
           </div> -->
 
+          <el-button-group>
+            <el-button type="primary"
+              @click="pause(true); suspend(false)"
+            >
+              <q-icon name="pause" />
+            </el-button>
+            <el-button type="primary"
+              autofocus
+              @click="pause(false); suspend(false)"
+            >
+              <q-icon name="play_arrow" />
+            </el-button>
+            <el-button type="primary"
+              @click="pause(false); suspend(true)"
+            >
+              <q-icon name="stop" />
+            </el-button>
+          </el-button-group>
         </q-toolbar-title>
 
 
@@ -403,15 +421,22 @@ export default {
     })
   ),
   methods: {
+    pause (bool) {
+      this.$store.commit('app/pause', bool)
+    },
+    suspend (bool) {
+      this.$store.commit('app/suspend', bool)
+    },
     // openURL
     selectedDateRange () {
       if(this.dateRange[1] instanceof Date){
 
-        // window.EventBus.$emit('highlightCallback', {})
-
+        // EventBus.$emit('highlightCallback', {})
         this.$store.commit('app/range', {start: this.dateRange[0].getTime(), end: this.dateRange[1].getTime()})
+
       }
       else{
+
         this.$store.commit('app/range', {start: this.dateRange[0].getTime(), end: null})
       }
     }

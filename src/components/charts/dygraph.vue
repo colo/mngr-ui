@@ -25,6 +25,8 @@ export default {
   name: 'dygraph',
 
   // chart: null,
+  freezed: false,
+
   props: {
     EventBus: {
       type: [Object],
@@ -55,7 +57,7 @@ export default {
       default: () => ({})
     },
 
-    suspended: {
+    freezed: {
       type: [Boolean],
       default: () => (false)
     },
@@ -212,9 +214,9 @@ export default {
 
       let self = this
 
-      console.log('updating chart, suspended...', this.id, this.suspended)
+      console.log('updating chart, suspended...', this.id, this.$options.freezed, this.freezed)
 
-      if(this.highlighted == false && this.ready == true && this.suspended == false){
+      if(this.highlighted == false && this.ready == true && this.$options.freezed == false){
 
         this.chart.updateOptions(
           Object.merge(
@@ -228,7 +230,10 @@ export default {
 
         this.chart.setSelection(this.chart.numRows() - 1, {}, false)
 
+
       }
+
+      this.$options.freezed = JSON.parse(JSON.stringify(this.freezed))
 
       // if(this.suspended == true){
       //   this.chart.setSelection(this.chart.numRows() - 1, {}, false)
