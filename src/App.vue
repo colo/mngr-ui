@@ -25,8 +25,8 @@ const EventBus = new Vue()
 
 let default_conn = {
   scheme: 'http',
-  host:'192.168.0.40',
-  // host:'192.168.0.180',
+  // host:'192.168.0.40',
+  host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
@@ -371,7 +371,7 @@ export default {
         pipe.inputs[0].addEvent('onRangeDoc', function(doc){
           if(this.$store.state.app.freeze == true){
             console.log('pipe.inputs[0].addEvent(onRangeDoc)')
-            this.$nextTick(function(){pipe.fireEvent('onSuspend')})
+            // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
             this.$q.loading.hide()
             // this.$store.commit('app/pause', true)
           }

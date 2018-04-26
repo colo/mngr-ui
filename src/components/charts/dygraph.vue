@@ -1,6 +1,7 @@
 <template>
   <div :id="id+'-container' "class="netdata-container-with-legend" :style="options.style">
      <div
+       :ref="id"
        :id="id"
        :class="options.class"
      >
@@ -71,6 +72,18 @@ export default {
     }
   },
   created () {
+    this.EventBus.$on('highlightCallback', params => {
+      this.highlighted = true
+      // console.log('event highlightCallback', params)
+		})
+    this.EventBus.$on('unhighlightCallback', event => {
+      this.highlighted = false
+      // console.log('event unhighlightCallback', event)
+		})
+
+  },
+  created () {
+
     // let self = this
     // this.EventBus.$on('suspend', function() {
     //   // this.$set(this, 'suspended', true)
@@ -85,33 +98,33 @@ export default {
     //   console.log('event resume, suspended: ', this.suspended)
 		// }.bind(self))
 
-    this.EventBus.$on('highlightCallback', params => {
-      this.highlighted = true
-      // console.log('event highlightCallback', params)
-		})
-    this.EventBus.$on('unhighlightCallback', event => {
-      this.highlighted = false
-      // console.log('event unhighlightCallback', event)
-		})
+
+
 
     // keypath
     let unwatch = this.$watch('stat.data', function (val, oldVal) {
+    // let unwatch = this.$watch( () => this.$refs[this.id], function (val, oldVal) {
+
+      console.log('created', this.id, this.stat.data)
 
       if(val.length > 1 && this.chart == null){
+      // if(this.chart == null){
+
         // //console.log('creating chart...', this.id,this.chart, this.stat.data)
+        let options = Object.clone(this.options.options)
 
         /**
         * ugly hack:
         * Due to JavaScript deep cloning
         */
         //deep clone/stringify object to loose any refere (loosing any "function" declarations)
-        let options = JSON.parse(JSON.stringify(this.options.options))
+        // let options = JSON.parse(JSON.stringify(this.options.options))
 
         /**
         * deep clone object with completeAssign (keep references), and merge the two,
         * recovering "function" declarations
         */
-        options = Object.merge(options, this.completeAssign({}, this.options.options ))
+        // options = Object.merge(options, this.completeAssign({}, this.options.options ))
 
         if(options.labelsDiv)
           options.labelsDiv = this.id+'-'+options.labelsDiv
@@ -142,20 +155,96 @@ export default {
 
     })
   },
+  mounted () {
+
+    // let self = this
+    // this.EventBus.$on('suspend', function() {
+    //   // this.$set(this, 'suspended', true)
+    //   // this.to_suspend = true
+    //   this.$nextTick(() => this.to_suspend = true )
+    //   console.log('event suspend, suspended:', this.suspended)
+		// }.bind(self))
+    // this.EventBus.$on('resume', function() {
+    //   // this.$set(this, 'suspended', false)
+    //   this.suspended = false
+    //   this.to_suspend = false
+    //   console.log('event resume, suspended: ', this.suspended)
+		// }.bind(self))
+
+
+
+
+    // keypath
+    // let unwatch = this.$watch('stat.data', function (val, oldVal) {
+    // let unwatch = this.$watch( () => this.$refs[this.id], function (val, oldVal) {
+
+      console.log('created', this.id, this.stat.data)
+
+      // if(val.length > 1 && this.chart == null){
+      if(this.chart == null){
+
+        // //console.log('creating chart...', this.id,this.chart, this.stat.data)
+        let options = Object.clone(this.options.options)
+
+        /**
+        * ugly hack:
+        * Due to JavaScript deep cloning
+        */
+        //deep clone/stringify object to loose any refere (loosing any "function" declarations)
+        // let options = JSON.parse(JSON.stringify(this.options.options))
+
+        /**
+        * deep clone object with completeAssign (keep references), and merge the two,
+        * recovering "function" declarations
+        */
+        // options = Object.merge(options, this.completeAssign({}, this.options.options ))
+
+        if(options.labelsDiv)
+          options.labelsDiv = this.id+'-'+options.labelsDiv
+
+        //console.log('creatin chart labelsDiv', this.id, options.labelsDiv, document.getElementById(options.labelsDiv))
+
+        this.chart = new Dygraph(
+          document.getElementById(this.id),  // containing div
+          this.stat.data,
+          options
+        )
+
+        this.chart.ready(function(){
+          // console.log('chart '+this.id+' ready')
+          this.ready = true
+        }.bind(this))
+
+        if(this.options.init)
+          this.options.init(this)
+
+        // unwatch()
+      }
+      // else if(val.length > 1 && val.length != oldVal.length){
+      //   console.log('destroying...')
+      //   this.$destroy()
+      // }
+
+
+    // })
+  },
   // mounted () {
   //
   //
   // },
-  // destroyed (){
-  //   console.log('destroyed', this.id)
-  //   console.log('destroyed suspended', this.suspended)
-  //   if(this.to_suspend == true)
-  //     this.suspended = true//do update this time, next one ommit, so we get chart redraw
-  //
-  //
-  //   this.$off()
-  //   if(this.chart) this.chart.destroy()
-  // },
+  destroyed (){
+    console.log('destroyed', this.id)
+    // console.log('destroyed suspended', this.suspended)
+    // if(this.to_suspend == true)
+    //   this.suspended = true//do update this time, next one ommit, so we get chart redraw
+    //
+    //
+    if(this.chart){
+      this.chart.destroy()
+      this.chart = null
+    }
+    this.$off()
+  },
   // updated (){
   //   if(this.to_suspend == true)
   //     this.suspended = true//do update this time, next one ommit, so we get chart redraw

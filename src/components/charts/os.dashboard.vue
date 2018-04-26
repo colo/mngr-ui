@@ -227,7 +227,9 @@ export default {
   },
 
   watch: {
-
+    // 'networkInterfaces_stats': function(val){
+    //   console.log('$watched', this.$refs)
+    // },
     uptime: function(val){
       // ////////console.log('gonna update')
       // ////////console.log(this.$refs['uptime'][0])
@@ -321,13 +323,29 @@ export default {
           **/
           Array.each(messures, function(messure){// "bytes" | "packets"
             if(!self.networkInterfaces_stats[iface][messure]){
+              let options = Object.clone(self.$options.net_stats)
+
+              // self.$watch(
+              //   function(){
+              //     console.log('self.$refs['+self.host+'_'+iface+'-'+messure+']')
+              //     console.log('self.$refs', self.$refs[self.host+'_'+iface+'-'+messure])
+              //     return self.$refs
+              //   },
+              //   function(oldVal, newVal){
+              //     console.log('self.$watch(self.$refs[self.host+_+iface+-+messure]', newVal)
+              //   },
+              //   {
+              //     deep: true
+              //   }
+              // )
+
               /**
               * ugly hack:
               * Due to JavaScript deep cloning
               */
               //deep clone/stringify object to loose any refere (loosing any "function" declarations)
               // let options = JSON.parse(JSON.stringify(self.$options.net_stats))
-              let options = Object.clone(self.$options.net_stats)
+
               /**
               * deep clone object with completeAssign (keep references), and merge the two,
               * recovering "function" declarations
@@ -387,44 +405,17 @@ export default {
 
         ////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
-
-
         Object.each(this.networkInterfaces_stats, function(stat, iface){
 
           Object.each(stat, function(value, messure){
 
 
             // if(document.getElementById(iface+'-'+messure)){
+            // console.log('updating NET', this.$refs)
+
             if(this.$refs[this.host+'_'+iface+'-'+messure]){
 
               // console.log('updating NET', this.freezed, this.networkInterfaces_stats)
-
-              // if(!this.networkInterfaces_charts[iface+'-'+messure]){
-              //   //////////console.log('---validatin---', iface+'-'+messure)
-              //
-              //
-              //   let option = JSON.parse(JSON.stringify(this.$options.net_stats.options))
-              //
-              //
-              //   // this.$set(this.networkInterfaces_charts,
-              //   //   iface+'-'+messure,
-              //   //   new Dygraph(
-              //   //       document.getElementById(iface+'-'+messure),  // containing div
-              //   //       this.networkInterfaces_stats[iface][messure].data,
-              //   //       option
-              //   //     )
-              //   // )
-              //
-              //
-              //   // if(this.$options.net_stats.init)
-              //     // this.$options.net_stats.init(this.networkInterfaces_charts[iface+'-'+messure], this.networkInterfaces_stats[iface][messure])
-              //
-              //   // this.sync_charts()
-              //   // this.expanded.push(iface+'-'+messure)
-              // }
-              // else{
-
-
 
               if(
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
