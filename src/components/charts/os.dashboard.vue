@@ -244,7 +244,7 @@ export default {
         if(
           this.stats.uptime.lastupdate < Date.now() - this.$options.stats.uptime.interval &&
           this.$refs[this.host+'_uptime'][0].chart != null &&
-          this.$options.visibles['uptime'] != false &&
+          ( this.$options.visibles['uptime'] != false || this.freezed == true ) &&
           this.highlighted == false &&
           this.paused == false
         ){
@@ -285,7 +285,7 @@ export default {
         if(
           this.stats.loadavg.lastupdate < Date.now() - this.$options.stats.loadavg.interval &&
           this.$refs[this.host+'_loadavg'][0].chart != null &&
-          this.$options.visibles['loadavg'] != false &&
+          ( this.$options.visibles['loadavg'] != false  || this.freezed == true ) &&
           this.highlighted == false &&
           this.paused == false
         ){
@@ -299,7 +299,7 @@ export default {
 
     },
     networkInterfaces: function(networkInterfaces){
-      // ////////console.log('networkInterfaces', networkInterfaces)
+      console.log('networkInterfaces', networkInterfaces)
 
       let self = this
       if(networkInterfaces.getLast() !== null){
@@ -314,6 +314,7 @@ export default {
           if(!self.networkInterfaces_stats[iface])
             self.$set(self.networkInterfaces_stats, iface, {})
 
+
           /**
           * turn data property->messure (ex: transmited { bytes: .. }),
           * to: messure->property (ex: bytes {transmited:.., recived: ... })
@@ -325,13 +326,13 @@ export default {
               * Due to JavaScript deep cloning
               */
               //deep clone/stringify object to loose any refere (loosing any "function" declarations)
-              let options = JSON.parse(JSON.stringify(self.$options.net_stats))
-
+              // let options = JSON.parse(JSON.stringify(self.$options.net_stats))
+              let options = Object.clone(self.$options.net_stats)
               /**
               * deep clone object with completeAssign (keep references), and merge the two,
               * recovering "function" declarations
               */
-              options = Object.merge(options, self.completeAssign({}, self.$options.net_stats ))
+              // options = Object.merge(options, self.completeAssign({}, self.$options.net_stats ))
 
               self.$set(self.networkInterfaces_stats[iface], messure, {
                 options: options,
@@ -339,6 +340,8 @@ export default {
                 data: []
               })
             }
+
+
               // self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
 
               // let data = []
@@ -385,6 +388,7 @@ export default {
         ////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
 
+
         Object.each(this.networkInterfaces_stats, function(stat, iface){
 
           Object.each(stat, function(value, messure){
@@ -392,6 +396,8 @@ export default {
 
             // if(document.getElementById(iface+'-'+messure)){
             if(this.$refs[this.host+'_'+iface+'-'+messure]){
+
+              // console.log('updating NET', this.freezed, this.networkInterfaces_stats)
 
               // if(!this.networkInterfaces_charts[iface+'-'+messure]){
               //   //////////console.log('---validatin---', iface+'-'+messure)
@@ -418,10 +424,12 @@ export default {
               // }
               // else{
 
+
+
               if(
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
                 this.$refs[this.host+'_'+iface+'-'+messure][0].chart != null &&
-                this.$options.visibles[iface+'-'+messure] != false &&
+                ( this.$options.visibles[iface+'-'+messure] != false  || this.freezed == true ) &&
                 this.highlighted == false &&
                 this.paused == false
               ){
@@ -430,6 +438,7 @@ export default {
                 //    'file': value.data,
                 //    'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
                 //  });
+
 
                 this.$refs[this.host+'_'+iface+'-'+messure][0].updateOptions({ 'dateWindow': this.$refs[this.host+'_'+iface+'-'+messure][0].chart.xAxisExtremes() })
 

@@ -210,24 +210,28 @@ export default {
     //   return document.getElementById(this.id)
     // },
     updateOptions (options){
-      this.$q.loading.hide()
+
 
       let self = this
 
       console.log('updating chart, suspended...', this.id, this.$options.freezed, this.freezed)
 
+      // let data =  Array.clone(self.stat.data)
+
       if(this.highlighted == false && this.ready == true
-        && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
+        // && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
         // && this.freezed == false
       ){
 
-        console.log('data length',self.stat.data.length)
 
-        // if(this.chart.rawData_.length !=  self.stat.data.length){
+        /**
+        * needed to reset chart, for rangeDocs
+        **/
+        // if(this.chart.numRows() !=  self.stat.data.length -1){
         //   let columns = this.chart.rawData_[0].length - 1
         //   let data = []
         //   // data[0].fill(0, 0, columns)
-        //   for(let i = 0; i < self.stat.data.length; i++){
+        //   for(let i = 0; i < self.stat.data.length -1; i++){
         //     data[i] = []
         //     for(let j = 0; j<= columns; j++){
         //       data[i].push(0)
@@ -235,7 +239,7 @@ export default {
         //   }
         //
         //
-        //   console.log('data', data)
+        //
         //   this.chart.updateOptions(
         //     Object.merge(
         //       {
@@ -246,31 +250,45 @@ export default {
         //   );
         // }
 
-        this.chart.updateOptions(
-          Object.merge(
-            {
-              'file': self.stat.data
-            },
-            options
-          )
-        );
-
-        // this.chart.adjustRoll(self.stat.data.length)
 
 
+        // if(this.$options.freezed == false || (this.chart.numRows() !=  this.$options.freezed)){
+        //
+          // console.log('data length',this.chart.numRows(), self.stat.data.length)
 
-        this.chart.setSelection(this.chart.numRows() - 1, {}, false)
 
+          this.chart.updateOptions(
+            Object.merge(
+              {
+                'file': Array.clone(self.stat.data)
+              },
+              options
+            )
+          );
+
+          console.log('updating data', this.id, this.chart.numRows(), self.stat.data.length - 1)
+
+          // this.chart.adjustRoll(self.stat.data.length)
+
+
+
+          this.chart.setSelection(this.chart.numRows() - 1, {}, false)
+
+        //   if(this.freezed == true){
+        //     this.$options.freezed = data.length -1
+        //   }
+        //
+        // }
 
       }
 
       // this.$options.freezed = JSON.parse(JSON.stringify(this.freezed))
-      if(this.freezed == false){
-        this.$options.freezed = 0
-      }
-      else{
-        this.$options.freezed++
-      }
+      // if(this.freezed == false){
+      //   this.$options.freezed = false
+      // }
+      // else{
+      //   this.$options.freezed = data.length
+      // }
       // if(this.suspended == true){
       //   this.chart.setSelection(this.chart.numRows() - 1, {}, false)
       //   console.log('updating chart, suspended...', this.id, this.suspended)

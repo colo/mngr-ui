@@ -25,8 +25,8 @@ const EventBus = new Vue()
 
 let default_conn = {
   scheme: 'http',
-  // host:'192.168.0.40',
-  host:'192.168.0.180',
+  host:'192.168.0.40',
+  // host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
@@ -158,7 +158,7 @@ let host_pipeline_template = {
 
       }
       else if(doc != null && doc[0]){//range
-        console.log('range doc', doc)
+        // console.log('range doc', doc)
 
         let mem = {
           type: 'mem',
@@ -264,6 +264,8 @@ let host_pipeline_template = {
 	]
 }
 
+import { mapState } from 'vuex'
+
 export default {
   name: 'App',
   data () {
@@ -276,6 +278,26 @@ export default {
       // ]
     }
   },
+  computed: Object.merge(
+    mapState({
+      // reset: state => state.app.reset,
+      // // arrow functions can make the code very succinct!
+      // seconds: function(state){
+      //   let end = new Date().getTime()
+      //   if(state.app.range[1] != null)
+      //     end = state.app.range[1]
+      //
+      //   let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
+      //
+      //   console.log('seconds to splice', seconds)
+      //   return seconds
+      // },
+      // hosts: state => state.hosts.all,
+      currentHost: state => state.hosts.current,
+
+    })
+
+  ),
   watch: {
     '$store.state.app.suspend': function(bool){
       Array.each(this.hosts_pipelines, function(pipe){
@@ -344,6 +366,22 @@ export default {
 
         pipe.fireEvent('onSuspend')
 
+        //suscribe to 'onRangeDoc
+
+        pipe.inputs[0].addEvent('onRangeDoc', function(doc){
+          if(this.$store.state.app.freeze == true){
+            console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+            this.$nextTick(function(){pipe.fireEvent('onSuspend')})
+            this.$q.loading.hide()
+            // this.$store.commit('app/pause', true)
+          }
+          else{
+            pipe.fireEvent('onResume')
+            this.$q.loading.hide()
+            // this.$store.commit('app/pause', false)
+          }
+        }.bind(this))
+
         this.hosts_pipelines.push(pipe)
       }.bind(this))
 
@@ -354,38 +392,47 @@ export default {
       console.log('store.state.app.range', range)
 
       Array.each(this.hosts_pipelines, function(pipe){
-        let end = new Date().getTime()
-        // console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
 
-        // let host = pipe.inputs[0].options.conn[0].stat_host
+        if(pipe.inputs[0].options.id == 'input.os-'+this.currentHost){
+          let end = new Date().getTime()
 
-        // let null_range = (range[1] == null) ? true : false
+          // console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
 
-        if(range[1] != null){
-          end = range[1]
-          
-          this.$nextTick(() => this.$store.commit('app/freeze', true))
-          // this.$nextTick(() => this.$store.commit('app/pause', true))
-          // this.EventBus.$emit('suspend')
+          // let host = pipe.inputs[0].options.conn[0].stat_host
+
+          // let null_range = (range[1] == null) ? true : false
+
+          if(range[1] != null){
+            end = range[1]
+
+            this.$store.commit('app/freeze', true)
+            // this.$nextTick(() => this.$store.commit('app/pause', true))
+            // this.EventBus.$emit('suspend')
+          }
+          else{
+            this.$store.commit('app/freeze', false)
+            // this.$store.commit('app/pause', false)
+            // this.EventBus.$emit('resume')
+          }
+
+
+          pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
+
+          pipe.fireEvent('onSuspend')
+
+          // if(range[1] != null){
+          //   this.$nextTick(function(){pipe.fireEvent('onSuspend')})
+          // }
         }
-        else{
-          this.$store.commit('app/freeze', false)
-          // this.$store.commit('app/pause', false)
-          // this.EventBus.$emit('resume')
-        }
 
-        // this.$store.commit('app/reset', true)
+        this.$store.commit('app/reset', true)
 
-        pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
-
-
-
-        // this.$q.loading.show({
-        //   delay: 0, // ms
-        //   spinner: 'QSpinnerGears',
-        //   spinnerColor: 'blue',
-        //   customClass : 'bg-white'
-        // })
+        this.$q.loading.show({
+          delay: 0, // ms
+          spinner: 'QSpinnerGears',
+          spinnerColor: 'blue',
+          customClass : 'bg-white'
+        })
 
         // if(null_range == false){
         //   this.$nextTick(() => this.$store.commit('app/freeze', true))
