@@ -29,14 +29,14 @@ export default {
     labels: ['Date', 'OUT', 'IN'],
     series: {
       'OUT': {
-         plotter: smoothPlotter,
+         // plotter: smoothPlotter,
          // color: 'red',
-         strokeWidth: 2
+         //strokeWidth: 2
       },
       'IN': {
-         plotter: smoothPlotter,
+         // plotter: smoothPlotter,
          // color: 'red',
-         strokeWidth: 2
+         //strokeWidth: 2
       }
 
     },

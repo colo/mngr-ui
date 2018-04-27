@@ -25,8 +25,8 @@ const EventBus = new Vue()
 
 let default_conn = {
   scheme: 'http',
-  host:'192.168.0.40',
-  // host:'192.168.0.180',
+  // host:'192.168.0.40',
+  host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
