@@ -177,13 +177,13 @@ export default {
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      ////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      //////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
       self.sync_charts()
 		})
 
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      //////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      ////////console.log('event OS.DASHBOARD unhighlightCallback', event)
       self.unsync_charts()
 		})
 
@@ -228,11 +228,11 @@ export default {
 
   watch: {
     // 'networkInterfaces_stats': function(val){
-    //   console.log('$watched', this.$refs)
+    //   //console.log('$watched', this.$refs)
     // },
     uptime: function(val){
-      // ////////console.log('gonna update')
-      // ////////console.log(this.$refs['uptime'][0])
+      // //////////console.log('gonna update')
+      // //////////console.log(this.$refs['uptime'][0])
 
       if(this.$refs[this.host+'_uptime'] && val.length > 0){
 
@@ -263,7 +263,7 @@ export default {
 
     },
     loadavg: function(val){
-      //////////console.log('loadavg', val)
+      ////////////console.log('loadavg', val)
 
       if(this.$refs[this.host+'_loadavg'] && val.length > 0){
 
@@ -280,7 +280,7 @@ export default {
           data.push(avg)
         })
 
-        // //////////console.log(data)
+        // ////////////console.log(data)
         this.$set(this.stats.loadavg, 'data', data)
 
 
@@ -301,7 +301,7 @@ export default {
 
     },
     networkInterfaces: function(networkInterfaces){
-      console.log('networkInterfaces', networkInterfaces)
+      //console.log('networkInterfaces', networkInterfaces)
 
       let self = this
       if(networkInterfaces.getLast() !== null){
@@ -327,12 +327,12 @@ export default {
 
               // self.$watch(
               //   function(){
-              //     console.log('self.$refs['+self.host+'_'+iface+'-'+messure+']')
-              //     console.log('self.$refs', self.$refs[self.host+'_'+iface+'-'+messure])
+              //     //console.log('self.$refs['+self.host+'_'+iface+'-'+messure+']')
+              //     //console.log('self.$refs', self.$refs[self.host+'_'+iface+'-'+messure])
               //     return self.$refs
               //   },
               //   function(oldVal, newVal){
-              //     console.log('self.$watch(self.$refs[self.host+_+iface+-+messure]', newVal)
+              //     //console.log('self.$watch(self.$refs[self.host+_+iface+-+messure]', newVal)
               //   },
               //   {
               //     deep: true
@@ -403,7 +403,7 @@ export default {
 
         })
 
-        ////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+        //////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
         Object.each(this.networkInterfaces_stats, function(stat, iface){
 
@@ -411,11 +411,11 @@ export default {
 
 
             // if(document.getElementById(iface+'-'+messure)){
-            // console.log('updating NET', this.$refs)
+            // //console.log('updating NET', this.$refs)
 
             if(this.$refs[this.host+'_'+iface+'-'+messure]){
 
-              // console.log('updating NET', this.freezed, this.networkInterfaces_stats)
+              // //console.log('updating NET', this.freezed, this.networkInterfaces_stats)
 
               if(
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
@@ -458,7 +458,7 @@ export default {
   //     // this.suspended = true
   //
   //
-  //   console.log('updated suspended', this.to_suspend , this.suspended)
+  //   //console.log('updated suspended', this.to_suspend , this.suspended)
   // },
   methods: {
     /**
@@ -484,7 +484,7 @@ export default {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id.replace('-container','')] = isVisible
 
-      ////console.log('visible', isVisible, entry.target.id.replace('-container',''))
+      //////console.log('visible', isVisible, entry.target.id.replace('-container',''))
 
       // if(this.$refs[entry.target.id.replace('-container','')]){
       //   this.$refs[entry.target.id.replace('-container','')][0].chart.setSelection(
@@ -500,13 +500,15 @@ export default {
         let gs = []
         // let sync = []
 
-        ////console.log(this.$refs, this.host)
+        //////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          // //console.log('charts', name, ref)
+          // ////console.log('charts', name, ref)
 
-          if(ref[0] && ref[0].chart instanceof Dygraph && this.$options.visibles[name] != false){
-            //console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+          if(ref[0] && ref[0].chart instanceof Dygraph
+            && (this.$options.visibles[name] != false || this.freezed == true ))
+          {
+            ////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
 
@@ -517,23 +519,23 @@ export default {
 
         // Object.each(this.charts, function(dygraph, name){
         //   if(this.$options.visibles[name] == true){
-        //     // ////////console.log('charts', dygraph)
+        //     // //////////console.log('charts', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
         //
         // Object.each(this.networkInterfaces_charts, function(dygraph, name){
         //   if(this.$options.visibles[name] == true){
-        //     // ////////console.log('networkInterfaces', dygraph)
+        //     // //////////console.log('networkInterfaces', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
 
-        // ////////console.log(this.networkInterfaces_charts)
+        // //////////console.log(this.networkInterfaces_charts)
         //
 
 
-        // //////console.log(gs)
+        // ////////console.log(gs)
         this.unsync_charts()
 
         if(gs.length > 1){
@@ -551,7 +553,7 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // ////////console.log('detaching', this.$options.sync)
+        // //////////console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
@@ -585,10 +587,10 @@ export default {
     //
     //     formated[index] = date;
     //
-    //     // ////////////////console.log('---timestamps---',formated)
+    //     // //////////////////console.log('---timestamps---',formated)
     //   })
     //
-    //   // ////////////////console.log('---timestamps---',formated)
+    //   // //////////////////console.log('---timestamps---',formated)
     //   return formated;
     //
     // }
@@ -622,10 +624,10 @@ export default {
 
         data[index][0] = date;
 
-        // ////////////////console.log('---timestamps---',formated)
+        // //////////////////console.log('---timestamps---',formated)
       })
 
-      // ////////////////console.log('---timestamps---',formated)
+      // //////////////////console.log('---timestamps---',formated)
       return data;
 
     }

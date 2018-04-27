@@ -25,8 +25,8 @@ const EventBus = new Vue()
 
 let default_conn = {
   scheme: 'http',
-  // host:'192.168.0.40',
-  host:'192.168.0.180',
+  host:'192.168.0.40',
+  // host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
@@ -62,7 +62,7 @@ let get_hosts_pipeline = new Pipeline({
 			doc = JSON.decode(doc)
 
       if(doc.data.hosts){
-				// console.log(doc)
+				// //console.log(doc)
 				EventBus.$emit('hosts', doc.data) //update mem widget
 
 			}
@@ -158,7 +158,7 @@ let host_pipeline_template = {
 
       }
       else if(doc != null && doc[0]){//range
-        // console.log('range doc', doc)
+        // //console.log('range doc', doc)
 
         let mem = {
           type: 'mem',
@@ -233,7 +233,7 @@ let host_pipeline_template = {
 		function(doc){
       doc = JSON.decode(doc)
 
-      // console.log(doc.host)
+      // //console.log(doc.host)
       let type = doc.type
       EventBus.$emit(type, doc) //update mem widget
 
@@ -242,19 +242,19 @@ let host_pipeline_template = {
 			// 	EventBus.$emit('mem', doc) //update mem widget
 			// }
 			// else if(doc.cpu){
-      //   // ////console.log(doc)
+      //   // //////console.log(doc)
 			// 	EventBus.$emit('cpu', doc) //update cpu widget
 			// }
 			// // else if(doc.timestamp){
-      // //   // ////console.log(doc)
+      // //   // //////console.log(doc)
 			// // 	EventBus.$emit('timestamp', doc) //update timestamp
 			// // }
 			// else if(doc.uptime){
-      //   // ////console.log(doc)
+      //   // //////console.log(doc)
 			// 	EventBus.$emit('uptime', doc) //update uptime widget
 			// }
 			// else if(doc.loadavg){
-      //   // ////console.log(doc)
+      //   // //////console.log(doc)
 			// 	EventBus.$emit('loadavg', doc) //update loadavg widget
 			// }
 			// else if(doc.networkInterfaces){
@@ -289,7 +289,7 @@ export default {
       //
       //   let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
       //
-      //   console.log('seconds to splice', seconds)
+      //   //console.log('seconds to splice', seconds)
       //   return seconds
       // },
       // hosts: state => state.hosts.all,
@@ -300,6 +300,7 @@ export default {
   ),
   watch: {
     '$store.state.app.suspend': function(bool){
+      //console.log('$store.state.app.suspend', bool)
       Array.each(this.hosts_pipelines, function(pipe){
         if(bool == false){
           pipe.fireEvent('onResume')
@@ -311,15 +312,15 @@ export default {
       }.bind(this))
     },
     '$store.state.hosts.current': function(host){
-      console.log('$store.state.hosts.current range', host)
+      //console.log('$store.state.hosts.current range', host)
       let range = this.$store.state.app.range
 
       Array.each(this.hosts_pipelines, function(pipe){
 
-        console.log('pipe.inputs[0].options.id', pipe.inputs[0].options.id, 'input.os-'+host)
+        //console.log('pipe.inputs[0].options.id', pipe.inputs[0].options.id, 'input.os-'+host)
 
         if(pipe.inputs[0].options.id == 'input.os-'+host){
-          // console.log('firing onResume...')
+          // //console.log('firing onResume...')
 
           // let null_range = (range[1] == null) ? true : false
 
@@ -333,7 +334,9 @@ export default {
           //   pipe.fireEvent('onSuspend')
           // }
           // else{
+          if(this.$store.state.app.suspend != true)
             pipe.fireEvent('onResume')
+
           // }
 
           // pipe.fireEvent('onResume')
@@ -349,7 +352,7 @@ export default {
     },
 
     '$store.state.hosts.all': function(hosts){
-      // console.log('$store.state.hosts.all', hosts)
+      // //console.log('$store.state.hosts.all', hosts)
 
       this.$set(this.hosts_pipelines, [])
 
@@ -362,7 +365,7 @@ export default {
 
         let pipe = new Pipeline(template)
 
-        console.log('$store.state.hosts.all', pipe)
+        //console.log('$store.state.hosts.all', pipe)
 
         pipe.fireEvent('onSuspend')
 
@@ -370,8 +373,9 @@ export default {
 
         pipe.inputs[0].addEvent('onRangeDoc', function(doc){
           if(this.$store.state.app.freeze == true){
-            console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+            //console.log('pipe.inputs[0].addEvent(onRangeDoc)')
             // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
+            this.$store.commit('app/suspend', true)
             this.$q.loading.hide()
             // this.$store.commit('app/pause', true)
           }
@@ -389,14 +393,14 @@ export default {
 
     },
     '$store.state.app.range' : function(range){
-      console.log('store.state.app.range', range)
+      //console.log('store.state.app.range', range)
 
       Array.each(this.hosts_pipelines, function(pipe){
 
         if(pipe.inputs[0].options.id == 'input.os-'+this.currentHost){
           let end = new Date().getTime()
 
-          // console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
+          // //console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
 
           // let host = pipe.inputs[0].options.conn[0].stat_host
 
@@ -419,6 +423,7 @@ export default {
           pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
 
           pipe.fireEvent('onSuspend')
+
 
           // if(range[1] != null){
           //   this.$nextTick(function(){pipe.fireEvent('onSuspend')})
@@ -453,7 +458,7 @@ export default {
   created: function(){
 
     this.EventBus.$on('hosts', doc => {
-			// ////console.log('recived doc via Event hosts', doc)
+			// //////console.log('recived doc via Event hosts', doc)
       this.$store.commit('hosts/set', doc.hosts)
 
       Array.each(doc.hosts, function(host){

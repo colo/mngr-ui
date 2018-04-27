@@ -54,17 +54,19 @@
 
           <el-button-group>
             <el-button type="primary"
+              :disabled="charts_state == 'paused'"
               @click="pause(true); suspend(false)"
             >
               <q-icon name="pause" />
             </el-button>
             <el-button type="primary"
-              autofocus
-              @click="pause(false); suspend(false)"
+              :disabled="charts_state == 'running'"
+              @click="suspend(false); freeze(false); pause(false)"
             >
               <q-icon name="play_arrow" />
             </el-button>
             <el-button type="primary"
+              :disabled="charts_state == 'suspended'"
               @click="pause(false); suspend(true)"
             >
               <q-icon name="stop" />
@@ -378,31 +380,42 @@ export default {
       currentHost: {
         get () {
           let host = this.$store.state.hosts.current
-          //console.log('current host', host);
+          ////console.log('current host', host);
           if((host == '' || !host) && this.$store.state.hosts.all.length > 0){
             host = this.$store.state.hosts.all[0]
             this.$store.commit('hosts/current', host)
             // host = 0
           }
           // else if (this.hosts.length > 0){
-          //   //console.log('current host indexOf', host);
+          //   ////console.log('current host indexOf', host);
           //   host = this.$store.state.hosts.all.indexOf(host)
           // }
           // else{
           //   host = 0
           // }
 
-          //console.log('current host', host);
+          ////console.log('current host', host);
           return host
         },
         // setter
         set (value) {
-          //console.log('setting host...', value)
+          ////console.log('setting host...', value)
           this.$store.commit('hosts/current', value)
         }
       }
     },
     mapState({
+      charts_state: function(state){
+        let value = 'running'
+        if(state.app.suspend == true){
+          value = 'suspended'
+        }
+        else if(state.app.pause == true){
+          value = 'paused'
+        }
+
+        return value
+      },
       // arrow functions can make the code very succinct!
       // hosts: state => state.hosts.all,
       hosts: function(state){
@@ -426,6 +439,9 @@ export default {
     },
     suspend (bool) {
       this.$store.commit('app/suspend', bool)
+    },
+    freeze (bool) {
+      this.$store.commit('app/freeze', bool)
     },
     // openURL
     selectedDateRange () {
