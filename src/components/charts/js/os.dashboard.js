@@ -27,7 +27,7 @@ export default {
       "hideOverlayOnMouseOut": false,
       "labelsDiv": "netdata-chart-legend",
       "legend": "always",
-      // connectSeparatedPoints: true,
+      connectSeparatedPoints: true,
       // includeZero: 0,
       fillGraph: true,
       // fillAlpha: 1.0,
@@ -38,7 +38,7 @@ export default {
       // drawPoints: true,
       showRoller: false,
       // valueRange: [0.0, 1.2],
-      labels: ['Time', '1 min avg', '5 min avg', '15 min avg'],
+      labels: ['Time', '1 min avg', '5 min avg', '15 min avg', 'minute stat (avg)'],
       series: {
        '1 min avg': {
          // color: 'red',
@@ -52,11 +52,14 @@ export default {
        },
        '15 min avg': {
          // color: 'red',
-         //strokeWidth: 2,
+         // strokeWidth: 2,
          // includeZero: 0,
          // fillGraph: true,
          // plotter: smoothPlotter,
          // fillAlpha: 1.0,
+       },
+       'minute stat (median)':{
+         strokeWidth: 3,
        }
 
      },

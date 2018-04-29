@@ -18,6 +18,7 @@
     "element-ui": "^2.3.6",
     "node-app-couchdb-client": "git+https://github.com/colo/node-app-couchdb-client.git",
     "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
+    "node-cron": "^1.2.1",
     "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
     "tls": "0.0.1",
     "vue-easy-pie-chart": "^1.0.3",

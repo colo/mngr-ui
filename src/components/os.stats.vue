@@ -90,10 +90,11 @@ export default {
         return uptime
       },
       loadavg: function(state){
-        let loadavg = []
+        let loadavg = {current: [], minute: []}
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          loadavg = state.hosts[currentHost].stats.loadavg
+          loadavg.current = state.hosts[currentHost].stats.loadavg
+          loadavg.minute = state.hosts[currentHost].stats.minute.loadavg
         }
 
         return loadavg
@@ -154,6 +155,7 @@ export default {
         if(!this.$store.state.hosts[host].stats){
           // console.log('registering....', host, hostStats)
           this.$store.registerModule(['hosts', host, 'stats'], hostStats)
+          this.$store.registerModule(['hosts', host, 'stats', 'minute'], hostStats)
         }
           // this.$store.commit('hosts/'+host+'/seconds', self.seconds)
       }.bind(this))
@@ -181,6 +183,18 @@ export default {
     //
     //   // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'networkInterfaces', length: 0 })
 		// })
+
+    this.EventBus.$on('os.stats', doc => {
+      console.log('recived doc via Event os.stats', doc)
+
+      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/'+doc.type, doc.data)
+
+      let divisor = (doc.messure == 'minute') ? 60 : 3600
+
+      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/splice', { stat: doc.type, length: this.seconds / divisor })
+
+      console.log('recived doc via Event os.stats', this.$store.state.hosts.elk.stats.minute.loadavg)
+		})
 
     this.EventBus.$on('networkInterfaces', doc => {
 

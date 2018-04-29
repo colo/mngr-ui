@@ -9,6 +9,7 @@ import Pipeline from 'node-mngr-worker/lib/pipeline'
 
 import InputPollerCouchDBHosts from './libs/input.poller.couchdb.hosts'
 import InputPollerCouchDBOS from './libs/input.poller.couchdb.os'
+import InputPollerCouchDBOSStats from './libs/input.poller.couchdb.os.stats'
 
 /**
 * https://alligator.io/vuejs/global-event-bus/
@@ -17,16 +18,10 @@ import InputPollerCouchDBOS from './libs/input.poller.couchdb.os'
 import Vue from 'vue'
 const EventBus = new Vue()
 
-// const pipelines = []
-
-/* *
-* @todo: create InputPollerCouchDBOS/Pipeline for each Host??
-**/
-
 let default_conn = {
   scheme: 'http',
-  // host:'192.168.0.40',
-  host:'192.168.0.180',
+  host:'192.168.0.40',
+  // host:'192.168.0.180',
   // host:'127.0.0.1',
   port: 5984,
   //module: require('./lib/os.stats'),
@@ -237,32 +232,205 @@ let host_pipeline_template = {
       let type = doc.type
       EventBus.$emit(type, doc) //update mem widget
 
-      // if(doc.totalmem){
-      //
-			// 	EventBus.$emit('mem', doc) //update mem widget
-			// }
-			// else if(doc.cpu){
-      //   // //////console.log(doc)
-			// 	EventBus.$emit('cpu', doc) //update cpu widget
-			// }
-			// // else if(doc.timestamp){
-      // //   // //////console.log(doc)
-			// // 	EventBus.$emit('timestamp', doc) //update timestamp
-			// // }
-			// else if(doc.uptime){
-      //   // //////console.log(doc)
-			// 	EventBus.$emit('uptime', doc) //update uptime widget
-			// }
-			// else if(doc.loadavg){
-      //   // //////console.log(doc)
-			// 	EventBus.$emit('loadavg', doc) //update loadavg widget
-			// }
-			// else if(doc.networkInterfaces){
-			// 	EventBus.$emit('networkInterfaces', doc) //update loadavg widget
-			// }
 		}
 	]
 }
+
+import cron from 'node-cron'
+
+let hostStats_pipeline_template = {
+	input: [
+		{
+			poll: {
+				id: "input.os.stats",
+				conn: [
+          Object.merge(
+            Object.clone(default_conn),
+            {
+              module: InputPollerCouchDBOSStats,
+            }
+          )
+				],
+				connect_retry_count: 5,
+				connect_retry_periodical: 1000,
+        /**
+        * @dev
+        **/
+				// requests: {
+				// 	periodical: 10000,
+				// },
+        requests: {
+    			periodical: function(dispatch){
+    				return cron.schedule('* * * * *', dispatch);//every minute
+    			}
+    		},
+			},
+		}
+	],
+	filters: [
+		function(doc, opts, next){
+
+      if(doc != null && opts.type == 'periodical'){
+        console.log('InputPollerCouchDBOSStats->filter periodical', doc)
+
+      //
+  		// 	let mem = {
+      //     type: 'mem',
+      //     host: doc.metadata.host,
+      //     data: {
+      //       timestamp: doc.metadata.timestamp,
+      //       totalmem: doc.data.totalmem,
+      //       freemem: doc.data.freemem
+      //     },
+      //   }
+      //   // let cpu = { total: 0, idle: 0, timestamp: doc.metadata.timestamp }
+      //   let cpu = {
+      //     type: 'cpu',
+      //     host: doc.metadata.host,
+      //     data: {
+      //       timestamp: doc.metadata.timestamp,
+      //       value: doc.data.cpus
+      //     }
+      //   }
+      //   // let timestamp = { host: doc.metadata.host, timestamp: doc.metadata.timestamp }
+      //   let uptime = {
+      //     type: 'uptime',
+      //     host: doc.metadata.host,
+      //     data: {
+      //       timestamp: doc.metadata.timestamp,
+      //       value: doc.data.uptime
+      //     }
+      //
+      //   }
+      //
+        let loadavg = {
+          path: 'os.stats',
+          messure: doc.metadata.type,
+          type: 'loadavg',
+          host: doc.metadata.host,
+          data: {
+            timestamp: doc.metadata.timestamp,
+            range: doc.metadata.range,
+            value: doc.data.loadavg
+          }
+        }
+      //
+      //   let networkInterfaces = {
+      //     type: 'networkInterfaces',
+      //     host: doc.metadata.host,
+      //     // data: [{
+      //     //   timestamp: doc.metadata.timestamp,
+      //     //   value: doc.data.networkInterfaces
+      //     // }]
+      //     data: {
+      //       timestamp: doc.metadata.timestamp,
+      //       value: doc.data.networkInterfaces
+      //     }
+      //   }
+      //
+			// 	next(mem)
+			// 	next(cpu)
+			// 	// next(timestamp)
+			// 	next(uptime)
+				next(loadavg)
+			// 	next(networkInterfaces)
+      //
+      //
+      }
+      else if(doc != null && doc[0]){//range
+        console.log('InputPollerCouchDBOSStats->filter range', doc)
+      //   // //console.log('range doc', doc)
+      //
+      //   let mem = {
+      //     type: 'mem',
+      //     host: doc[0].doc.metadata.host,
+      //     data: [],
+      //   }
+      //   // let cpu = { total: 0, idle: 0, timestamp: doc[0].doc.metadata.timestamp }
+      //   let cpu = {
+      //     type: 'cpu',
+      //     host: doc[0].doc.metadata.host,
+      //     data: []
+      //   }
+      //   // let timestamp = { host: doc[0].doc.metadata.host, timestamp: doc[0].doc.metadata.timestamp }
+      //   let uptime = {
+      //     type: 'uptime',
+      //     host: doc[0].doc.metadata.host,
+      //     data: []
+      //
+      //   }
+      //
+        let loadavg = {
+          path: 'os.stats',
+          messure: doc[0].doc.metadata.type,
+          type: 'loadavg',
+          host: doc[0].doc.metadata.host,
+          data: []
+        }
+
+      //
+      //   let networkInterfaces = {
+      //     type: 'networkInterfaces',
+      //     host: doc[0].doc.metadata.host,
+      //     data: []
+      //   }
+      //
+        Array.each(doc, function(row){
+          // mem.data.push({
+          //   timestamp: row.doc.metadata.timestamp,
+          //   totalmem: row.doc.data.totalmem,
+          //   freemem: row.doc.data.freemem
+          // })
+          // cpu.data.push({
+          //   timestamp: row.doc.metadata.timestamp,
+          //   value: row.doc.data.cpus
+          // })
+          // uptime.data.push({
+          //   timestamp: row.doc.metadata.timestamp,
+          //   value: row.doc.data.uptime
+          // })
+
+          loadavg.data.push({
+            timestamp: row.doc.metadata.timestamp,
+            range: row.doc.metadata.range,
+            value: row.doc.data.loadavg
+          })
+          // networkInterfaces.data.push({
+          //   timestamp: row.doc.metadata.timestamp,
+          //   value: row.doc.data.networkInterfaces
+          // })
+        })
+      //
+      //
+      //   next(mem)
+			// 	next(cpu)
+			// 	// // next(timestamp)
+			// 	next(uptime)
+				next(loadavg)
+			// 	next(networkInterfaces)
+      }
+
+
+		},
+	],
+	output: [
+		function(doc){
+      doc = JSON.decode(doc)
+
+      console.log('InputPollerCouchDBOSStats->output', doc)
+      //
+      // // //console.log(doc.host)
+      // let type = doc.type
+      EventBus.$emit(doc.path, doc) //update mem widget
+
+		}
+	]
+}
+
+let host_pipelines_templates = [
+  host_pipeline_template,
+  hostStats_pipeline_template
+]
 
 import { mapState } from 'vuex'
 
@@ -280,23 +448,8 @@ export default {
   },
   computed: Object.merge(
     mapState({
-      // reset: state => state.app.reset,
-      // // arrow functions can make the code very succinct!
-      // seconds: function(state){
-      //   let end = new Date().getTime()
-      //   if(state.app.range[1] != null)
-      //     end = state.app.range[1]
-      //
-      //   let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
-      //
-      //   //console.log('seconds to splice', seconds)
-      //   return seconds
-      // },
-      // hosts: state => state.hosts.all,
       currentHost: state => state.hosts.current,
-
     })
-
   ),
   watch: {
     '$store.state.app.suspend': function(bool){
@@ -319,10 +472,11 @@ export default {
 
         //console.log('pipe.inputs[0].options.id', pipe.inputs[0].options.id, 'input.os-'+host)
 
-        if(pipe.inputs[0].options.id == 'input.os-'+host){
-          // //console.log('firing onResume...')
+        // if(pipe.inputs[0].options.id == 'input.os-'+host){
+        let search_host = new RegExp(host, 'g')
+        if(search_host.test(pipe.inputs[0].options.id)){
+          // console.log('firing onResume...', pipe.inputs[0].options.id)
 
-          // let null_range = (range[1] == null) ? true : false
 
           if(range[1] == null){
             range[1] = new Date().getTime()
@@ -357,36 +511,41 @@ export default {
       this.$set(this.hosts_pipelines, [])
 
       Array.each(hosts, function(host){
-        let template = Object.clone(host_pipeline_template)
+        Array.each(host_pipelines_templates, function(pipeline_template){
 
-        template.input[0].poll.conn[0].stat_host = host
-        template.input[0].poll.id += '-'+host
-        template.input[0].poll.conn[0].id = template.input[0].poll.id
+          let template = Object.clone(pipeline_template)
 
-        let pipe = new Pipeline(template)
+          template.input[0].poll.conn[0].stat_host = host
+          template.input[0].poll.id += '-'+host
+          template.input[0].poll.conn[0].id = template.input[0].poll.id
 
-        //console.log('$store.state.hosts.all', pipe)
+          let pipe = new Pipeline(template)
 
-        pipe.fireEvent('onSuspend')
+          //console.log('$store.state.hosts.all', pipe)
 
-        //suscribe to 'onRangeDoc
+          pipe.fireEvent('onSuspend')
 
-        pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-          if(this.$store.state.app.freeze == true){
-            //console.log('pipe.inputs[0].addEvent(onRangeDoc)')
-            // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
-            this.$store.commit('app/suspend', true)
-            this.$q.loading.hide()
-            // this.$store.commit('app/pause', true)
-          }
-          else{
-            pipe.fireEvent('onResume')
-            this.$q.loading.hide()
-            // this.$store.commit('app/pause', false)
-          }
+          //suscribe to 'onRangeDoc
+
+          pipe.inputs[0].addEvent('onRangeDoc', function(doc){
+            if(this.$store.state.app.freeze == true){
+              //console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+              // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
+              this.$store.commit('app/suspend', true)
+              this.$q.loading.hide()
+              // this.$store.commit('app/pause', true)
+            }
+            else{
+              pipe.fireEvent('onResume')
+              this.$q.loading.hide()
+              // this.$store.commit('app/pause', false)
+            }
+          }.bind(this))
+
+          this.hosts_pipelines.push(pipe)
+
         }.bind(this))
 
-        this.hosts_pipelines.push(pipe)
       }.bind(this))
 
 
@@ -397,7 +556,11 @@ export default {
 
       Array.each(this.hosts_pipelines, function(pipe){
 
-        if(pipe.inputs[0].options.id == 'input.os-'+this.currentHost){
+        let search_host = new RegExp(this.currentHost, 'g')
+        if(search_host.test(pipe.inputs[0].options.id)){
+        // if(pipe.inputs[0].options.id == 'input.os-'+this.currentHost){
+          console.log('firing range......', pipe.inputs[0].options.id)
+
           let end = new Date().getTime()
 
           // //console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
@@ -482,12 +645,12 @@ export default {
 		})
   },
   beforeCreate () {
-    // this.$q.loading.show({
-    //   delay: 0, // ms
-    //   spinner: 'QSpinnerGears',
-    //   spinnerColor: 'blue',
-    //   customClass : 'bg-white'
-    // })
+    this.$q.loading.show({
+      delay: 0, // ms
+      spinner: 'QSpinnerGears',
+      spinnerColor: 'blue',
+      customClass : 'bg-white'
+    })
   },
 }
 </script>

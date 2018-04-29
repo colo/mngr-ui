@@ -145,8 +145,8 @@ export default {
       default: () => ([])
     },
     loadavg: {
-      type: [Array],
-      default: () => ([])
+      type: [Object],
+      default: () => ({})
     },
     networkInterfaces: {
       type: [Array],
@@ -263,13 +263,13 @@ export default {
 
     },
     loadavg: function(val){
-      ////////////console.log('loadavg', val)
+      console.log('loadavg', val)
 
-      if(this.$refs[this.host+'_loadavg'] && val.length > 0){
+      if(this.$refs[this.host+'_loadavg'] && val.current.length > 0){
 
         let data = []
 
-        Array.each(val, function(loadavg){
+        Array.each(val.current, function(loadavg){
           let avg = []
           avg.push(new Date(loadavg.timestamp))
 
@@ -277,10 +277,26 @@ export default {
             avg.push(value)
           })
 
+          avg.push(null)//add minute column
+
           data.push(avg)
         })
 
-        // ////////////console.log(data)
+        Array.each(data, function(column, column_index){//insert minute stats
+          let timestamp = column[0]
+
+          Array.each(val.minute, function(minute, minute_index){
+            if(
+              ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
+              || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
+              || timestamp > minute.range.start && timestamp < minute.range.end
+            ){
+              column[4] = minute.value.median
+            }
+          })
+        })
+
+        console.log('loadavg data', data)
         this.$set(this.stats.loadavg, 'data', data)
 
 
