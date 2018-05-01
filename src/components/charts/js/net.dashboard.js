@@ -30,12 +30,14 @@ export default {
     series: {
       'OUT': {
          // plotter: smoothPlotter,
-         // color: 'red',
+         color: 'red',
+         // fillAlpha: 0.4,
          //strokeWidth: 2
       },
       'IN': {
          // plotter: smoothPlotter,
-         // color: 'red',
+         color: 'blue',
+         // fillAlpha: 0.4,
          //strokeWidth: 2
       }
 

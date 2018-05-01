@@ -7,19 +7,19 @@ export default {
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
     // init: function (vue){
-    //   // console.log('init', vue)
+    //   // //console.log('init', vue)
     //   this.$vm = vue
     //   // EventBus.$emit('cpu', doc) //update cpu widget
     // },
     "options": {
       highlightCallback: function(event, x, points, row, seriesName){
-        // console.log('highlightCallback', event, x, points, row, seriesName)
-        // console.log('highlightCallback', window.EventBus)
+        // //console.log('highlightCallback', event, x, points, row, seriesName)
+        // //console.log('highlightCallback', window.EventBus)
         window.EventBus.$emit('highlightCallback', [event, x, points, row, seriesName])
       },
       unhighlightCallback: function(event){
-        // console.log('highlightCallback', event, x, points, row, seriesName)
-        // console.log('highlightCallback', window.EventBus)
+        // //console.log('highlightCallback', event, x, points, row, seriesName)
+        // //console.log('highlightCallback', window.EventBus)
         window.EventBus.$emit('unhighlightCallback', event)
       },
       drawGrid: true,
@@ -38,7 +38,7 @@ export default {
       // drawPoints: true,
       showRoller: false,
       // valueRange: [0.0, 1.2],
-      labels: ['Time', '1 min avg', '5 min avg', '15 min avg', 'minute stat (avg)'],
+      labels: ['Time', '1 min avg', '5 min avg', '15 min avg', 'minute median'],
       series: {
        '1 min avg': {
          // color: 'red',
@@ -58,8 +58,8 @@ export default {
          // plotter: smoothPlotter,
          // fillAlpha: 1.0,
        },
-       'minute stat (median)':{
-         strokeWidth: 3,
+       'minute median':{
+         strokeWidth: 2,
        }
 
      },
@@ -72,7 +72,7 @@ export default {
     "interval": 0,
     "options": {
       // legendFormatter: function(data) {
-      //   console.log('legendFormatter', data)
+      //   //console.log('legendFormatter', data)
       //   if (data.x == null) {
       //     // This happens when there's no selection and {legend: 'always'} is set.
       //     return '<br>' + data.series.map(function(series) { return series.dashHTML + ' ' + series.labelHTML }).join('<br>');
@@ -91,13 +91,13 @@ export default {
       //   return html;
       // },
       highlightCallback: function(event, x, points, row, seriesName){
-        console.log('highlightCallback', event, x, points, row, seriesName)
-        // console.log('highlightCallback', window.EventBus)
+        //console.log('highlightCallback', event, x, points, row, seriesName)
+        // //console.log('highlightCallback', window.EventBus)
         window.EventBus.$emit('highlightCallback', [event, x, points, row, seriesName])
       },
       unhighlightCallback: function(event){
-        // console.log('highlightCallback', event, x, points, row, seriesName)
-        // console.log('highlightCallback', window.EventBus)
+        // //console.log('highlightCallback', event, x, points, row, seriesName)
+        // //console.log('highlightCallback', window.EventBus)
         window.EventBus.$emit('unhighlightCallback', event)
       },
       drawGrid: true,
@@ -113,13 +113,13 @@ export default {
       //   x: {
       //     // valueFormatter: Dygraph.dateString_,
       //     xValueParser: function(x) {
-      //       console.log('valueParser', x)
+      //       //console.log('valueParser', x)
       //       return 1000*parseInt(x);
       //       // return x;
       //     },
       //     // ticker: Dygraph.dateTicker
       //     // valueFormatter: function(x){
-      //     //   console.log('valueFormatter', x)
+      //     //   //console.log('valueFormatter', x)
       //     //   return x
       //     // }
       //   }
@@ -128,7 +128,7 @@ export default {
       //   x : {
       //     // valueFormatter: Dygraph.dateString_,
       //     valueFormatter: function(x) {
-      //       console.log('valueParser', x)
+      //       //console.log('valueParser', x)
       //       return x;
       //     },
       //     // ticker: Dygraph.dateTicker

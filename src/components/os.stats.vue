@@ -74,7 +74,7 @@ export default {
 
         let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
 
-        console.log('seconds to splice', seconds)
+        //console.log('seconds to splice', seconds)
         return seconds
       },
       hosts: state => state.hosts.all,
@@ -84,7 +84,7 @@ export default {
         if(state.hosts.current){
           let currentHost = state.hosts.current
           uptime = state.hosts[currentHost].stats.uptime
-          // console.log('current uptime host', currentHost)
+          // //console.log('current uptime host', currentHost)
         }
 
         return uptime
@@ -146,14 +146,14 @@ export default {
     //   // this.reset = true
     //   // let currentHost = this.$store.state.hosts.current
     //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
-    //   // console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
+    //   // //console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
     // },
     '$store.state.hosts.all' : function(val){
-      // console.log('$store.state.hosts.all', this.$store.state.hosts.all)
+      // //console.log('$store.state.hosts.all', this.$store.state.hosts.all)
       Array.each(this.$store.state.hosts.all, function(host){
         // register a nested module `nested/myModule`
         if(!this.$store.state.hosts[host].stats){
-          // console.log('registering....', host, hostStats)
+          // //console.log('registering....', host, hostStats)
           this.$store.registerModule(['hosts', host, 'stats'], hostStats)
           this.$store.registerModule(['hosts', host, 'stats', 'minute'], hostStats)
         }
@@ -170,12 +170,12 @@ export default {
       window['EventBus'] = this.EventBus
 
     // Object.assign(window, this.EventBus)
-    // console.log('window', window)
+    // //console.log('window', window)
 
     let self = this;
 
     // this.EventBus.$on('range', doc => {
-    //   console.log('os.stats.vue->range', doc)
+    //   //console.log('os.stats.vue->range', doc)
     //   this.$store.commit('hosts/'+doc.host+'/stats/networkInterfaces', {
     //     value: {},
     //     timestamp: 0
@@ -185,15 +185,16 @@ export default {
 		// })
 
     this.EventBus.$on('os.stats', doc => {
-      console.log('recived doc via Event os.stats', doc)
+      //console.log('recived doc via Event os.stats', doc)
 
       this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/'+doc.type, doc.data)
 
       let divisor = (doc.messure == 'minute') ? 60 : 3600
+      let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
 
-      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/splice', { stat: doc.type, length: this.seconds / divisor })
+      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/splice', { stat: doc.type, length: splice })
 
-      console.log('recived doc via Event os.stats', this.$store.state.hosts.elk.stats.minute.loadavg)
+      //console.log('recived doc via Event os.stats', this.$store.state.hosts.elk.stats.minute.networkInterfaces)
 		})
 
     this.EventBus.$on('networkInterfaces', doc => {
@@ -205,7 +206,7 @@ export default {
 
 
     this.EventBus.$on('loadavg', doc => {
-			////console.log('recived doc via Event loadavg', doc)
+			//////console.log('recived doc via Event loadavg', doc)
 
       this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
       this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
@@ -219,7 +220,7 @@ export default {
 		})
 
 		this.EventBus.$on('mem', doc => {
-      // console.log('recived doc via Event mem', doc)
+      // //console.log('recived doc via Event mem', doc)
 
       let mem = null
       if(Array.isArray(doc.data)){
@@ -268,7 +269,7 @@ export default {
     // this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
 
     this.EventBus.$on('cpu', doc => {
-      // console.log('recived doc via Event cpu', doc)
+      // //console.log('recived doc via Event cpu', doc)
 
 
       let cpu_simple = null
@@ -279,12 +280,12 @@ export default {
 
           let last = (!doc.data[index - 1]) ? null : self.format_cpu_simple(doc.data[index - 1])
 
-          // console.log('cpu_simple last', last)
+          // //console.log('cpu_simple last', last)
 
           cpu_simple.push(self.format_cpu_simple(row, last))
         })
 
-        // console.log('cpu_simple', cpu_simple)
+        // //console.log('cpu_simple', cpu_simple)
       }
       else{
         let last = self.$store.state.hosts[doc.host].stats.cpu_simple.getLast()
