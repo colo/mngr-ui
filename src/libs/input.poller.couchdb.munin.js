@@ -24,8 +24,8 @@ export default new Class({
     ],
 
 		requests : {
-      range: [
-				//{ get: {uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
+      once: [
+				//{ get: {uri: 'munin/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
 				{
 					sort_by_path: function(req, next, app){
             //console.log('req.opt.range', req.opt.range)
@@ -44,13 +44,13 @@ export default new Class({
 
                   // next(
                   app.view({
-      							uri: 'dashboard',
+      							uri: 'munin',
                     args: [
                       'sort',
                       'by_path',
                       {
-        								startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
-        								endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
+        								startkey: [start_key, app.options.stat_host, "periodical"],
+        								endkey: [end_key, app.options.stat_host, "periodical"],
         								/**
         								 * pouchdb
         								 * */
@@ -58,9 +58,10 @@ export default new Class({
         								// endkey: [app.options.path_key, app.host, "periodical"],
         								/** **/
         								// limit: 1,
-        								// descending: (start_key == end_key) ? false : true,
+                        group_level: 1,
+        								descending: false,
         								inclusive_end: true,
-        								include_docs: true
+        								// include_docs: true
         							}
                     ]
       						})
@@ -78,6 +79,61 @@ export default new Class({
 				},
 
 			],
+      // range: [
+			// 	//{ get: {uri: 'munin/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
+			// 	{
+			// 		sort_by_path: function(req, next, app){
+      //       //console.log('req.opt.range', req.opt.range)
+      //       // ////console.log('sort_by_path', next)
+      //
+      //       // if(app.hosts.length > 0){
+      //       if(app.options.stat_host){
+      //         let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+      //         let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+      //         // Array.each(app.hosts, function(host){
+      //           // ////console.log('sort_by_path', host)
+      //
+      //           // if(!app.hosts_range_started.contains(host)){
+      //             // app.hosts_range_started.push(host)
+      //             //////console.log('req.opt.range', req.opt.range, host)
+      //
+      //             // next(
+      //             app.view({
+      // 							uri: 'munin',
+      //               args: [
+      //                 'sort',
+      //                 'by_path',
+      //                 {
+      //   								startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
+      //   								endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
+      //   								/**
+      //   								 * pouchdb
+      //   								 * */
+      //   								// startkey: [app.options.path_key, app.host, "periodical\ufff0"],
+      //   								// endkey: [app.options.path_key, app.host, "periodical"],
+      //   								/** **/
+      //   								// limit: 1,
+      //                   group_level: 2,
+      //   								descending: false,
+      //   								inclusive_end: true,
+      //   								// include_docs: true
+      //   							}
+      //               ]
+      // 						})
+      //             // )
+      //
+      //           // }
+      //
+      //
+      //         // }.bind(app))
+      //       }
+      //
+      //
+      //
+			// 		}
+			// 	},
+      //
+			// ],
 			periodical: [
         // {
 				// 	search_hosts: function(req, next, app){
@@ -85,7 +141,7 @@ export default new Class({
         //
 				// 		// next(
         //     app.view({
-				// 			uri: 'dashboard',
+				// 			uri: 'munin',
         //       args: [
         //         'search',
         //         'hosts',
@@ -102,52 +158,53 @@ export default new Class({
         //     // )
 				// 	}
 				// },
-				{
-					sort_by_path: function(req, next, app){
-            // ////console.log('sort_by_path', app.hosts)
-            // ////console.log('sort_by_path', next)
-
-            // if(app.hosts.length > 0){
-            if(app.options.stat_host){
-              let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
-              let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
-
-              /**
-              * limit for 'os',
-              * unlimit for 'munin'
-              */
-
-              // Array.each(app.hosts, function(host){
-                // next(
-                // ////console.log('sort_by_path', host)
-                app.view({
-    							uri: 'dashboard',
-                  args: [
-                    'sort',
-                    'by_path',
-                    {
-      								startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
-      								endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
-      								/**
-      								 * pouchdb
-      								 * */
-      								// startkey: [app.options.path_key, app.host, "periodical\ufff0"],
-      								// endkey: [app.options.path_key, app.host, "periodical"],
-      								/** **/
-                      limit: 1,
-      								descending: true,
-      								inclusive_end: true,
-      								include_docs: true
-      							}
-
-                  ]
-    						})
-              // )
-              // })
-            }
-
-					}
-				}
+				// {
+				// 	sort_by_path: function(req, next, app){
+        //     // ////console.log('sort_by_path', app.hosts)
+        //     // ////console.log('sort_by_path', next)
+        //
+        //     // if(app.hosts.length > 0){
+        //     if(app.options.stat_host){
+        //       let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+        //       let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+        //
+        //       /**
+        //       * limit for 'os',
+        //       * unlimit for 'munin'
+        //       */
+        //
+        //       // let limit = (start_key == end_key) ? { limit: 1 } : {}
+        //
+        //       // Array.each(app.hosts, function(host){
+        //         // next(
+        //         // ////console.log('sort_by_path', host)
+        //         app.view({
+    		// 					uri: 'munin',
+        //           args: [
+        //             'sort',
+        //             'by_path',
+        //             {
+      	// 							startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
+      	// 							endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
+      	// 							/**
+      	// 							 * pouchdb
+      	// 							 * */
+      	// 							// startkey: [app.options.path_key, app.host, "periodical\ufff0"],
+      	// 							// endkey: [app.options.path_key, app.host, "periodical"],
+      	// 							/** **/
+      	// 							// descending: true,
+        //               limit: 1,
+      	// 							inclusive_end: true,
+      	// 							include_docs: true
+      	// 						}
+        //           ]
+    		// 				})
+        //       // )
+        //       // })
+        //     }
+        //
+				// 	}
+				// }
 				//{
 					//view: function(req, next, app){
 						//////////console.log('---periodical')
@@ -155,7 +212,7 @@ export default new Class({
 							//let cb = next.pass(
 								////////////console.log('---next')
 								//app.view({//get doc by host->last.timestamp (descending = true, and reversed star/end keys)
-									//uri: 'dashboard',
+									//uri: 'munin',
 									//id: 'sort/by_path',
 									//data: {
 										////startkey: [app.options.path_key, app.host, "periodical",Date.now()],
@@ -183,7 +240,7 @@ export default new Class({
 						//let cb = next.pass(
 							////////////console.log('---next')
 							//app.view({
-								//uri: 'dashboard/_design/sort/_view/by_path',
+								//uri: 'munin/_design/sort/_view/by_path',
 								//headers: {
 									//'Accept': 'application/json'
 								//},
@@ -247,7 +304,7 @@ export default new Class({
   //   //////console.log('range_sort_by_path', err, resp)
   // },
   view: function(err, resp, view){
-		// //////console.log('this.view ', resp, view.options.args);
+		console.log('MUNIN this.view ', err, resp, view.options.args);
 
 		if(err){
 			////////console.log('this.sort_by_path error %o', err);
@@ -294,7 +351,7 @@ export default new Class({
 		// ////////console.log('this.info %o', resp);
 
 		//////////console.log('---INFO RESP---');
-		//this.get({uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'});
+		//this.get({uri: 'munin/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'});
 		//////////console.log(resp);
 		if(err){
 			////////console.log('this.info error %o', err);
@@ -313,7 +370,8 @@ export default new Class({
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
-		console.log('OS this.connect');
+		console.log('MUNIN this.connect');
+    // this.removeEvents('onConnect');
 
 		// try{
 		// 	//this.os.api.get({uri: 'hostname'});

@@ -29,7 +29,7 @@ export default new Class({
 							uri: 'dashboard',
               args: [
                 'search',
-                'hosts',
+                'paths',
                 {
                   //limit: 1,
                   reduce: true, //avoid geting duplicate host
@@ -82,14 +82,14 @@ export default new Class({
 		}
 		else{
 
-        let hosts = []
+        let paths = []
 
         Array.each(resp.rows, function(row){
           // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
-          hosts.push(row.key)
+          paths.push(row.key)
         })
 
-        this.fireEvent('onPeriodicalDoc', [{ data: {hosts: hosts } }, {type: 'periodical', input_type: this, app: null}]);
+        this.fireEvent('onPeriodicalDoc', [{ data: {paths: paths } }, {type: 'periodical', input_type: this, app: null}]);
 
 		}
   },

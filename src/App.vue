@@ -8,8 +8,11 @@
 import Pipeline from 'node-mngr-worker/lib/pipeline'
 
 import InputPollerCouchDBHosts from './libs/input.poller.couchdb.hosts'
+import InputPollerCouchDBPaths from './libs/input.poller.couchdb.paths'
+
 import InputPollerCouchDBOS from './libs/input.poller.couchdb.os'
 import InputPollerCouchDBOSStats from './libs/input.poller.couchdb.os.stats'
+import InputPollerCouchDBMunin from './libs/input.poller.couchdb.munin'
 
 /**
 * https://alligator.io/vuejs/global-event-bus/
@@ -28,7 +31,7 @@ let default_conn = {
   //load: ['apps/info/os/']
 }
 
-let get_hosts_pipeline = new Pipeline({
+let search_pipeline = new Pipeline({
 	input: [
 		{
 			poll: {
@@ -49,6 +52,26 @@ let get_hosts_pipeline = new Pipeline({
 					periodical: 1000,
 				},
 			},
+		},
+    {
+			poll: {
+				id: "input.paths",
+				conn: [
+          Object.merge(
+            Object.clone(default_conn),
+            {
+              id: 'input.paths',
+              module: InputPollerCouchDBPaths,
+            }
+          )
+
+				],
+				connect_retry_count: 5,
+				connect_retry_periodical: 1000,
+				requests: {
+					periodical: 1000,
+				},
+			},
 		}
 	],
 	output: [
@@ -57,10 +80,14 @@ let get_hosts_pipeline = new Pipeline({
 			doc = JSON.decode(doc)
 
       if(doc.data.hosts){
-				// ////console.log(doc)
-				EventBus.$emit('hosts', doc.data) //update mem widget
+
+				EventBus.$emit('hosts', doc.data.hosts)
 
 			}
+      else{
+        // console.log('search_pipeline else', doc)
+        EventBus.$emit('paths', doc.data.paths)
+      }
 
 		}
 	]
@@ -246,28 +273,30 @@ let host_munin_pipeline_template = {
           Object.merge(
             Object.clone(default_conn),
             {
-              path_start_key: "munin\ufff0",
-              path_end_key: 'munin',
-              module: InputPollerCouchDBOS,
+              path_start_key: 'munin',
+              path_end_key: 'munin\ufff0',
+              module: InputPollerCouchDBMunin,
             }
           )
 				],
 				connect_retry_count: 5,
 				connect_retry_periodical: 1000,
 				requests: {
-					periodical: 2000,
+					periodical: 5000,
 				},
 			},
 		}
 	],
 	filters: [
 		function(doc, opts, next){
-      console.log('host_munin_pipeline_template', doc)
+
 
       if(doc != null && opts.type == 'periodical'){
+        console.log('host_munin_pipeline_template periodical', doc)
 
       }
       else if(doc != null && doc[0]){
+        console.log('host_munin_pipeline_template range', doc)
       }
       // else if(doc != null){
       //   next(doc)
@@ -676,9 +705,9 @@ export default {
 
     this.EventBus.$on('hosts', doc => {
 			// ////////console.log('recived doc via Event hosts', doc)
-      this.$store.commit('hosts/set', doc.hosts)
+      this.$store.commit('hosts/set', doc)
 
-      Array.each(doc.hosts, function(host){
+      Array.each(doc, function(host){
         if(!this.$store.state.hosts[host])
           this.$store.registerModule(['hosts', host],{
             namespaced:true,
@@ -691,7 +720,7 @@ export default {
       * should unregister modules for unset hosts?
       */
       Array.each(this.$store.state.hosts, function(host){
-        if(!doc.hosts.contains(host))
+        if(!doc.contains(host))
           this.$store.unregisterModule(['hosts', host])
       }.bind(this))
 
