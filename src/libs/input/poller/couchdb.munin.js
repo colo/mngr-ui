@@ -1,8 +1,8 @@
 'use strict'
 
 //import App from '../../node_modules/node-app-cradle-client/index'
-const App = require ( '../../node_modules/node-app-couchdb-client/index' )
-
+// const App = require ( '../../node_modules/node-app-couchdb-client/index' )
+const App = require ( 'node-app-couchdb-client/index' )
 
 export default new Class({
   Extends: App,

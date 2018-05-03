@@ -1,18 +1,18 @@
 'use strict'
 
-import App from '../../node_modules/node-app-http-client/index'
-
+// import App from '../../node_modules/node-app-http-client/index'
+const App = require ( 'node-app-http-client/index' )
 
 export default new Class({
   Extends: App,
-  
+
   host: 'colo',
-  
+
   options: {
-		
+
 		requests : {
 			//once: [{
-				 //get: {uri: ''} 
+				 //get: {uri: ''}
 			//}],
 			periodical: [{
 				get: function(req, next, app){//wrap it on a func, so we can call "this", as "app"
@@ -22,7 +22,7 @@ export default new Class({
 							'Accept': 'application/json'
 						},
 						qs: {
-							
+
 								//startkey: ["os", app.host, "periodical",Date.now()],
 								//endkey: ["os", app.host, "periodical", Date.now() - 2000],
 								/**
@@ -31,21 +31,21 @@ export default new Class({
 								startkey: ["os", app.host, "periodical\ufff0"],
 								endkey: ["os", app.host, "periodical"],
 								/** **/
-								
+
 								limit: 1,
 								//reduce: true, //avoid geting duplicate host
 								//group: true,
 								descending: true,
 								inclusive_end: true,
 								include_docs: true
-							
+
 						}
 					})
 				}
 			}],
-			
+
 		},
-		
+
 		routes: {
 
 			get: [
@@ -61,31 +61,31 @@ export default new Class({
 				},
 			]
 		},
-		
+
 		//api: {
-			
+
 			//version: '1.0.0',
-			
-			
-			
+
+
+
 		//},
   },
-  
+
   get_last_periodical: function(err, resp, body){
 		console.log('this.get %o', resp);
-		
+
 		if(err){
 			console.log('this.get error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
 		}
 		else{
 			let result = JSON.decode(resp.body)
-			
+
 			console.log('this.get result %o', result);
-			
+
 			if(result.rows[0]){
 				this.fireEvent('onPeriodicalDoc', [result.rows[0].doc.data, {type: 'periodical', input_type: this, app: null}]);
-				
+
 				//for (var key in result.rows[0].doc.data) {
 					//console.log(key);
 				//}
@@ -94,7 +94,7 @@ export default new Class({
   },
   get: function(err, resp, body){
 		console.log('this.get %o', body);
-		
+
 		if(err){
 			console.log('this.get error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
@@ -104,11 +104,11 @@ export default new Class({
   //},
   /**
    * http://stackoverflow.com/questions/19098797/fastest-way-to-flatten-un-flatten-nested-json-objects
-   * 
+   *
    * */
   _flatten_obj: function(data) {
 		console.log('_flatten_obj %o', data);
-		
+
 		var result = {};
 		function recurse (cur, prop) {
 			if (Object(cur) !== cur) {
@@ -128,34 +128,34 @@ export default new Class({
 							result[prop] = {};
 			}
 		}
-		
+
 		recurse(data, "");
 		return result;
 	},
 	use: function(mount, app){
 		console.log('use %o %o', mount, app);
-		
+
 		var id = Object.keys(this._flatten_obj(mount))[0];
-		
+
 		app.options.id = id;
-		
+
 		app.addEvent(app.ON_CONNECT_ERROR, function(err){
 			console.log('app.ON_CONNECT_ERROR %o', err);
-			
+
 			this.fireEvent(this.ON_CONNECT_ERROR);
 		}.bind(this));
-		
-		//throw new Error();									
+
+		//throw new Error();
 		this.parent(mount, app);
 	},
   initialize: function(options){
 		this.parent(options);//override default options
-		
+
 		this.profile('root_init');//start profiling
-		
-	
+
+
 		this.profile('root_init');//end profiling
-		
+
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
@@ -172,8 +172,7 @@ export default new Class({
 	_first_connect: function(err, result, body, opts){
 		console.log('first_connect %o', JSON.decode(result.body).uuid);
 		this.options.id = JSON.decode(result.body).uuid;//set ID
-			
-	}
-	
-});
 
+	}
+
+});

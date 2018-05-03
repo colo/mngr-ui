@@ -1,8 +1,8 @@
 'use strict'
 
 //import App from '../../node_modules/node-app-cradle-client/index'
-const App = require ( '../../node_modules/node-app-cradle-client/index' )
-
+// const App = require ( '../../node_modules/node-app-cradle-client/index' )
+const App = require ( 'node-app-cradle-client/index' )
 
 //var console.log = require('console.log')('InputPollerCradleOS');
 //var console.log = require('console.log')('InputPollerCradleOS:Internals');
@@ -10,15 +10,15 @@ const App = require ( '../../node_modules/node-app-cradle-client/index' )
 
 export default new Class({
   Extends: App,
-  
+
   host: 'colo',
-  
+
   options: {
-		
+
 		requests : {
 
 			periodical: [
-				//{ 
+				//{
 					//some: function(req, next, app){
 						//next(app.view({
 							//uri: 'dashboard',
@@ -43,7 +43,7 @@ export default new Class({
 				//{
 					//view: function(req, next, app){
 						//console.log('---periodical')
-							
+
 							//let cb = next.pass(
 								////console.log('---next')
 								//app.view({//get doc by host->last.timestamp (descending = true, and reversed star/end keys)
@@ -65,7 +65,7 @@ export default new Class({
 									//}
 								//}).bind(app)
 							//);
-							
+
 							//cb.attempt();
 					//}
 				//}
@@ -80,7 +80,7 @@ export default new Class({
 									//'Accept': 'application/json'
 								//},
 								//qs: {
-									
+
 										////startkey: ["os", this.host, "periodical",Date.now()],
 										////endkey: ["os", this.host, "periodical", Date.now() - 2000],
 										///**
@@ -89,26 +89,26 @@ export default new Class({
 										//startkey: ["os", app.host, "periodical\ufff0"],
 										//endkey: ["os", app.host, "periodical"],
 										///** **/
-										
+
 										//limit: 1,
 										////reduce: true, //avoid geting duplicate host
 										////group: true,
 										//descending: true,
 										//inclusive_end: true,
 										//include_docs: true
-									
+
 								//}
 							//})//app.view
 						//)//next
-						
+
 						//cb.attempt();
-						
+
 					//}
 				//}
 			],
-			
+
 		},
-		
+
 		routes: {
 			exists: [
 				{
@@ -130,25 +130,25 @@ export default new Class({
 				},
 			]
 		},
-		
-		
+
+
   },
-  
+
   search: function(err, resp, body){
 		console.log('this.search %o', resp);
-		
+
 		if(err){
 			console.log('this.search error %o', err);
 
 		}
 		else{
 			//let result = JSON.decode(resp.body)
-			
+
 			//console.log('this.get result %o', result);
-			
+
 			//if(result.rows[0]){
 				//this.fireEvent('onPeriodicalDoc', [result.rows[0].doc.data, {type: 'periodical', input_type: this, app: null}]);
-				
+
 				////for (var key in result.rows[0].doc.data) {
 					////console.log(key);
 				////}
@@ -157,7 +157,7 @@ export default new Class({
   },
   info: function(err, resp){
 		console.log('this.info %o', resp);
-		
+
 		//console.log('---INFO RESP---');
 		//this.get({uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'});
 		//console.log(resp);
@@ -168,12 +168,12 @@ export default new Class({
 	},
   initialize: function(options){
 		this.parent(options);//override default options
-		
+
 		this.profile('root_init');//start profiling
-		
-	
+
+
 		this.profile('root_init');//end profiling
-		
+
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
@@ -183,14 +183,14 @@ export default new Class({
 			//this.os.api.get({uri: 'hostname'});
 			//this.get({uri: '/'}, this._first_connect.bind(this));
 			this.info({},this._first_connect.bind(this));
-			
+
 			let exists = function(err, resp){
 				console.log('exists', err);
 				console.log('exists', resp);
 			};
-			
+
 			this.exists({ uri: 'dashboard'}, exists.bind(exists));
-			
+
 			this.view({
 				uri: 'dashboard',
 				id: 'sort/by_path',
@@ -206,8 +206,7 @@ export default new Class({
 	_first_connect: function(err, result, body, opts){
 		console.log('first_connect %o', result.uuid);
 		this.options.id = result.uuid;//set ID
-			
-	}
-	
-});
 
+	}
+
+});
