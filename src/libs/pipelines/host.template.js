@@ -1,5 +1,7 @@
 'use strict'
 
+import cron from 'node-cron'
+
 import DefaultConn from '../../etc/default.conn'
 
 import InputPollerCouchDBOS from '../input/poller/couchdb.os'
@@ -20,16 +22,22 @@ export default {
 				],
 				connect_retry_count: 5,
 				connect_retry_periodical: 1000,
+				// requests: {
+				// 	periodical: 1000,
+				// },
 				requests: {
-					periodical: 1000,
-				},
+    			periodical: function(dispatch){
+    				return cron.schedule('* * * * * *', dispatch);//every minute
+    			}
+    		},
 			},
 		}
 	],
 	filters: [
 		function(doc, opts, next){
+			// console.log('host doc', doc)
 
-      if(doc != null && opts.type == 'periodical'){
+      if(doc != null && opts.type == 'periodical' && doc.metadata.path == 'os'){
 
   			let mem = {
           type: 'mem',
@@ -91,8 +99,8 @@ export default {
 
 
       }
-      else if(doc != null && doc[0]){//range
-        // ////console.log('range doc', doc)
+      else if(doc != null && doc[0] && doc[0].doc.metadata.path == 'os'){//range
+        // console.log('range doc', doc)
 
         let mem = {
           type: 'mem',

@@ -21,12 +21,12 @@ export default new Class({
 
 			periodical: [
         {
-					search_hosts: function(req, next, app){
+					search_paths: function(req, next, app){
             //console.log('search_hosts', next)
 
 						// next(
             app.view({
-							uri: 'dashboard',
+							uri: app.options.db,
               args: [
                 'search',
                 'paths',

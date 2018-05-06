@@ -175,7 +175,7 @@ export default {
     let self = this;
 
     // this.EventBus.$on('range', doc => {
-    //   //console.log('os.stats.vue->range', doc)
+    //   //console.log('stats.os.vue->range', doc)
     //   this.$store.commit('hosts/'+doc.host+'/stats/networkInterfaces', {
     //     value: {},
     //     timestamp: 0
@@ -184,8 +184,8 @@ export default {
     //   // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'networkInterfaces', length: 0 })
 		// })
 
-    this.EventBus.$on('os.stats', doc => {
-      //console.log('recived doc via Event os.stats', doc)
+    this.EventBus.$on('stats.os', doc => {
+      //console.log('recived doc via Event stats.os', doc)
 
       this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/'+doc.type, doc.data)
 
@@ -194,7 +194,7 @@ export default {
 
       this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/splice', { stat: doc.type, length: splice })
 
-      //console.log('recived doc via Event os.stats', this.$store.state.hosts.elk.stats.minute.networkInterfaces)
+      //console.log('recived doc via Event stats.os', this.$store.state.hosts.elk.stats.minute.networkInterfaces)
 		})
 
     this.EventBus.$on('networkInterfaces', doc => {

@@ -189,10 +189,10 @@ export default new Class({
 				console.log('exists', resp);
 			};
 
-			this.exists({ uri: 'dashboard'}, exists.bind(exists));
+			this.exists({ uri: this.options.db}, exists.bind(exists));
 
 			this.view({
-				uri: 'dashboard',
+				uri: this.options.db,
 				id: 'sort/by_path',
 			}, function(err, resp){
 				console.log('view', err);

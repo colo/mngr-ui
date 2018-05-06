@@ -12,12 +12,16 @@ export default new Class({
   // hosts: [],
   // hosts_range_started: [],
 
+  paths: /^os.*/,
 
   options: {
+    paths: [],
+    stat_host: null,
+
     path_key: null,
     path_start_key: null,
     path_end_key: null,
-    stat_host: null,
+
 
     range: [
       Date.now() - 300000,
@@ -34,9 +38,9 @@ export default new Class({
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
-              let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
-              let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
-              // Array.each(app.hosts, function(host){
+              // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+              // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+              Array.each(app.options.paths, function(path){
                 // ////console.log('sort_by_path', host)
 
                 // if(!app.hosts_range_started.contains(host)){
@@ -45,13 +49,15 @@ export default new Class({
 
                   // next(
                   app.view({
-      							uri: 'dashboard',
+      							uri: app.options.db,
                     args: [
                       'sort',
                       'by_path',
                       {
-        								startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
-        								endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
+        								// startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
+        								// endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
+                        startkey: [path, app.options.stat_host, "periodical", req.opt.range.start],
+        								endkey: [path, app.options.stat_host, "periodical",req.opt.range.end],
         								/**
         								 * pouchdb
         								 * */
@@ -70,7 +76,7 @@ export default new Class({
                 // }
 
 
-              // }.bind(app))
+              }.bind(app))
             }
 
 
@@ -103,32 +109,55 @@ export default new Class({
         //     // )
 				// 	}
 				// },
+        // {
+        //   search_paths: function(req, next, app){
+        //     // console.log('search_paths', next)
+        //
+        //     // next(
+        //     app.view({
+        //       uri: app.options.db,
+        //       args: [
+        //         'search',
+        //         'paths',
+        //         {
+        //           //limit: 1,
+        //           reduce: true, //avoid geting duplicate host
+        //           group: true,
+        //
+        //         }
+        //       ]
+        //     })
+        //     // )
+        //   }
+        // },
 				{
 					sort_by_path: function(req, next, app){
-            // ////console.log('sort_by_path', app.hosts)
+            // console.log('sort_by_path', app.paths)
             // ////console.log('sort_by_path', next)
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
-              let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
-              let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+              // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
+              // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
 
               /**
               * limit for 'os',
               * unlimit for 'munin'
               */
 
-              // Array.each(app.hosts, function(host){
+              Array.each(app.options.paths, function(path){
                 // next(
                 // ////console.log('sort_by_path', host)
                 app.view({
-    							uri: 'dashboard',
+    							uri: app.options.db,
                   args: [
                     'sort',
                     'by_path',
                     {
-      								startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
-      								endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
+      								// startkey: [start_key, app.options.stat_host, "periodical",Date.now() + 0],
+      								// endkey: [end_key, app.options.stat_host, "periodical", Date.now() - 1000],
+                      startkey: [path, app.options.stat_host, "periodical",Date.now() + 0],
+      								endkey: [path, app.options.stat_host, "periodical", Date.now() - 1000],
       								/**
       								 * pouchdb
       								 * */
@@ -144,7 +173,7 @@ export default new Class({
                   ]
     						})
               // )
-              // })
+              })
             }
 
 					}
@@ -255,7 +284,16 @@ export default new Class({
 
 		}
 		else{
-
+      // if(view.options.args[0] == 'search' && view.options.args[1] == 'paths'){
+      //   console.log('this.search_path', resp);
+      //   let os = /^os.*/
+      //   this.paths = []
+      //   Array.each(resp.rows, function(path){
+      //     if(os.test(path.key) == true)
+      //       this.paths.push(path.key)
+      //   }.bind(this))
+      // }
+      // else{
       // if(view.options.args[0] == 'search' && view.options.args[1] == 'hosts'){
       //   this.hosts = []
       //
@@ -303,6 +341,14 @@ export default new Class({
 		}
 	},
   initialize: function(options){
+    let paths = []
+    Array.each(options.paths, function(path){
+      if(this.paths.test(path) == true)
+        paths.push(path)
+    }.bind(this))
+
+    options.paths = paths
+
     //console.log('input.poller.couchdb.os', options)
 		this.parent(options);//override default options
 

@@ -32,13 +32,28 @@
      // state.networkInterfaces = payload
      Vue.set(state, 'networkInterfaces', payload)
 
-     console.log(state.networkInterfaces)
+     // console.log(state.networkInterfaces)
    }
    else {
      state.networkInterfaces.push(payload)
    }
  }
-
+ // export const networkInterfaces = (state, networkInterfaces) => {
+ //   if(Array.isArray(networkInterfaces)){
+ //     Array.each(networkInterfaces, function(networkInterface){
+ //       if(!state.networkInterfaces.contains(networkInterface))
+ //         state.networkInterfaces.push(networkInterface)
+ //     })
+ //     Array.each(state.networkInterfaces, function(networkInterface){
+ //       if(!networkInterfaces.contains(networkInterface))
+ //         state.networkInterfaces.erase(networkInterface)
+ //     })
+ //  }
+ //  else {
+ //    state.networkInterfaces.push(networkInterfaces)
+ //  }
+ //   // Vue.set(state, 'all', hosts)
+ // }
  export const mem = (state, payload) => {
    if(Array.isArray(payload)){
      state.mem = payload

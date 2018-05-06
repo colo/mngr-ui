@@ -1,3 +1,23 @@
+ // export const paths = (state, payload) => {
+ //  if(Array.isArray(payload)){
+ //    state.paths = payload
+ //  }
+ //  else {
+ //    state.paths.push(payload)
+ //  }
+ // }
+ export const paths = (state, paths) => {
+   Array.each(paths, function(path){
+     if(!state.paths.contains(path))
+       state.paths.push(path)
+   })
+   Array.each(state.paths, function(path){
+     if(!paths.contains(path))
+       state.paths.erase(path)
+   })
+   // Vue.set(state, 'all', hosts)
+ }
+
  export const reset = (state, bool) => {
   state.reset = bool
  }

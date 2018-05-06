@@ -5,19 +5,25 @@
 </template>
 
 <script>
-import Pipeline from 'node-mngr-worker/lib/pipeline'
-
-import SearchPipeline from './libs/pipelines/search'
-import HostTemplatePipeline from './libs/pipelines/host.template'
-import HostMuninTemplatePipeline from './libs/pipelines/host.munin.template'
-import HostStatsTemplatePipeline from './libs/pipelines/host.munin.template'
 
 /**
 * https://alligator.io/vuejs/global-event-bus/
 * vue events as message bus
 */
 import Vue from 'vue'
-const EventBus = new Vue()
+let EventBus = null
+EventBus = new Vue()
+
+import Pipeline from 'node-mngr-worker/lib/pipeline'
+
+import SearchPipeline from './libs/pipelines/search'
+import HostTemplatePipeline from './libs/pipelines/host.template'
+import HostStatsTemplatePipeline from './libs/pipelines/host.stats.template'
+import HostMuninTemplatePipeline from './libs/pipelines/host.munin.template'
+
+import hostStore from './store/host'
+
+
 
 
 let search_pipeline = new Pipeline(SearchPipeline)
@@ -102,51 +108,19 @@ export default {
     },
 
     '$store.state.hosts.all': function(hosts){
-      // ////console.log('$store.state.hosts.all', hosts)
+      console.log('$store.state.hosts.all', hosts, this.$store.state.app.paths)
 
-      this.$set(this.hosts_pipelines, [])
-
-      Array.each(hosts, function(host){
-        Array.each(host_pipelines_templates, function(pipeline_template){
-
-          let template = Object.clone(pipeline_template)
-
-          template.input[0].poll.conn[0].stat_host = host
-          template.input[0].poll.id += '-'+host
-          template.input[0].poll.conn[0].id = template.input[0].poll.id
-
-          let pipe = new Pipeline(template)
-
-          ////console.log('$store.state.hosts.all', pipe)
-
-          pipe.fireEvent('onSuspend')
-
-          //suscribe to 'onRangeDoc
-
-          pipe.inputs[0].addEvent('onRangeDoc', function(doc){
-            if(this.$store.state.app.freeze == true){
-              ////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
-              // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
-              this.$store.commit('app/suspend', true)
-              this.$q.loading.hide()
-              // this.$store.commit('app/pause', true)
-            }
-            else{
-              pipe.fireEvent('onResume')
-              this.$q.loading.hide()
-              // this.$store.commit('app/pause', false)
-            }
-          }.bind(this))
-
-          this.hosts_pipelines.push(pipe)
-
-        }.bind(this))
-
-      }.bind(this))
-
+      this.create_hosts_pipelines(hosts, this.$store.state.app.paths)
 
 
     },
+    // '$store.state.app.paths': function(paths){
+    //   console.log('$store.state.app.paths', paths, this.$store.state.hosts.all)
+    //
+    //   this.create_hosts_pipelines(this.$store.state.hosts.all, paths)
+    //
+    //
+    // },
     '$store.state.app.range' : function(range){
       ////console.log('store.state.app.range', range)
 
@@ -214,18 +188,68 @@ export default {
       }.bind(this))
     }
   },
+  methods: {
+    create_hosts_pipelines (hosts, paths) {
+
+
+
+      if(hosts.length > 0 && paths.length > 0){
+        this.$set(this.hosts_pipelines, [])
+        console.log('create_hosts_pipelinesl', hosts, paths)
+
+        Array.each(hosts, function(host){
+          Array.each(host_pipelines_templates, function(pipeline_template){
+
+            let template = Object.clone(pipeline_template)
+
+            template.input[0].poll.conn[0].stat_host = host
+            template.input[0].poll.conn[0].paths = paths
+
+            template.input[0].poll.id += '-'+host
+            template.input[0].poll.conn[0].id = template.input[0].poll.id
+
+            let pipe = new Pipeline(template)
+
+            ////console.log('$store.state.hosts.all', pipe)
+
+            pipe.fireEvent('onSuspend')
+
+            //suscribe to 'onRangeDoc
+
+            pipe.inputs[0].addEvent('onRangeDoc', function(doc){
+              if(this.$store.state.app.freeze == true){
+                ////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
+                this.$store.commit('app/suspend', true)
+                this.$q.loading.hide()
+                // this.$store.commit('app/pause', true)
+              }
+              else{
+                pipe.fireEvent('onResume')
+                this.$q.loading.hide()
+                // this.$store.commit('app/pause', false)
+              }
+            }.bind(this))
+
+            this.hosts_pipelines.push(pipe)
+
+          }.bind(this))
+
+        }.bind(this))
+      }
+    }
+  },
   created: function(){
+    this.EventBus.$on('search', doc => {
+			// console.log('recived doc via Event search', doc)
 
-    this.EventBus.$on('hosts', doc => {
-			// ////////console.log('recived doc via Event hosts', doc)
-      this.$store.commit('hosts/set', doc)
+      this.$store.commit('app/paths', doc.paths)
 
-      Array.each(doc, function(host){
+      this.$store.commit('hosts/set', doc.hosts)
+
+      Array.each(doc.hosts, function(host){
         if(!this.$store.state.hosts[host])
-          this.$store.registerModule(['hosts', host],{
-            namespaced:true,
-            state:{}, getters:{}, actions:{}, modules:{}, mutations: {}
-          })
+          this.$store.registerModule(['hosts', host], hostStore)
 
       }.bind(this))
 
@@ -233,12 +257,48 @@ export default {
       * should unregister modules for unset hosts?
       */
       Array.each(this.$store.state.hosts, function(host){
-        if(!doc.contains(host))
+        if(!doc.hosts.contains(host))
           this.$store.unregisterModule(['hosts', host])
       }.bind(this))
 
 
+
 		})
+
+    // this.EventBus.$on('hosts', doc => {
+		// 	// ////////console.log('recived doc via Event hosts', doc)
+    //   this.$store.commit('hosts/set', doc)
+    //
+    //   Array.each(doc, function(host){
+    //     if(!this.$store.state.hosts[host])
+    //       this.$store.registerModule(['hosts', host], hostStore)
+    //
+    //   }.bind(this))
+    //
+    //   /**
+    //   * should unregister modules for unset hosts?
+    //   */
+    //   Array.each(this.$store.state.hosts, function(host){
+    //     if(!doc.contains(host))
+    //       this.$store.unregisterModule(['hosts', host])
+    //   }.bind(this))
+    //
+    //
+		// })
+
+    // this.EventBus.$on('paths', doc => {
+		// 	// console.log('recived doc via Event paths', doc)
+    //   // let os = /^os.*/g
+    //   // let os_paths = []
+    //   // Array.each(doc, function(path){
+    //   //   if(os.test(path))
+    //   //     os_paths.push(path)
+    //   // }.bind(this))
+    //
+    //   this.$store.commit('app/paths', doc)
+    //
+    //
+		// })
   },
   beforeCreate () {
     this.$q.loading.show({

@@ -4,13 +4,13 @@ import cron from 'node-cron'
 
 import DefaultConn from '../../etc/default.conn'
 
-import InputPollerCouchDBOSStats from '../input/poller/couchdb.os.stats'
+import InputPollerCouchDBOSStats from '../input/poller/couchdb.stats.os'
 
 export default {
 	input: [
 		{
 			poll: {
-				id: "input.os.stats",
+				id: "input.stats.os",
 				conn: [
           Object.merge(
             Object.clone(DefaultConn),
@@ -72,7 +72,7 @@ export default {
       //   }
       //
         let loadavg = {
-          path: 'os.stats',
+          path: 'stats.os',
           messure: doc.metadata.type,
           type: 'loadavg',
           host: doc.metadata.host,
@@ -84,7 +84,7 @@ export default {
         }
       //
         // let networkInterfaces = {
-        //   path: 'os.stats',
+        //   path: 'stats.os',
         //   messure: doc.metadata.type,
         //   type: 'loadavg',
         //   host: doc.metadata.host,
@@ -128,7 +128,7 @@ export default {
       //   }
       //
         let loadavg = {
-          path: 'os.stats',
+          path: 'stats.os',
           messure: doc[0].doc.metadata.type,
           type: 'loadavg',
           host: doc[0].doc.metadata.host,
@@ -137,7 +137,7 @@ export default {
 
 
         // let networkInterfaces = {
-        //   path: 'os.stats',
+        //   path: 'stats.os',
         //   messure: doc[0].doc.metadata.type,
         //   type: 'networkInterfaces',
         //   host: doc[0].doc.metadata.host,

@@ -36,13 +36,13 @@ export default new Class({
 
                   // next(
                   app.view({
-      							uri: 'stats',
+      							uri: app.options.db,
                     args: [
                       'sort',
                       'by_path',
                       {
-        								startkey: ["os.stats", app.options.stat_host, "minute", req.opt.range.start],
-        								endkey: ["os.stats", app.options.stat_host, "minute",req.opt.range.end],
+        								startkey: ["stats.os", app.options.stat_host, "minute", req.opt.range.start],
+        								endkey: ["stats.os", app.options.stat_host, "minute",req.opt.range.end],
         								/**
         								 * pouchdb
         								 * */
@@ -83,13 +83,13 @@ export default new Class({
                 // next(
                 // //console.log('sort_by_path', host)
                 app.view({
-    							uri: 'stats',
+    							uri: app.options.db,
                   args: [
                     'sort',
                     'by_path',
                     {
-      								startkey: ["os.stats", app.options.stat_host, "minute",Date.now() + 0],
-      								endkey: ["os.stats", app.options.stat_host, "minute", Date.now() - 59000],
+      								startkey: ["stats.os", app.options.stat_host, "minute",Date.now() + 0],
+      								endkey: ["stats.os", app.options.stat_host, "minute", Date.now() - 59000],
       								/**
       								 * pouchdb
       								 * */
@@ -166,7 +166,7 @@ export default new Class({
 		}
 	},
   initialize: function(options){
-    console.log('input.poller.couchdb.os.stats', options)
+    console.log('input.poller.couchdb.stats.os', options)
 		this.parent(options);//override default options
 
 		this.profile('root_init');//start profiling

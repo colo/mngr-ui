@@ -5,16 +5,18 @@ import InputPollerCouchDBPaths from '../input/poller/couchdb.paths'
 
 import DefaultConn from '../../etc/default.conn'
 
+let buffer = {}
+
 export default  {
 	input: [
 		{
 			poll: {
-				id: "input.hosts",
+				id: "input.search.hosts",
 				conn: [
           Object.merge(
             Object.clone(DefaultConn),
             {
-              id: 'input.hosts',
+              id: 'input.search.hosts',
               module: InputPollerCouchDBHosts,
             }
           )
@@ -23,45 +25,62 @@ export default  {
 				connect_retry_count: 5,
 				connect_retry_periodical: 1000,
 				requests: {
-					periodical: 1000,
+					periodical: 10000,
 				},
 			},
 		},
-    {
-			poll: {
-				id: "input.paths",
-				conn: [
-          Object.merge(
-            Object.clone(DefaultConn),
-            {
-              id: 'input.paths',
-              module: InputPollerCouchDBPaths,
-            }
-          )
+    // {
+		// 	poll: {
+		// 		id: "input.search.paths",
+		// 		conn: [
+    //       Object.merge(
+    //         Object.clone(DefaultConn),
+    //         {
+    //           id: 'input.search.paths',
+    //           module: InputPollerCouchDBPaths,
+    //         }
+    //       )
+    //
+		// 		],
+		// 		connect_retry_count: 5,
+		// 		connect_retry_periodical: 1000,
+		// 		requests: {
+		// 			periodical: 10000,
+		// 		},
+		// 	},
+		// }
+	],
+	filters: [
+		function(doc, opts, next){
 
-				],
-				connect_retry_count: 5,
-				connect_retry_periodical: 1000,
-				requests: {
-					periodical: 1000,
-				},
-			},
+			console.log('search_pipeline ', doc)
+
+			buffer = Object.merge(buffer, doc.data)
+
+			if(buffer.hosts && buffer.paths){
+				next(buffer)
+				buffer = {}
+			}
 		}
 	],
 	output: [
 		function(doc){
 
+
 			doc = JSON.decode(doc)
 
-      if(doc.data.hosts){
+			if(EventBus)
+				EventBus.$emit('search', doc)
 
-				EventBus.$emit('hosts', doc.data.hosts)
-
-			}
-      else{
-        // console.log('search_pipeline else', doc)
-        EventBus.$emit('paths', doc.data.paths)
-      }
+      // if(doc.data.hosts){
+      //
+			// 	EventBus.$emit('hosts', doc.data.hosts)
+      //
+			// }
+      // else{
+      //
+      //   EventBus.$emit('paths', doc.data.paths)
+      // }
 
 		}
 	]

@@ -1,5 +1,6 @@
 export default function() {
   return {
+    paths: [],
     reset: false,
     suspend: false,
     pause: false,

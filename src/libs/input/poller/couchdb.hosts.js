@@ -19,7 +19,51 @@ export default new Class({
     // ],
 
 		requests : {
+      once: [
+        {
+					search_hosts: function(req, next, app){
+            //console.log('search_hosts', next)
 
+						// next(
+            app.view({
+							uri: app.options.db,
+              args: [
+                'search',
+                'hosts',
+                {
+                  //limit: 1,
+                  reduce: true, //avoid geting duplicate host
+                  group: true,
+
+  							}
+              ]
+						})
+            // )
+					}
+				},
+        {
+					search_paths: function(req, next, app){
+            //console.log('search_hosts', next)
+
+						// next(
+            app.view({
+							uri: app.options.db,
+              args: [
+                'search',
+                'paths',
+                {
+                  //limit: 1,
+                  reduce: true, //avoid geting duplicate host
+                  group: true,
+
+  							}
+              ]
+						})
+            // )
+					}
+				},
+
+			],
 			periodical: [
         {
 					search_hosts: function(req, next, app){
@@ -27,10 +71,31 @@ export default new Class({
 
 						// next(
             app.view({
-							uri: 'dashboard',
+							uri: app.options.db,
               args: [
                 'search',
                 'hosts',
+                {
+                  //limit: 1,
+                  reduce: true, //avoid geting duplicate host
+                  group: true,
+
+  							}
+              ]
+						})
+            // )
+					}
+				},
+        {
+					search_paths: function(req, next, app){
+            //console.log('search_hosts', next)
+
+						// next(
+            app.view({
+							uri: app.options.db,
+              args: [
+                'search',
+                'paths',
                 {
                   //limit: 1,
                   reduce: true, //avoid geting duplicate host
@@ -75,14 +140,15 @@ export default new Class({
   },
 
   view: function(err, resp, view){
-		// ////console.log('this.view ', resp, view.options.args);
+		// console.log('search.view ', resp, view.options);
 
 		if(err){
 			//////console.log('this.sort_by_path error %o', err);
 
 		}
 		else{
-
+      let data = {}
+      if(view.options.args[1] == 'hosts'){
         let hosts = []
 
         Array.each(resp.rows, function(row){
@@ -90,8 +156,20 @@ export default new Class({
           hosts.push(row.key)
         })
 
-        this.fireEvent('onPeriodicalDoc', [{ data: {hosts: hosts } }, {type: 'periodical', input_type: this, app: null}]);
+        data = { hosts: hosts }
+      }
+      else{
+        let paths = []
 
+        Array.each(resp.rows, function(row){
+          // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
+          paths.push(row.key)
+        })
+
+        data = { paths: paths }
+      }
+
+      this.fireEvent('onPeriodicalDoc', [{ data: data }, {type: 'periodical', input_type: this, app: null}]);
 		}
   },
   request: function(err, resp){
