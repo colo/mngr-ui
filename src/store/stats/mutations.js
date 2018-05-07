@@ -54,32 +54,51 @@
  //  }
  //   // Vue.set(state, 'all', hosts)
  // }
- export const mem = (state, payload) => {
+
+
+ // export const mem = (state, payload) => {
+ //   if(Array.isArray(payload)){
+ //     state.mem = payload
+ //   }
+ //   else {
+ //     state.mem.push(payload)
+ //   }
+ // }
+ export const freemem = (state, payload) => {
    if(Array.isArray(payload)){
-     state.mem = payload
+     state.freemem = payload
    }
    else {
-     state.mem.push(payload)
+     state.freemem.push(payload)
    }
  }
 
- export const cpu = (state, payload) => {
+ export const totalmem = (state, payload) => {
    if(Array.isArray(payload)){
-     state.cpu = payload
+     state.totalmem = payload
    }
    else {
-     state.cpu.push(payload)
+     state.totalmem.push(payload)
    }
  }
 
- export const cpu_simple = (state, payload) => {
+ export const cpus = (state, payload) => {
    if(Array.isArray(payload)){
-     state.cpu_simple = payload
+     state.cpus = payload
    }
    else {
-     state.cpu_simple.push(payload)
+     state.cpus.push(payload)
    }
  }
+
+ // export const cpu_simple = (state, payload) => {
+ //   if(Array.isArray(payload)){
+ //     state.cpu_simple = payload
+ //   }
+ //   else {
+ //     state.cpu_simple.push(payload)
+ //   }
+ // }
 
  // export const reset = (state, payload) => {
  //   if(!payload){

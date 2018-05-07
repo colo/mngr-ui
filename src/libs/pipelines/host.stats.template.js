@@ -39,7 +39,7 @@ export default {
 		function(doc, opts, next){
 
       if(doc != null && opts.type == 'periodical'){
-        //console.log('InputPollerCouchDBOSStats->filter periodical', doc)
+        // console.log('InputPollerCouchDBOSStats->filter periodical', doc)
 
       //
   		// 	let mem = {

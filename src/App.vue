@@ -198,10 +198,10 @@ export default {
       if(hosts.length > 0 && paths.length > 0){
         if(this.hosts_pipelines.length > 0)
           Array.each(this.hosts_pipelines, function(pipe, index){//destroy old ones
-            // pipe.fireEvent('onSuspend')
+            pipe.fireEvent('onExit')
             // delete pipe
-            // delete this.hosts_pipelines[index]
-            this.hosts_pipelines.shift()
+            delete this.hosts_pipelines[index]
+            // this.hosts_pipelines.shift()
           }.bind(this))
 
         this.$set(this.hosts_pipelines, [])

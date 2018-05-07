@@ -103,7 +103,28 @@ export default {
         let mem = []
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          mem = state.hosts[currentHost].stats.mem
+          // mem = state.hosts[currentHost].stats.mem
+          let freemem = state.hosts[currentHost].stats.freemem
+          let totalmem = state.hosts[currentHost].stats.totalmem
+
+          Array.each(freemem, function(free, index){
+            let data = {
+              total: totalmem[index].value,
+              free: free.value,
+              timestamp: free.timestamp
+            }
+            let percentage = 100
+
+            if(data.total != 0)
+              percentage -= data.free * 100 / data.total;
+
+            data.percentage = percentage
+
+
+            mem.push(data)
+          })
+
+
         }
 
         return mem
@@ -121,9 +142,20 @@ export default {
         let cpu_simple = []
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          cpu_simple = state.hosts[currentHost].stats.cpu_simple
+          // cpu_simple = state.hosts[currentHost].stats.cpu_simple
+          let cpus = state.hosts[currentHost].stats.cpus
+
+          Array.each(cpus, function(row, index){
+
+            let last = (!cpus[index - 1]) ? null : this.format_cpu_simple(cpus[index - 1])
+
+            // //console.log('cpu_simple last', last)
+
+            cpu_simple.push(this.format_cpu_simple(row, last))
+          }.bind(this))
         }
 
+        // console.log('cpu_simple', cpu_simple)
         return cpu_simple
       },
       networkInterfaces: function(state){
@@ -163,7 +195,7 @@ export default {
     }
   },
   updated: function(){
-    this.$store.commit('app/reset', false)
+    // this.$store.commit('app/reset', false)
   },
   created: function(){
     if(!window['EventBus'])
@@ -197,114 +229,149 @@ export default {
       //console.log('recived doc via Event stats.os', this.$store.state.hosts.elk.stats.minute.networkInterfaces)
 		})
 
-    this.EventBus.$on('networkInterfaces', doc => {
+    this.EventBus.$on('os', doc => {
+      // console.log('recived doc via Event os', doc)
 
-      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
-		})
-
-
-
-    this.EventBus.$on('loadavg', doc => {
-			//////console.log('recived doc via Event loadavg', doc)
-
-      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
-		})
-
-    this.EventBus.$on('uptime', doc => {
-
-      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
-
-		})
-
-		this.EventBus.$on('mem', doc => {
-      // //console.log('recived doc via Event mem', doc)
-
-      let mem = null
-      if(Array.isArray(doc.data)){
-        mem = []
-
-        Array.each(doc.data, function(value){
-          let data = {
-            total: value.totalmem,
-            free: value.freemem,
-            timestamp: value.timestamp
-          }
-          let percentage = 100
-
-          if(data.total != 0)
-            percentage -= data.free * 100 / data.total;
-
-          data.percentage = percentage
-
-
-          mem.push(data)
+      if(Array.isArray(doc)){
+        let keys = {}
+        Object.each(doc[0].doc.data, function(data, key){
+          keys[key] = []
         })
+        Array.each(doc, function(item){
+          Object.each(item.doc.data, function(value, key){
+            let data = {value: value, timestamp: item.doc.metadata.timestamp}
+            keys[key].push(data)
+          })
+        }.bind(this))
+
+        // console.log(keys)
+        Object.each(keys, function(data, key){
+          this.$store.commit('hosts/'+doc[0].doc.metadata.host+'/stats/'+key, data)
+          this.$store.commit('hosts/'+doc[0].doc.metadata.host+'/stats/splice', { stat: key, length: this.seconds })
+
+        }.bind(this))
       }
       else{
-        mem = {
-          total: doc.data.totalmem,
-          free: doc.data.freemem,
-          timestamp: doc.data.timestamp
-        }
+        Object.each(doc.data, function(value, key){
+          let data = {value: value, timestamp: doc.metadata.timestamp}
 
-        let percentage = 100
+          this.$store.commit('hosts/'+doc.metadata.host+'/stats/'+key, data)
+          this.$store.commit('hosts/'+doc.metadata.host+'/stats/splice', { stat: key, length: this.seconds })
 
-  			if(mem.total != 0)
-  				percentage -= mem.free * 100 / mem.total;
-
-        mem.percentage = percentage
-
-
+        }.bind(this))
       }
-
-      this.$store.commit('hosts/'+doc.host+'/stats/mem', mem)
-
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'mem', length: this.seconds })
-
+      // this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
+      // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
 		})
 
-    // this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
-
-    this.EventBus.$on('cpu', doc => {
-      // //console.log('recived doc via Event cpu', doc)
-
-
-      let cpu_simple = null
-
-      if(Array.isArray(doc.data)){
-        cpu_simple = []
-        Array.each(doc.data, function(row, index){
-
-          let last = (!doc.data[index - 1]) ? null : self.format_cpu_simple(doc.data[index - 1])
-
-          // //console.log('cpu_simple last', last)
-
-          cpu_simple.push(self.format_cpu_simple(row, last))
-        })
-
-        // //console.log('cpu_simple', cpu_simple)
-      }
-      else{
-        let last = self.$store.state.hosts[doc.host].stats.cpu_simple.getLast()
-
-        cpu_simple = this.format_cpu_simple(doc.data, last)
-      }
-
-      this.$store.commit('hosts/'+doc.host+'/stats/cpu_simple', cpu_simple)
-
-      this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu_simple', length: this.seconds })
-
-      // this.$store.commit('hosts/'+doc.host+'/stats/cpu', {
-      //   value: doc.cpu,
-      //   timestamp: doc.timestamp
-      // })
-      //
-      // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu', length: this.seconds })
-
-		})
+    // this.EventBus.$on('networkInterfaces', doc => {
+    //
+    //   this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
+    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
+		// })
+    //
+    //
+    //
+    // this.EventBus.$on('loadavg', doc => {
+		// 	//////console.log('recived doc via Event loadavg', doc)
+    //
+    //   this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
+    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
+		// })
+    //
+    // this.EventBus.$on('uptime', doc => {
+    //
+    //   this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
+    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
+    //
+		// })
+    //
+		// this.EventBus.$on('mem', doc => {
+    //   // //console.log('recived doc via Event mem', doc)
+    //
+    //   let mem = null
+    //   if(Array.isArray(doc.data)){
+    //     mem = []
+    //
+    //     Array.each(doc.data, function(value){
+    //       let data = {
+    //         total: value.totalmem,
+    //         free: value.freemem,
+    //         timestamp: value.timestamp
+    //       }
+    //       let percentage = 100
+    //
+    //       if(data.total != 0)
+    //         percentage -= data.free * 100 / data.total;
+    //
+    //       data.percentage = percentage
+    //
+    //
+    //       mem.push(data)
+    //     })
+    //   }
+    //   else{
+    //     mem = {
+    //       total: doc.data.totalmem,
+    //       free: doc.data.freemem,
+    //       timestamp: doc.data.timestamp
+    //     }
+    //
+    //     let percentage = 100
+    //
+  	// 		if(mem.total != 0)
+  	// 			percentage -= mem.free * 100 / mem.total;
+    //
+    //     mem.percentage = percentage
+    //
+    //
+    //   }
+    //
+    //   this.$store.commit('hosts/'+doc.host+'/stats/mem', mem)
+    //
+    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'mem', length: this.seconds })
+    //
+		// })
+    //
+    // // this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
+    //
+    // this.EventBus.$on('cpu', doc => {
+    //   // //console.log('recived doc via Event cpu', doc)
+    //
+    //
+    //   let cpu_simple = null
+    //
+    //   if(Array.isArray(doc.data)){
+    //     cpu_simple = []
+    //     Array.each(doc.data, function(row, index){
+    //
+    //       let last = (!doc.data[index - 1]) ? null : self.format_cpu_simple(doc.data[index - 1])
+    //
+    //       // //console.log('cpu_simple last', last)
+    //
+    //       cpu_simple.push(self.format_cpu_simple(row, last))
+    //     })
+    //
+    //     // //console.log('cpu_simple', cpu_simple)
+    //   }
+    //   else{
+    //     let last = self.$store.state.hosts[doc.host].stats.cpu_simple.getLast()
+    //
+    //     cpu_simple = this.format_cpu_simple(doc.data, last)
+    //   }
+    //
+    //   this.$store.commit('hosts/'+doc.host+'/stats/cpu_simple', cpu_simple)
+    //
+    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu_simple', length: this.seconds })
+    //
+    //   // this.$store.commit('hosts/'+doc.host+'/stats/cpu', {
+    //   //   value: doc.cpu,
+    //   //   timestamp: doc.timestamp
+    //   // })
+    //   //
+    //   // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu', length: this.seconds })
+    //
+		// })
 	},
 
   methods: {

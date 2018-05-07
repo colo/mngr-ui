@@ -4,8 +4,10 @@ export default function() {
     loadavg: [],
     uptime: [],
     networkInterfaces: [],
-    mem: [],
-    cpu: [],
-    cpu_simple: []
+    freemem: [],
+    totalmem: [],
+    // mem: [],
+    cpus: [],
+    // cpu_simple: []
   }
 }
