@@ -20,6 +20,12 @@ export const set = (state, hosts) => {
   // Vue.set(state, 'all', hosts)
 }
 
+export const erase = (state, payload) => {
+  if(!state.all.contains(payload))
+    state.all.erase(host)
+}
+
+
 export const clear = (state) => {
   Vue.set(state, 'all', [])
 }

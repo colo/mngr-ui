@@ -1,7 +1,10 @@
 'use strict'
 
-import InputPollerCouchDBHosts from '../input/poller/couchdb.hosts'
-import InputPollerCouchDBPaths from '../input/poller/couchdb.paths'
+// import Vue from 'vue'
+// const EventBus = new Vue()
+
+import InputPollerCouchDBSearch from '../input/poller/couchdb.search'
+// import InputPollerCouchDBPaths from '../input/poller/couchdb.paths'
 
 import DefaultConn from '../../etc/default.conn'
 
@@ -17,7 +20,7 @@ export default  {
             Object.clone(DefaultConn),
             {
               id: 'input.search.hosts',
-              module: InputPollerCouchDBHosts,
+              module: InputPollerCouchDBSearch,
             }
           )
 
@@ -53,7 +56,7 @@ export default  {
 	filters: [
 		function(doc, opts, next){
 
-			console.log('search_pipeline ', doc)
+			// console.log('search_pipeline ', doc)
 
 			buffer = Object.merge(buffer, doc.data)
 
@@ -69,7 +72,7 @@ export default  {
 
 			doc = JSON.decode(doc)
 
-			if(EventBus)
+			if(typeof EventBus !== 'undefined')
 				EventBus.$emit('search', doc)
 
       // if(doc.data.hosts){

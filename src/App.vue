@@ -11,12 +11,11 @@
 * vue events as message bus
 */
 import Vue from 'vue'
-let EventBus = null
-EventBus = new Vue()
+export const EventBus = new Vue();
 
 import Pipeline from 'node-mngr-worker/lib/pipeline'
 
-import SearchPipeline from './libs/pipelines/search'
+
 import HostTemplatePipeline from './libs/pipelines/host.template'
 import HostStatsTemplatePipeline from './libs/pipelines/host.stats.template'
 import HostMuninTemplatePipeline from './libs/pipelines/host.munin.template'
@@ -25,7 +24,7 @@ import hostStore from './store/host'
 
 
 
-
+import SearchPipeline from './libs/pipelines/search'
 let search_pipeline = new Pipeline(SearchPipeline)
 
 let host_pipelines_templates = [
@@ -115,9 +114,12 @@ export default {
 
     },
     // '$store.state.app.paths': function(paths){
-    //   console.log('$store.state.app.paths', paths, this.$store.state.hosts.all)
+    //   // console.log('$store.state.app.paths', paths, this.$store.state.hosts.all)
+    //   let hosts = this.$store.state.hosts.all
     //
-    //   this.create_hosts_pipelines(this.$store.state.hosts.all, paths)
+    //   this.$store.commit('hosts/clear')
+    //   this.$store.commit('hosts/set', hosts)
+    //   // // this.create_hosts_pipelines(this.$store.state.hosts.all, paths)
     //
     //
     // },
@@ -194,6 +196,14 @@ export default {
 
 
       if(hosts.length > 0 && paths.length > 0){
+        if(this.hosts_pipelines.length > 0)
+          Array.each(this.hosts_pipelines, function(pipe, index){//destroy old ones
+            // pipe.fireEvent('onSuspend')
+            // delete pipe
+            // delete this.hosts_pipelines[index]
+            this.hosts_pipelines.shift()
+          }.bind(this))
+
         this.$set(this.hosts_pipelines, [])
         console.log('create_hosts_pipelinesl', hosts, paths)
 
@@ -239,11 +249,22 @@ export default {
       }
     }
   },
+
   created: function(){
+
+
     this.EventBus.$on('search', doc => {
 			// console.log('recived doc via Event search', doc)
 
-      this.$store.commit('app/paths', doc.paths)
+      // // this.$store.commit('hosts/clear')
+      // // this.$store.commit('hosts/set', hosts)
+      // //
+      let currentPaths = this.$store.state.app.paths
+      if (currentPaths.equals(doc.paths) !== true){
+        this.$store.commit('app/paths', doc.paths)
+
+        this.$store.commit('hosts/clear')
+      }
 
       this.$store.commit('hosts/set', doc.hosts)
 
@@ -309,6 +330,40 @@ export default {
     })
   },
 }
+
+/**
+* https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
+**/
+// Warn if overriding existing method
+if(Array.prototype.equals)
+    console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+// attach the .equals method to Array's prototype to call it on any array
+Array.prototype.equals = function (array) {
+    // if the other array is a falsy value, return
+    if (!array)
+        return false;
+
+    // compare lengths - can save a lot of time
+    if (this.length != array.length)
+        return false;
+
+    for (var i = 0, l=this.length; i < l; i++) {
+        // Check if we have nested arrays
+        if (this[i] instanceof Array && array[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!this[i].equals(array[i]))
+                return false;
+        }
+        else if (this[i] != array[i]) {
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;
+        }
+    }
+    return true;
+}
+// Hide method from for-in loops
+Object.defineProperty(Array.prototype, "equals", {enumerable: false});
+
 </script>
 
 <style>

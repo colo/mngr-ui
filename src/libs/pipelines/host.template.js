@@ -27,7 +27,7 @@ export default {
 				// },
 				requests: {
     			periodical: function(dispatch){
-    				return cron.schedule('* * * * * *', dispatch);//every minute
+    				return cron.schedule('* * * * * *', dispatch);//every second
     			}
     		},
 			},
@@ -35,9 +35,10 @@ export default {
 	],
 	filters: [
 		function(doc, opts, next){
-			// console.log('host doc', doc)
 
       if(doc != null && opts.type == 'periodical' && doc.metadata.path == 'os'){
+				console.log('host doc perdiodical', doc)
+
 
   			let mem = {
           type: 'mem',

@@ -7,8 +7,10 @@ const App = require ( 'node-app-couchdb-client/index' )
 export default new Class({
   Extends: App,
 
+  paths: /^stats\.os.*/,
 
   options: {
+    paths: [],
 
     stat_host: null,
 
@@ -22,12 +24,12 @@ export default new Class({
 				//{ get: {uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
 				{
 					sort_by_type: function(req, next, app){
-            console.log('req.opt.range', req.opt.range)
+            // console.log('req.opt.range', req.opt.range)
             // //console.log('sort_by_path', next)
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
-              // Array.each(app.hosts, function(host){
+              Array.each(app.options.paths, function(path){
                 // //console.log('sort_by_path', host)
 
                 // if(!app.hosts_range_started.contains(host)){
@@ -41,8 +43,8 @@ export default new Class({
                       'sort',
                       'by_path',
                       {
-        								startkey: ["stats.os", app.options.stat_host, "minute", req.opt.range.start],
-        								endkey: ["stats.os", app.options.stat_host, "minute",req.opt.range.end],
+        								startkey: [path, app.options.stat_host, "minute", req.opt.range.start],
+        								endkey: [path, app.options.stat_host, "minute",req.opt.range.end],
         								/**
         								 * pouchdb
         								 * */
@@ -61,7 +63,7 @@ export default new Class({
                 // }
 
 
-              // }.bind(app))
+              }.bind(app))
             }
 
 
@@ -79,7 +81,7 @@ export default new Class({
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
-              // Array.each(app.hosts, function(host){
+              Array.each(app.options.paths, function(path){
                 // next(
                 // //console.log('sort_by_path', host)
                 app.view({
@@ -88,8 +90,8 @@ export default new Class({
                     'sort',
                     'by_path',
                     {
-      								startkey: ["stats.os", app.options.stat_host, "minute",Date.now() + 0],
-      								endkey: ["stats.os", app.options.stat_host, "minute", Date.now() - 59000],
+      								startkey: [path, app.options.stat_host, "minute",Date.now() + 0],
+      								endkey: [path, app.options.stat_host, "minute", Date.now() - 59000],
       								/**
       								 * pouchdb
       								 * */
@@ -104,7 +106,8 @@ export default new Class({
                   ]
     						})
               // )
-              // })
+              }.bind(app))
+
             }
 
 					}
@@ -166,6 +169,14 @@ export default new Class({
 		}
 	},
   initialize: function(options){
+    let paths = []
+    Array.each(options.paths, function(path){
+      if(this.paths.test(path) == true)
+        paths.push(path)
+    }.bind(this))
+
+    options.paths = paths
+
     console.log('input.poller.couchdb.stats.os', options)
 		this.parent(options);//override default options
 
