@@ -3,6 +3,22 @@ export default {
   "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
   "interval": 0,
   "options": {
+    /**
+    * netdata options
+    */
+    xRangePad: 0,
+    yRangePad: 1,
+    pixelRatio: 1,
+    drawGapEdgePoints: true,
+    stepPlot: false,
+    gridLinePattern: null,
+    gridLineWidth: 1.0,
+    maxNumberWidth: 8,
+    sigFigs: null,
+    digitsAfterDecimal: 2,
+    /**
+    * netdata options
+    */
     highlightCallback: function(event, x, points, row, seriesName){
       console.log('highlightCallback', event, x, points, row, seriesName)
       // console.log('highlightCallback', window.EventBus)

@@ -1,5 +1,10 @@
 <template>
-  <div :id="id+'-container' "class="netdata-container-with-legend" :style="options.style">
+  <div
+    :id="id+'-container'"
+    class="netdata-container-with-legend"
+    v-bind:class="container_class_helper"
+    :style="options.style"
+  >
      <div
        :ref="id"
        :id="id"
@@ -62,30 +67,51 @@ export default {
       type: [Boolean],
       default: () => (false)
     },
+    visible: {
+      type: [Boolean],
+      default: () => (true)
+    },
   },
   data () {
     return {
+      container_class_helper: '',
       chart: null,
       highlighted: false,
       ready: false,
       // to_suspend: false,
     }
   },
+  watch: {
+    visible: function (val) {
+      this.container_class_helper = (val == false) ? 'invisible' : ''
+      console.log('class visible', val, this.container_class_helper)
+    }
+  },
+  // computed: {
+  //   container_class_helper: function (){
+  //     // let css = 'netdata-container-with-legend'
+  //     let css = (this.visible == true) ? ' hidden' : ''
+  //     //console.log('class visible '+css)
+  //     return css
+  //   }
+  // },
   created () {
+    // //console.log('created', this.id, this.visible)
+
     this.EventBus.$on('highlightCallback', params => {
       this.highlighted = true
-      // //console.log('event highlightCallback', params)
+      // ////console.log('event highlightCallback', params)
 		})
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      // //console.log('event unhighlightCallback', event)
+      // ////console.log('event unhighlightCallback', event)
 		})
 
     // keypath
     let unwatch = this.$watch('stat.data', function (val, oldVal) {
 
 
-      //console.log('created', this.id, this.stat.data)
+      ////console.log('created', this.id, this.stat.data)
 
       // if(val.length > 1 && this.chart == null){
       if(val.length > 1){
@@ -99,14 +125,14 @@ export default {
     })
   },
   mounted () {
+    //console.log('mounted', this.id, this.visible)
 
-      //console.log('created mounted', this.id, this.stat.data)
 
-      if(this.chart == null){
+    if(this.chart == null){
 
-        this._create_dygraph()
+      this._create_dygraph()
 
-      }
+    }
 
   },
   // mounted () {
@@ -114,8 +140,8 @@ export default {
   //
   // },
   destroyed (){
-    //console.log('destroyed', this.id)
-    // //console.log('destroyed suspended', this.suspended)
+    ////console.log('destroyed', this.id)
+    // ////console.log('destroyed suspended', this.suspended)
     // if(this.to_suspend == true)
     //   this.suspended = true//do update this time, next one ommit, so we get chart redraw
     //
@@ -166,7 +192,7 @@ export default {
       if(options.labelsDiv)
         options.labelsDiv = this.id+'-'+options.labelsDiv
 
-      ////console.log('creatin chart labelsDiv', this.id, options.labelsDiv, document.getElementById(options.labelsDiv))
+      //////console.log('creatin chart labelsDiv', this.id, options.labelsDiv, document.getElementById(options.labelsDiv))
 
       this.chart = new Dygraph(
         document.getElementById(this.id),  // containing div
@@ -175,19 +201,19 @@ export default {
       )
 
       this.chart.ready(function(){
-        // //console.log('chart '+this.id+' ready')
+        // ////console.log('chart '+this.id+' ready')
         this.ready = true
       }.bind(this))
 
       if(this.options.init)
         this.options.init(this)
     },
-    updateOptions (options){
+    updateOptions (options, block_redraw){
 
 
       let self = this
 
-      //console.log('updating chart, suspended...', this.id, this.$options.freezed, this.freezed)
+      ////console.log('updating chart, suspended...', this.id, this.$options.freezed, this.freezed)
 
       // let data =  Array.clone(self.stat.data)
 
@@ -227,9 +253,9 @@ export default {
 
         // if(this.$options.freezed == false || (this.chart.numRows() !=  this.$options.freezed)){
         //
-          // //console.log('data length',this.chart.numRows(), self.stat.data.length)
+          // ////console.log('data length',this.chart.numRows(), self.stat.data.length)
 
-          // console.log('this.chart.updateOptions', this.chart)
+          // //console.log('this.chart.updateOptions', this.id)
 
           this.chart.updateOptions(
             Object.merge(
@@ -237,7 +263,8 @@ export default {
                 'file': self.stat.data
               },
               options
-            )
+            ),
+            block_redraw
           );
           // this.chart.updateOptions(
           //   Object.merge(
@@ -248,7 +275,7 @@ export default {
           //   )
           // );
 
-          //console.log('updating data', this.id, this.chart.numRows(), self.stat.data.length - 1)
+          ////console.log('updating data', this.id, this.chart.numRows(), self.stat.data.length - 1)
 
           // this.chart.adjustRoll(self.stat.data.length)
 
@@ -273,7 +300,7 @@ export default {
       // }
       // if(this.suspended == true){
       //   this.chart.setSelection(this.chart.numRows() - 1, {}, false)
-      //   //console.log('updating chart, suspended...', this.id, this.suspended)
+      //   ////console.log('updating chart, suspended...', this.id, this.suspended)
       // }
 
     }
