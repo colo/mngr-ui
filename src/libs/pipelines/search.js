@@ -28,7 +28,7 @@ export default  {
 				connect_retry_count: 5,
 				connect_retry_periodical: 1000,
 				requests: {
-					periodical: 10000,
+					periodical: 1000,
 				},
 			},
 		},

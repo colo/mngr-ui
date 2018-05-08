@@ -195,7 +195,7 @@ export default {
     }
   },
   updated: function(){
-    // this.$store.commit('app/reset', false)
+    this.$store.commit('app/reset', false)
   },
   created: function(){
     if(!window['EventBus'])

@@ -16,6 +16,7 @@
     "cloudant-follow": "^0.17.0",
     "dygraphs": "^2.1.0",
     "element-ui": "^2.3.6",
+    "epoch-charting": "^0.8.4",
     "node-app-couchdb-client": "git+https://github.com/colo/node-app-couchdb-client.git",
     "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
     "node-cron": "^1.2.1",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "babel-plugin-component": "^1.1.0",
+    "expose-loader": "^0.7.5",
     "quasar-cli": "^0.15.12"
   },
   "engines": {

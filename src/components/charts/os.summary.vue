@@ -21,10 +21,10 @@
            <div
             v-for="(stat, name) in $options.stats"
             class="col-sm-2 col-md-3 justify-center"
-            :id="host+'_'+name"
             :style="stat.style"
             :key="host+'_'+name"
             :ref="host+'_'+name"
+            :id="host+'_'+name+'-card-container'"
             v-observe-visibility="visibilityChanged"
             >
               <!-- https://github.com/vuejs/babel-plugin-transform-vue-jsx/issues/86 -->
@@ -46,17 +46,28 @@
                v-model="stats[name].data"
                readonly
                v-bind="stat.options"
+               :id="host+'_'+name"
               >
-              <q-icon class="on-left" :name="stat.icon" />{{stats[name].data}} %
+                <q-icon class="on-left" :name="stat.icon" />{{stats[name].data}} %
               </q-knob>
-             <vue-easy-pie-chart v-else v-bind="stat.options" :percent="stats[name].data"/>
+
+             <vue-epochjs v-else-if="stat.component == 'epochjs'"
+              v-bind="stat.options"
+              :percent="stats[name].data"
+              :id="host+'_'+name"
+             />
+
+             <vue-easy-pie-chart v-else v-bind="stat.options"
+             :percent="stats[name].data"
+             :id="host+'_'+name"
+             />
 
              <!-- <p>{{name}}</p> -->
            </div>
         </div>
        <!-- </at-card> -->
      </el-card>
-     
+
     </q-collapsible>
 
 
@@ -66,6 +77,8 @@
 
 import VueEasyPieChart from 'vue-easy-pie-chart'
 import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
+
+import VueEpochjs from './epochjs'
 
 import stats from './js/os.summary'
 
@@ -77,7 +90,8 @@ export default {
   visibles: {},
   // uptime_chart: null,
   components: {
-    VueEasyPieChart
+    VueEasyPieChart,
+    VueEpochjs
   },
   props: {
     EventBus: {
@@ -238,7 +252,7 @@ export default {
   methods: {
     visibilityChanged (isVisible, entry) {
       this.$options.visibles[entry.target.id] = isVisible
-      // console.log('visible', isVisible, entry.target.id)
+      console.log('visible', isVisible, entry.target.id)
     },
   },
 }
