@@ -31,30 +31,52 @@
 <script>
 
 import { mapState } from 'vuex'
+import Vue from 'vue'
 
 import osDashboard from './charts/os.dashboard'
 import osSummary from './charts/os.summary'
 
-import hostStats from '../store/stats'
-// let hostStats = {
-//   namespaced: true,
-//   state: {},
-//   getters: {},
-//   mutations: {},
-//   actions: {}
-// }
+// import hostStats from '../store/stats'
+let hostStats = {
+  namespaced: true,
+  state: {},
+  getters: {},
+  actions: {},
+  mutations: {
+    data: function(state, payload) {//generic mutation
+      if(Array.isArray(payload.value)){
+        // state.networkInterfaces = payload
+        Vue.set(state, payload.key, payload.value)
 
-const hostStatsDefaultMutation = function(state, payload) {
-  if(Array.isArray(payload)){
-    // state.networkInterfaces = payload
-    Vue.set(state, payload.key, payload.value)
+        // console.log(state.networkInterfaces)
+      }
+      else {
+        state[payload.key].push(payload.value)
+      }
+    },
+    splice: (state, payload) => {
+      // console.log('splice', payload)
 
-    // console.log(state.networkInterfaces)
-  }
-  else {
-    state[payload.key].push(payload.value)
+      let length = state[payload.key].length
+      state[payload.key].splice(
+        -payload.length -1,
+        length - payload.length
+      )
+    }
   }
 }
+
+// const hostStatsDefaultMutation = function(state, payload) {
+//   if(Array.isArray(payload)){
+//     // state.networkInterfaces = payload
+//     Vue.set(state, payload.key, payload.value)
+//
+//     // console.log(state.networkInterfaces)
+//   }
+//   else {
+//     state[payload.key].push(payload.value)
+//   }
+// }
 
 export default {
   name: 'osstats',
@@ -87,13 +109,15 @@ export default {
       reset: state => state.app.reset,
       // arrow functions can make the code very succinct!
       seconds: function(state){
+        // console.log('seconds to splice', state.app.range)
+
         let end = new Date().getTime()
         if(state.app.range[1] != null)
           end = state.app.range[1]
 
         let seconds = Math.trunc( (end - state.app.range[0]) / 1000 )
 
-        //console.log('seconds to splice', seconds)
+
         return seconds
       },
       hosts: state => state.hosts.all,
@@ -102,7 +126,9 @@ export default {
         let uptime = []
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          uptime = state.hosts[currentHost].stats.uptime
+
+          if(state.hosts[currentHost].os)
+            uptime = state.hosts[currentHost].os.uptime
           // //console.log('current uptime host', currentHost)
         }
 
@@ -112,8 +138,17 @@ export default {
         let loadavg = {current: [], minute: []}
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          loadavg.current = state.hosts[currentHost].stats.loadavg
-          loadavg.minute = state.hosts[currentHost].stats.minute.loadavg
+
+          if(state.hosts[currentHost].os){
+            loadavg.current = state.hosts[currentHost].os.loadavg
+
+            if(state.hosts[currentHost].os.minute){
+              console.log('state.hosts[currentHost].os.minute', state.hosts[currentHost].os.minute)
+              loadavg.minute = state.hosts[currentHost].os.minute.loadavg
+            }
+
+          }
+
         }
 
         return loadavg
@@ -122,27 +157,29 @@ export default {
         let mem = []
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          // mem = state.hosts[currentHost].stats.mem
-          let freemem = state.hosts[currentHost].stats.freemem
-          let totalmem = state.hosts[currentHost].stats.totalmem
+          // mem = state.hosts[currentHost].os.mem
 
-          Array.each(freemem, function(free, index){
-            let data = {
-              total: totalmem[index].value,
-              free: free.value,
-              timestamp: free.timestamp
-            }
-            let percentage = 100
+          if(state.hosts[currentHost].os){
+            let freemem = state.hosts[currentHost].os.freemem
+            let totalmem = state.hosts[currentHost].os.totalmem
 
-            if(data.total != 0)
-              percentage -= data.free * 100 / data.total;
+            Array.each(freemem, function(free, index){
+              let data = {
+                total: totalmem[index].value,
+                free: free.value,
+                timestamp: free.timestamp
+              }
+              let percentage = 100
 
-            data.percentage = percentage
+              if(data.total != 0)
+                percentage -= data.free * 100 / data.total;
+
+              data.percentage = percentage
 
 
-            mem.push(data)
-          })
-
+              mem.push(data)
+            })
+          }
 
         }
 
@@ -152,7 +189,9 @@ export default {
         let cpu = []
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          cpu = state.hosts[currentHost].stats.cpu
+
+          if(state.hosts[currentHost].os)
+            cpu = state.hosts[currentHost].os.cpu
         }
 
         return cpu
@@ -161,17 +200,20 @@ export default {
         let cpu_simple = []
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          // cpu_simple = state.hosts[currentHost].stats.cpu_simple
-          let cpus = state.hosts[currentHost].stats.cpus
+          // cpu_simple = state.hosts[currentHost].os.cpu_simple
 
-          Array.each(cpus, function(row, index){
+          if(state.hosts[currentHost].os){
+            let cpus = state.hosts[currentHost].os.cpus
 
-            let last = (!cpus[index - 1]) ? null : this.format_cpu_simple(cpus[index - 1])
+            Array.each(cpus, function(row, index){
 
-            // //console.log('cpu_simple last', last)
+              let last = (!cpus[index - 1]) ? null : this.format_cpu_simple(cpus[index - 1])
 
-            cpu_simple.push(this.format_cpu_simple(row, last))
-          }.bind(this))
+              // //console.log('cpu_simple last', last)
+
+              cpu_simple.push(this.format_cpu_simple(row, last))
+            }.bind(this))
+          }
         }
 
         // console.log('cpu_simple', cpu_simple)
@@ -181,7 +223,10 @@ export default {
         let networkInterfaces = []
         if(state.hosts.current){
           let currentHost = state.hosts.current
-          networkInterfaces = state.hosts[currentHost].stats.networkInterfaces
+
+        // console.log('state.hosts[currentHost].os.networkInterfaces', state.hosts[currentHost].os)
+          if(state.hosts[currentHost].os)
+            networkInterfaces = state.hosts[currentHost].os.networkInterfaces
         }
 
         return networkInterfaces
@@ -190,28 +235,28 @@ export default {
 
   ),
   watch:{
-    // '$store.state.app.range' : function(val){
+    // // '$store.state.app.range' : function(val){
+    // //
+    // //   this.$store.commit('app/reset', true)
+    // //
+    // //   // this.reset = true
+    // //   // let currentHost = this.$store.state.hosts.current
+    // //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
+    // //   // //console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
+    // // },
+    // '$store.state.hosts.all' : function(val){
+    //   // //console.log('$store.state.hosts.all', this.$store.state.hosts.all)
+    //   Array.each(this.$store.state.hosts.all, function(host){
+    //     // register a nested module `nested/myModule`
+    //     if(!this.$store.state.hosts[host].stats){
+    //       // //console.log('registering....', host, hostStats)
+    //       this.$store.registerModule(['hosts', host, 'stats'], hostStats)
+    //       this.$store.registerModule(['hosts', host, 'stats', 'minute'], hostStats)
+    //     }
+    //       // this.$store.commit('hosts/'+host+'/seconds', self.seconds)
+    //   }.bind(this))
     //
-    //   this.$store.commit('app/reset', true)
-    //
-    //   // this.reset = true
-    //   // let currentHost = this.$store.state.hosts.current
-    //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
-    //   // //console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
-    // },
-    '$store.state.hosts.all' : function(val){
-      // //console.log('$store.state.hosts.all', this.$store.state.hosts.all)
-      Array.each(this.$store.state.hosts.all, function(host){
-        // register a nested module `nested/myModule`
-        if(!this.$store.state.hosts[host].stats){
-          // //console.log('registering....', host, hostStats)
-          this.$store.registerModule(['hosts', host, 'stats'], hostStats)
-          this.$store.registerModule(['hosts', host, 'stats', 'minute'], hostStats)
-        }
-          // this.$store.commit('hosts/'+host+'/seconds', self.seconds)
-      }.bind(this))
-
-    }
+    // }
   },
   updated: function(){
     this.$store.commit('app/reset', false)
@@ -220,37 +265,26 @@ export default {
     if(!window['EventBus'])
       window['EventBus'] = this.EventBus
 
-    // Object.assign(window, this.EventBus)
-    // //console.log('window', window)
-
     let self = this;
 
-    // this.EventBus.$on('range', doc => {
-    //   //console.log('stats.os.vue->range', doc)
-    //   this.$store.commit('hosts/'+doc.host+'/stats/networkInterfaces', {
-    //     value: {},
-    //     timestamp: 0
-    //   })
-    //
-    //   // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'networkInterfaces', length: 0 })
-		// })
 
     this.EventBus.$on('stats.os', doc => {
-      //console.log('recived doc via Event stats.os', doc)
+      console.log('recived doc via Event stats.os', doc)
 
-      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/'+doc.type, doc.data)
+      if(this.register_host_store_module(doc.host, 'os/'+doc.messure, doc.type) == true){
 
-      let divisor = (doc.messure == 'minute') ? 60 : 3600
-      let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
+        this.$store.commit('hosts/'+doc.host+'/os/'+doc.messure+'/data', { key: doc.type, value: doc.data })
 
-      this.$store.commit('hosts/'+doc.host+'/stats/'+doc.messure+'/splice', { stat: doc.type, length: splice })
+        let divisor = (doc.messure == 'minute') ? 60 : 3600
+        let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
 
-      //console.log('recived doc via Event stats.os', this.$store.state.hosts.elk.stats.minute.networkInterfaces)
+        this.$store.commit('hosts/'+doc.host+'/os/'+doc.messure+'/splice', { key: doc.type, length: splice })
+      }
+      
 		})
 
     this.EventBus.$on('os', doc => {
-      console.log('recived doc via Event os', doc)
-
+      // console.log('recived doc via Event os', doc)
 
       if(Array.isArray(doc)){
         let keys = {}
@@ -258,150 +292,128 @@ export default {
           keys[key] = []
         })
 
-        let path = doc[0].doc.metadata.path.split('.')
+        let path = doc[0].doc.metadata.path.replace('.', '/')
         let host = doc[0].doc.metadata.host
 
-        Array.each(doc, function(item){
-          Object.each(item.doc.data, function(value, key){
-            let data = {value: value, timestamp: item.doc.metadata.timestamp}
-            keys[key].push(data)
-          })
-        }.bind(this))
+        if(this.register_host_store_module(host, path, keys) == true){
 
-        // console.log(keys)
-        Object.each(keys, function(data, key){
-          this.$store.commit('hosts/'+host+'/stats/'+key, data)
-          this.$store.commit('hosts/'+host+'/stats/splice', { stat: key, length: this.seconds })
+          Array.each(doc, function(item){
+            Object.each(item.doc.data, function(value, key){
+              let data = {value: value, timestamp: item.doc.metadata.timestamp}
+              keys[key].push(data)
+            })
+          }.bind(this))
 
-        }.bind(this))
+          Object.each(keys, function(data, key){
+            this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
+            this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
+          }.bind(this))
+        }
       }
       else{
-        let path = doc.metadata.path.split('.')
+        let keys = {}
+        Object.each(doc.data, function(data, key){
+          keys[key] = []
+        })
+        let path = doc.metadata.path.replace('.', '/')
         let host = doc.metadata.host
 
-        Object.each(doc.data, function(value, key){
-          let data = {value: value, timestamp: doc.metadata.timestamp}
+        if(this.register_host_store_module(host, path, keys) == true){
+          Object.each(doc.data, function(value, key){
+            let data = {value: value, timestamp: doc.metadata.timestamp}
 
-          this.$store.commit('hosts/'+host+'/stats/'+key, data)
-          this.$store.commit('hosts/'+host+'/stats/splice', { stat: key, length: this.seconds })
+            this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
+            this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
 
-        }.bind(this))
+          }.bind(this))
+        }
+
       }
-      // this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
-      // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
 		})
 
-    // this.EventBus.$on('networkInterfaces', doc => {
-    //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
-    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
-		// })
-    //
-    //
-    //
-    // this.EventBus.$on('loadavg', doc => {
-		// 	//////console.log('recived doc via Event loadavg', doc)
-    //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
-    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
-		// })
-    //
-    // this.EventBus.$on('uptime', doc => {
-    //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/'+doc.type, doc.data)
-    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: doc.type, length: this.seconds })
-    //
-		// })
-    //
-		// this.EventBus.$on('mem', doc => {
-    //   // //console.log('recived doc via Event mem', doc)
-    //
-    //   let mem = null
-    //   if(Array.isArray(doc.data)){
-    //     mem = []
-    //
-    //     Array.each(doc.data, function(value){
-    //       let data = {
-    //         total: value.totalmem,
-    //         free: value.freemem,
-    //         timestamp: value.timestamp
-    //       }
-    //       let percentage = 100
-    //
-    //       if(data.total != 0)
-    //         percentage -= data.free * 100 / data.total;
-    //
-    //       data.percentage = percentage
-    //
-    //
-    //       mem.push(data)
-    //     })
-    //   }
-    //   else{
-    //     mem = {
-    //       total: doc.data.totalmem,
-    //       free: doc.data.freemem,
-    //       timestamp: doc.data.timestamp
-    //     }
-    //
-    //     let percentage = 100
-    //
-  	// 		if(mem.total != 0)
-  	// 			percentage -= mem.free * 100 / mem.total;
-    //
-    //     mem.percentage = percentage
-    //
-    //
-    //   }
-    //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/mem', mem)
-    //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'mem', length: this.seconds })
-    //
-		// })
-    //
-    // // this.prev_cpu = {total: 0, idle: 0 , timestamp: 0};
-    //
-    // this.EventBus.$on('cpu', doc => {
-    //   // //console.log('recived doc via Event cpu', doc)
-    //
-    //
-    //   let cpu_simple = null
-    //
-    //   if(Array.isArray(doc.data)){
-    //     cpu_simple = []
-    //     Array.each(doc.data, function(row, index){
-    //
-    //       let last = (!doc.data[index - 1]) ? null : self.format_cpu_simple(doc.data[index - 1])
-    //
-    //       // //console.log('cpu_simple last', last)
-    //
-    //       cpu_simple.push(self.format_cpu_simple(row, last))
-    //     })
-    //
-    //     // //console.log('cpu_simple', cpu_simple)
-    //   }
-    //   else{
-    //     let last = self.$store.state.hosts[doc.host].stats.cpu_simple.getLast()
-    //
-    //     cpu_simple = this.format_cpu_simple(doc.data, last)
-    //   }
-    //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/cpu_simple', cpu_simple)
-    //
-    //   this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu_simple', length: this.seconds })
-    //
-    //   // this.$store.commit('hosts/'+doc.host+'/stats/cpu', {
-    //   //   value: doc.cpu,
-    //   //   timestamp: doc.timestamp
-    //   // })
-    //   //
-    //   // this.$store.commit('hosts/'+doc.host+'/stats/splice', { stat: 'cpu', length: this.seconds })
-    //
-		// })
 	},
 
   methods: {
+    register_host_store_module (host, path, keys){
+      let state_props = (keys) ? Object.clone(keys) : {}
+
+      // console.log('registering....', state_props)
+
+      let stats = Object.merge(Object.clone(hostStats), {state: function() {
+        return state_props
+      }})
+
+      // console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
+
+      // if(!this.$store.state.hosts[host][path]){
+      let status = this.check_store_path(path.split('/'), this.$store.state.hosts[host])
+      console.log('status', status)
+      if(status == false){
+
+        // this.$store.registerModule(['hosts', host, path], stats)
+        let new_path = ['hosts', host]
+        new_path = new_path.append(path.split('/'))
+        this.$store.registerModule(new_path, stats)
+
+        console.log('registering....', host, path, this.$store.state.hosts[host])
+
+        return true
+      }
+      else if(status == undefined){
+        return false
+      }
+      else{
+        return true
+      }
+    },
+    check_store_path(path, root){
+      // console.log('check_store_path', path)
+      for(let i = 0; i < path.length; ){
+        if(root == undefined){
+          return undefined
+        }
+        else if(root[path[i]] == undefined && i == path.length - 1){//last path item
+          return false
+        }
+        else if(i < path.length - 1){
+          let tmp_root = root[path[i]]
+          return this.check_store_path([path[++i]], tmp_root)
+        }
+        else{
+          return true
+        }
+      }
+    },
+    // register_module_recursive_path(path, root, module){
+    //   for(let i = 0; i < path.length; ){
+    //     if(root[path[i]] == undefined && i == path.length - 1){//last path item
+    //       root[path[i]].registerModule()
+    //     }
+    //     else if(){
+    //
+    //     }
+    //     else{
+    //       return this.check_store_path(path[++i], root[path[i]])
+    //     }
+    //   }
+    // },
+    // check_store_path(path, root){
+    //   console.log('check_store_path', path)
+    //   // let paths = path.split('/')
+    //   for(let i = 0; i < path.length; ){
+    //     if(root[path[i]] == undefined){
+    //       return false
+    //     }
+    //     else if(){
+    //
+    //     }
+    //     else{
+    //       return this.check_store_path(path[++i], root[path[i]])
+    //     }
+    //   }
+    //
+    //
+    // },
     format_cpu_simple (doc, prev){
 
       let doc_simple = { idle: 0, total: 0 }

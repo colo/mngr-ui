@@ -267,10 +267,9 @@ export default {
         this.$store.commit('hosts/set', doc.hosts)
 
 
-        let currentRange = this.$store.state.app.range
-        currentRange.start = currentRange.start + 1//just a small modification to notify of update
-        // this.$store.commit('app/range', {start:null, end:null})
-        this.$store.commit('app/range', currentRange)
+        // let currentRange = this.$store.state.app.range
+        // //just a small modification to notify of update
+        // this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
 
         this.$store.commit('app/reset', false)
         this.$store.commit('app/reset', true)
