@@ -264,9 +264,23 @@ export default {
         this.$store.commit('app/paths', doc.paths)
 
         this.$store.commit('hosts/clear')
+        this.$store.commit('hosts/set', doc.hosts)
+
+
+        let currentRange = this.$store.state.app.range
+        currentRange.start = currentRange.start + 1//just a small modification to notify of update
+        // this.$store.commit('app/range', {start:null, end:null})
+        this.$store.commit('app/range', currentRange)
+
+        this.$store.commit('app/reset', false)
+        this.$store.commit('app/reset', true)
+
+      }
+      else {
+        this.$store.commit('hosts/set', doc.hosts)
       }
 
-      this.$store.commit('hosts/set', doc.hosts)
+
 
       Array.each(doc.hosts, function(host){
         if(!this.$store.state.hosts[host])

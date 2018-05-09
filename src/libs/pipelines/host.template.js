@@ -35,12 +35,18 @@ export default {
 	],
 	filters: [
 		function(doc, opts, next){
+			let paths = /^os.*/
+
+			// if(doc != null
+			// 	&& ( (opts.type == 'periodical' && doc.metadata.path == 'os')
+			// 	|| ( opts.type == 'range' && doc[0] && doc[0].doc.metadata.path == 'os') )
+			// )
 			if(doc != null
-				&& ( (opts.type == 'periodical' && doc.metadata.path == 'os')
-				|| ( opts.type == 'range' && doc[0] && doc[0].doc.metadata.path == 'os') )
+				&& ( (opts.type == 'periodical' && paths.test(doc.metadata.path) )
+				|| ( opts.type == 'range' && doc[0] && paths.test(doc[0].doc.metadata.path) ))
 			)
 			{
-				next(doc)
+			 	next(doc)
 			}
       // if(doc != null && opts.type == 'periodical' && doc.metadata.path == 'os'){
 			// 	// console.log('host doc perdiodical', doc)
@@ -191,8 +197,9 @@ export default {
 	output: [
 		function(doc){
       doc = JSON.decode(doc)
-      //
-      // // ////console.log(doc.host)
+
+			// console.log('InputPollerCouchDBOS output', doc)
+
       // let type = doc.type
       // EventBus.$emit(type, doc)
 			EventBus.$emit('os', doc)

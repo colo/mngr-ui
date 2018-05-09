@@ -5,6 +5,7 @@
       <!-- OS stats -->
 
      <q-collapsible
+      :no-ripple="true"
       :opened="true"
       icon="info"
       :label="name"
@@ -350,33 +351,6 @@ export default {
             if(!self.networkInterfaces_stats[iface][messure]){
               let options = Object.clone(self.$options.net_stats)
 
-              // self.$watch(
-              //   function(){
-              //     //////console.log('self.$refs['+self.host+'_'+iface+'-'+messure+']')
-              //     //////console.log('self.$refs', self.$refs[self.host+'_'+iface+'-'+messure])
-              //     return self.$refs
-              //   },
-              //   function(oldVal, newVal){
-              //     //////console.log('self.$watch(self.$refs[self.host+_+iface+-+messure]', newVal)
-              //   },
-              //   {
-              //     deep: true
-              //   }
-              // )
-
-              /**
-              * ugly hack:
-              * Due to JavaScript deep cloning
-              */
-              //deep clone/stringify object to loose any refere (loosing any "function" declarations)
-              // let options = JSON.parse(JSON.stringify(self.$options.net_stats))
-
-              /**
-              * deep clone object with completeAssign (keep references), and merge the two,
-              * recovering "function" declarations
-              */
-              // options = Object.merge(options, self.completeAssign({}, self.$options.net_stats ))
-
               self.$set(self.networkInterfaces_stats[iface], messure, {
                 options: options,
                 lastupdate: 0,
@@ -399,26 +373,35 @@ export default {
                 let prev_recived = 0
                 let prev_transmited = 0
 
-                let current_recived = stats.value[iface]['recived'][messure]
-                let current_transmited = stats.value[iface]['transmited'][messure]
+                if(stats.value[iface] !== undefined){
+                  let current_recived = stats.value[iface]['recived'][messure]
+                  let current_transmited = stats.value[iface]['transmited'][messure]
 
-                if(index > 0 && networkInterfaces[index - 1].value[iface]){
-                  prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
-                  prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
+                  if(index > 0 && networkInterfaces[index - 1].value[iface]){
+                    prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
+                    prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
+                  }
+
+                  // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
+                  recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
+
+                  // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
+                  transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
+
+                  if(messure == 'bytes'){ //bps -> Kbps
+                      transmited = transmited / 128
+                      recived = recived / 128
+                  }
+
+                  data.push([timestamp, recived, transmited])
                 }
-
-                // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
-                recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
-
-                // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
-                transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
-
-                if(messure == 'bytes'){ //bps -> Kbps
-                    transmited = transmited / 128
-                    recived = recived / 128
+                else{
+                  data = []
+                  console.log('stats.value[iface] undefined', iface)
+                  /**
+                  * should notify error??
+                  **/
                 }
-
-                data.push([timestamp, recived, transmited])
               })
 
               self.$set(self.networkInterfaces_stats[iface][messure], 'data', data)
@@ -489,26 +472,7 @@ export default {
   //   //////console.log('updated suspended', this.to_suspend , this.suspended)
   // },
   methods: {
-    /**
-    * @source: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/assign
-    */
-    completeAssign(target, ...sources) {
-      sources.forEach(source => {
-        let descriptors = Object.keys(source).reduce((descriptors, key) => {
-          descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
-          return descriptors;
-        }, {});
-        // por defecto, Object.assign copia las propiedades de tipo Symbol que sean enumerables
-        Object.getOwnPropertySymbols(source).forEach(sym => {
-          let descriptor = Object.getOwnPropertyDescriptor(source, sym);
-          if (descriptor.enumerable) {
-            descriptors[sym] = descriptor;
-          }
-        });
-        Object.defineProperties(target, descriptors);
-      });
-      return target;
-    },
+
     visibilityChanged (isVisible, entry) {
       // this.visibles[entry.target.id.replace('-container','')] = isVisible
 

@@ -36,6 +36,25 @@ import osDashboard from './charts/os.dashboard'
 import osSummary from './charts/os.summary'
 
 import hostStats from '../store/stats'
+// let hostStats = {
+//   namespaced: true,
+//   state: {},
+//   getters: {},
+//   mutations: {},
+//   actions: {}
+// }
+
+const hostStatsDefaultMutation = function(state, payload) {
+  if(Array.isArray(payload)){
+    // state.networkInterfaces = payload
+    Vue.set(state, payload.key, payload.value)
+
+    // console.log(state.networkInterfaces)
+  }
+  else {
+    state[payload.key].push(payload.value)
+  }
+}
 
 export default {
   name: 'osstats',
@@ -230,13 +249,18 @@ export default {
 		})
 
     this.EventBus.$on('os', doc => {
-      // console.log('recived doc via Event os', doc)
+      console.log('recived doc via Event os', doc)
+
 
       if(Array.isArray(doc)){
         let keys = {}
         Object.each(doc[0].doc.data, function(data, key){
           keys[key] = []
         })
+
+        let path = doc[0].doc.metadata.path.split('.')
+        let host = doc[0].doc.metadata.host
+
         Array.each(doc, function(item){
           Object.each(item.doc.data, function(value, key){
             let data = {value: value, timestamp: item.doc.metadata.timestamp}
@@ -246,17 +270,20 @@ export default {
 
         // console.log(keys)
         Object.each(keys, function(data, key){
-          this.$store.commit('hosts/'+doc[0].doc.metadata.host+'/stats/'+key, data)
-          this.$store.commit('hosts/'+doc[0].doc.metadata.host+'/stats/splice', { stat: key, length: this.seconds })
+          this.$store.commit('hosts/'+host+'/stats/'+key, data)
+          this.$store.commit('hosts/'+host+'/stats/splice', { stat: key, length: this.seconds })
 
         }.bind(this))
       }
       else{
+        let path = doc.metadata.path.split('.')
+        let host = doc.metadata.host
+
         Object.each(doc.data, function(value, key){
           let data = {value: value, timestamp: doc.metadata.timestamp}
 
-          this.$store.commit('hosts/'+doc.metadata.host+'/stats/'+key, data)
-          this.$store.commit('hosts/'+doc.metadata.host+'/stats/splice', { stat: key, length: this.seconds })
+          this.$store.commit('hosts/'+host+'/stats/'+key, data)
+          this.$store.commit('hosts/'+host+'/stats/splice', { stat: key, length: this.seconds })
 
         }.bind(this))
       }

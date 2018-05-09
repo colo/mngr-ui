@@ -78,7 +78,7 @@ module.exports = function (ctx) {
         // 'QPageSticky'
       ],
       directives: [
-        'Ripple',
+        // 'Ripple',
         'BackToTop'
       ],
       // Quasar plugins
