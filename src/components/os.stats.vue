@@ -48,14 +48,18 @@ let hostStats = {
         // state.networkInterfaces = payload
         Vue.set(state, payload.key, payload.value)
 
-        // console.log(state.networkInterfaces)
+
       }
       else {
+
+        if(payload.key == 'loadavg'){
+          ////console.log('data', state, payload)
+        }
+
         state[payload.key].push(payload.value)
       }
     },
     splice: (state, payload) => {
-      // console.log('splice', payload)
 
       let length = state[payload.key].length
       state[payload.key].splice(
@@ -71,7 +75,7 @@ let hostStats = {
 //     // state.networkInterfaces = payload
 //     Vue.set(state, payload.key, payload.value)
 //
-//     // console.log(state.networkInterfaces)
+//     // //////console.log(state.networkInterfaces)
 //   }
 //   else {
 //     state[payload.key].push(payload.value)
@@ -109,7 +113,7 @@ export default {
       reset: state => state.app.reset,
       // arrow functions can make the code very succinct!
       seconds: function(state){
-        // console.log('seconds to splice', state.app.range)
+        // //////console.log('seconds to splice', state.app.range)
 
         let end = new Date().getTime()
         if(state.app.range[1] != null)
@@ -129,7 +133,7 @@ export default {
 
           if(state.hosts[currentHost].os)
             uptime = state.hosts[currentHost].os.uptime
-          // //console.log('current uptime host', currentHost)
+          // ////////console.log('current uptime host', currentHost)
         }
 
         return uptime
@@ -143,7 +147,7 @@ export default {
             loadavg.current = state.hosts[currentHost].os.loadavg
 
             if(state.hosts[currentHost].os.minute){
-              console.log('state.hosts[currentHost].os.minute', state.hosts[currentHost].os.minute)
+              //console.log('state.hosts[currentHost].os.minute', state.hosts[currentHost].os.minute.loadavg)
               loadavg.minute = state.hosts[currentHost].os.minute.loadavg
             }
 
@@ -209,14 +213,14 @@ export default {
 
               let last = (!cpus[index - 1]) ? null : this.format_cpu_simple(cpus[index - 1])
 
-              // //console.log('cpu_simple last', last)
+              // ////////console.log('cpu_simple last', last)
 
               cpu_simple.push(this.format_cpu_simple(row, last))
             }.bind(this))
           }
         }
 
-        // console.log('cpu_simple', cpu_simple)
+        // //////console.log('cpu_simple', cpu_simple)
         return cpu_simple
       },
       networkInterfaces: function(state){
@@ -224,7 +228,7 @@ export default {
         if(state.hosts.current){
           let currentHost = state.hosts.current
 
-        // console.log('state.hosts[currentHost].os.networkInterfaces', state.hosts[currentHost].os)
+        // //////console.log('state.hosts[currentHost].os.networkInterfaces', state.hosts[currentHost].os)
           if(state.hosts[currentHost].os)
             networkInterfaces = state.hosts[currentHost].os.networkInterfaces
         }
@@ -242,14 +246,14 @@ export default {
     // //   // this.reset = true
     // //   // let currentHost = this.$store.state.hosts.current
     // //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
-    // //   // //console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
+    // //   // ////////console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
     // // },
     // '$store.state.hosts.all' : function(val){
-    //   // //console.log('$store.state.hosts.all', this.$store.state.hosts.all)
+    //   // ////////console.log('$store.state.hosts.all', this.$store.state.hosts.all)
     //   Array.each(this.$store.state.hosts.all, function(host){
     //     // register a nested module `nested/myModule`
     //     if(!this.$store.state.hosts[host].stats){
-    //       // //console.log('registering....', host, hostStats)
+    //       // ////////console.log('registering....', host, hostStats)
     //       this.$store.registerModule(['hosts', host, 'stats'], hostStats)
     //       this.$store.registerModule(['hosts', host, 'stats', 'minute'], hostStats)
     //     }
@@ -268,86 +272,155 @@ export default {
     let self = this;
 
 
-    this.EventBus.$on('stats.os', doc => {
-      console.log('recived doc via Event stats.os', doc)
+    this.EventBus.$on('os.historical', doc => {
+      //console.log('recived doc via Event os.historical', doc)
 
-      if(this.register_host_store_module(doc.host, 'os/'+doc.messure, doc.type) == true){
+      let {keys, path, host} = this.extract_data_os_historical_doc(doc)
 
-        this.$store.commit('hosts/'+doc.host+'/os/'+doc.messure+'/data', { key: doc.type, value: doc.data })
+      if(this.register_host_store_module(host, path, keys) == true){
 
-        let divisor = (doc.messure == 'minute') ? 60 : 3600
-        let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
 
-        this.$store.commit('hosts/'+doc.host+'/os/'+doc.messure+'/splice', { key: doc.type, length: splice })
+        Object.each(keys, function(data, key){
+          ////console.log('recived doc via Event os.historical', path, key, data)
+
+          this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
+
+          let divisor = (path == 'os.minute') ? 60 : 3600
+          let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
+
+          this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: splice })
+
+          // this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
+        }.bind(this))
       }
-      
+
+    //
+    //   let keys = {}
+    //   keys[doc.type] = []
+    //
+    //   if(this.register_host_store_module(doc.host, 'os/'+doc.messure, keys) == true){
+    //
+    //     this.$store.commit('hosts/'+doc.host+'/os/'+doc.messure+'/data', { key: doc.type, value: doc.data })
+    //
+    //     let divisor = (doc.messure == 'minute') ? 60 : 3600
+    //     let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
+    //
+    //     this.$store.commit('hosts/'+doc.host+'/os/'+doc.messure+'/splice', { key: doc.type, length: splice })
+    //   }
+    //
 		})
 
     this.EventBus.$on('os', doc => {
-      // console.log('recived doc via Event os', doc)
+      // //////console.log('recived doc via Event os', doc)
 
-      if(Array.isArray(doc)){
-        let keys = {}
-        Object.each(doc[0].doc.data, function(data, key){
-          keys[key] = []
-        })
+      // if(Array.isArray(doc)){
 
-        let path = doc[0].doc.metadata.path.replace('.', '/')
-        let host = doc[0].doc.metadata.host
+        let {keys, path, host} = this.extract_data_os_doc(doc)
 
         if(this.register_host_store_module(host, path, keys) == true){
-
-          Array.each(doc, function(item){
-            Object.each(item.doc.data, function(value, key){
-              let data = {value: value, timestamp: item.doc.metadata.timestamp}
-              keys[key].push(data)
-            })
-          }.bind(this))
 
           Object.each(keys, function(data, key){
             this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
             this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
           }.bind(this))
         }
-      }
-      else{
-        let keys = {}
-        Object.each(doc.data, function(data, key){
-          keys[key] = []
-        })
-        let path = doc.metadata.path.replace('.', '/')
-        let host = doc.metadata.host
-
-        if(this.register_host_store_module(host, path, keys) == true){
-          Object.each(doc.data, function(value, key){
-            let data = {value: value, timestamp: doc.metadata.timestamp}
-
-            this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
-            this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
-
-          }.bind(this))
-        }
-
-      }
+      // }
+      // else{
+      //
+      //   let {keys, path, host} = this.extract_data_os_doc(doc)
+      //
+      //   if(this.register_host_store_module(host, path, keys) == true){
+      //     Object.each(keys, function(data, key){
+      //       this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
+      //       this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
+      //     }.bind(this))
+      //
+      //   }
+      //
+      // }
 		})
 
 	},
 
   methods: {
+    extract_data_os_historical_doc(doc){
+      let type = ''
+      let range = {}
+      if(Array.isArray(doc)){
+        type = host = doc[0].doc.metadata.type
+        range = host = doc[0].doc.metadata.range
+      }
+      else{
+        type = doc.metadata.type
+        range = doc.metadata.range
+      }
+
+      let {keys, path, host} = this.extract_data_os_doc(doc)
+      path = path.replace('historical', type)
+
+      Object.each(keys, function(data, key){
+        if(Array.isArray(data)){
+          Array.each(data, function(value, index){
+            data[index].range = range
+          })
+        }
+        else{
+          data.range = range
+        }
+      })
+
+      return {keys: keys, path: path, host: host}
+    },
+    extract_data_os_doc(doc){
+      let keys = {}
+      let path = ''
+      let host = ''
+
+      if(Array.isArray(doc)){
+        Object.each(doc[0].doc.data, function(data, key){
+          keys[key] = []
+        })
+
+        path = doc[0].doc.metadata.path.replace('.', '/')
+        host = doc[0].doc.metadata.host
+
+        Array.each(doc, function(item){
+          Object.each(item.doc.data, function(value, key){
+            let data = {value: value, timestamp: item.doc.metadata.timestamp}
+            keys[key].push(data)
+          })
+        }.bind(this))
+      }
+      else {
+        Object.each(doc.data, function(data, key){
+          keys[key] = null
+        })
+        path = doc.metadata.path.replace('.', '/')
+        host = doc.metadata.host
+
+        Object.each(doc.data, function(value, key){
+          let data = {value: value, timestamp: doc.metadata.timestamp}
+          keys[key] = data
+        })
+      }
+      return {keys: keys, path: path, host: host}
+    },
     register_host_store_module (host, path, keys){
       let state_props = (keys) ? Object.clone(keys) : {}
-
-      // console.log('registering....', state_props)
+      Object.each(state_props, function(data, key){
+        state_props[key] = []
+      })
+      // //////console.log('registering....', state_props)
 
       let stats = Object.merge(Object.clone(hostStats), {state: function() {
         return state_props
       }})
 
-      // console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
+      // //////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
 
       // if(!this.$store.state.hosts[host][path]){
       let status = this.check_store_path(path.split('/'), this.$store.state.hosts[host])
-      console.log('status', status)
+      //////console.log('status', status)
       if(status == false){
 
         // this.$store.registerModule(['hosts', host, path], stats)
@@ -355,7 +428,7 @@ export default {
         new_path = new_path.append(path.split('/'))
         this.$store.registerModule(new_path, stats)
 
-        console.log('registering....', host, path, this.$store.state.hosts[host])
+        ////console.log('registering....', host, path, this.$store.state.hosts[host])
 
         return true
       }
@@ -367,7 +440,7 @@ export default {
       }
     },
     check_store_path(path, root){
-      // console.log('check_store_path', path)
+      // //////console.log('check_store_path', path)
       for(let i = 0; i < path.length; ){
         if(root == undefined){
           return undefined
@@ -398,7 +471,7 @@ export default {
     //   }
     // },
     // check_store_path(path, root){
-    //   console.log('check_store_path', path)
+    //   //////console.log('check_store_path', path)
     //   // let paths = path.split('/')
     //   for(let i = 0; i < path.length; ){
     //     if(root[path[i]] == undefined){

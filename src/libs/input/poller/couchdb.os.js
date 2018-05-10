@@ -40,6 +40,8 @@ export default new Class({
             if(app.options.stat_host){
               // let start_key = (app.options.path_start_key != null) ? app.options.path_start_key: app.options.path_key
               // let end_key = (app.options.path_end_key != null ) ? app.options.path_end_key : app.options.path_key
+
+              let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
               Array.each(app.options.paths, function(path){
                 // ////console.log('sort_by_path', host)
 
@@ -57,7 +59,7 @@ export default new Class({
         								// startkey: [start_key, app.options.stat_host, "periodical", req.opt.range.start],
         								// endkey: [end_key, app.options.stat_host, "periodical",req.opt.range.end],
                         startkey: [path, app.options.stat_host, "periodical", req.opt.range.start],
-        								endkey: [path, app.options.stat_host, "periodical",req.opt.range.end],
+        								endkey: [path, app.options.stat_host, "periodical",end],
         								/**
         								 * pouchdb
         								 * */

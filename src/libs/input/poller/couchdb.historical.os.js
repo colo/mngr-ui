@@ -7,7 +7,7 @@ const App = require ( 'node-app-couchdb-client/index' )
 export default new Class({
   Extends: App,
 
-  paths: /^stats\.os.*/,
+  paths: /^os\.historical.*/,
 
   options: {
     paths: [],
@@ -29,6 +29,9 @@ export default new Class({
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
+
+              let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
+
               Array.each(app.options.paths, function(path){
                 // //console.log('sort_by_path', host)
 
@@ -44,7 +47,7 @@ export default new Class({
                       'by_path',
                       {
         								startkey: [path, app.options.stat_host, "minute", req.opt.range.start],
-        								endkey: [path, app.options.stat_host, "minute",req.opt.range.end],
+        								endkey: [path, app.options.stat_host, "minute",end],
         								/**
         								 * pouchdb
         								 * */

@@ -32,5 +32,6 @@
  }
 
  export const range = (state, payload) => {
+   // console.log('range mutation', payload)
    state.range = [payload.start, payload.end]
  }
