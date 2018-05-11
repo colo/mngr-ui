@@ -159,6 +159,7 @@ export default {
 
   net_stats: net_stats,
   os_charts: os_charts,
+  blacklist_keys: /cpus|freemem|totalmem|networkInterfaces/, //don't add charts automatically for this os[key]
   sync: null,
   // visibles: {},
 
@@ -197,10 +198,19 @@ export default {
 
     this.$watch('$store.state.hosts.'+this.host+'.os', function (val, oldVal) {
       console.log('$store.state.hosts.'+this.host+'.os', val)
+
       Object.each(val, function(stat, key){
-        if(Array.isArray(stat)){//stat
+        if(Array.isArray(stat)){//it's stat
+
+          /**
+          * automatically add reactive property
+          **/
           this.$set(this.os, key, this.$store.state.hosts[this.host].os[key])
 
+          /**
+          * create chart automatically & not blacklisted
+          **/
+          if(this.$options.blacklist_keys.test(key) == false){
           // if(!this.os_charts[key]){
             let chart = Object.clone(DefaultDygraphLine)
             chart.options.labels = ['Time']
@@ -215,15 +225,16 @@ export default {
             }
 
 
-            if(this.$store.state.hosts[this.host].os.minute
-              && this.$store.state.hosts[this.host].os.minute[key]
-            )
+            // if(this.$store.state.hosts[this.host].os.minute
+            //   && this.$store.state.hosts[this.host].os.minute[key]
+            // )
               chart.options.labels.push(key+'_minute')//minute
 
 
             this.$set(this.os_charts, key, chart)
             this.create_chart(chart, key)
           // }
+          }
         }
         else{
         }
@@ -256,22 +267,25 @@ export default {
 
         let data = []
         Array.each(val.current, function(uptime){
-          data.push([new Date(uptime.timestamp), uptime.value, null])//null, minute column
+          data.push([new Date(uptime.timestamp), uptime.value])//null, minute column
         })
 
         Array.each(data, function(column, column_index){//insert minute stats
           let timestamp = column[0]
 
-          Array.each(val.minute, function(minute, minute_index){
-            if(
-              ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
-              || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
-              || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
-            ){
-              column[2] = minute.value.median
-            }
-          })
-        })
+          // if(this.stats.uptime.data[0].length > data[column_index].length){//means there is one colum for minute
+            Array.each(val.minute, function(minute, minute_index){
+              if(
+                ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
+                || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
+                || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
+              ){
+                column[2] = minute.value.median
+              }
+            })
+          // }
+
+        }.bind(this))
 
         this.$set(this.stats.uptime, 'data', data)
 
