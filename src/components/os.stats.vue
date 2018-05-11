@@ -13,13 +13,13 @@
 
       <os-dashboard
         v-if="reset == false"
-        :networkInterfaces="networkInterfaces"
-        :uptime="uptime"
-        :loadavg="loadavg"
         :EventBus="EventBus"
         :host="currentHost"
         :key="'os-dashboard'+currentHost"
       />
+      <!-- :networkInterfaces="networkInterfaces"
+      :uptime="uptime"
+      :loadavg="loadavg" -->
       <!-- :timestamps="timestamps" -->
 
     </q-list>
@@ -127,115 +127,118 @@ export default {
       },
       hosts: state => state.hosts.all,
       currentHost: state => state.hosts.current,
-      uptime: function(state){
-        let uptime = []
-        if(state.hosts.current){
-          let currentHost = state.hosts.current
-
-          if(state.hosts[currentHost].os)
-            uptime = state.hosts[currentHost].os.uptime
-          // ////////console.log('current uptime host', currentHost)
-        }
-
-        return uptime
-      },
-      loadavg: function(state){
-        let loadavg = {current: [], minute: []}
-        if(state.hosts.current){
-          let currentHost = state.hosts.current
-
-          if(state.hosts[currentHost].os){
-            loadavg.current = state.hosts[currentHost].os.loadavg
-
-            if(state.hosts[currentHost].os.minute){
-              // console.log('state.hosts[currentHost].os.minute', state.hosts[currentHost].os.minute.loadavg)
-              loadavg.minute = state.hosts[currentHost].os.minute.loadavg
-            }
-
-          }
-
-        }
-
-        return loadavg
-      },
-      mem: function(state){
-        let mem = []
-        if(state.hosts.current){
-          let currentHost = state.hosts.current
-          // mem = state.hosts[currentHost].os.mem
-
-          if(state.hosts[currentHost].os){
-            let freemem = state.hosts[currentHost].os.freemem
-            let totalmem = state.hosts[currentHost].os.totalmem
-
-            Array.each(freemem, function(free, index){
-              let data = {
-                total: totalmem[index].value,
-                free: free.value,
-                timestamp: free.timestamp
-              }
-              let percentage = 100
-
-              if(data.total != 0)
-                percentage -= data.free * 100 / data.total;
-
-              data.percentage = percentage
-
-
-              mem.push(data)
-            })
-          }
-
-        }
-
-        return mem
-      },
-      cpu: function(state){
-        let cpu = []
-        if(state.hosts.current){
-          let currentHost = state.hosts.current
-
-          if(state.hosts[currentHost].os)
-            cpu = state.hosts[currentHost].os.cpu
-        }
-
-        return cpu
-      },
-      cpu_simple: function(state){
-        let cpu_simple = []
-        if(state.hosts.current){
-          let currentHost = state.hosts.current
-          // cpu_simple = state.hosts[currentHost].os.cpu_simple
-
-          if(state.hosts[currentHost].os){
-            let cpus = state.hosts[currentHost].os.cpus
-
-            Array.each(cpus, function(row, index){
-
-              let last = (!cpus[index - 1]) ? null : this.format_cpu_simple(cpus[index - 1])
-
-              // ////////console.log('cpu_simple last', last)
-
-              cpu_simple.push(this.format_cpu_simple(row, last))
-            }.bind(this))
-          }
-        }
-
-        // //////console.log('cpu_simple', cpu_simple)
-        return cpu_simple
-      },
-      networkInterfaces: function(state){
-        let networkInterfaces = []
-        if(state.hosts.current){
-          let currentHost = state.hosts.current
-
-        // //////console.log('state.hosts[currentHost].os.networkInterfaces', state.hosts[currentHost].os)
-          if(state.hosts[currentHost].os)
-            networkInterfaces = state.hosts[currentHost].os.networkInterfaces
-        }
-
-        return networkInterfaces
-      }
+      /**
+      * @moved: os.dashboard.vue generates dinamically
+      */
+      // uptime: function(state){
+      //   let uptime = []
+      //   if(state.hosts.current){
+      //     let currentHost = state.hosts.current
+      //
+      //     if(state.hosts[currentHost].os)
+      //       uptime = state.hosts[currentHost].os.uptime
+      //     // ////////console.log('current uptime host', currentHost)
+      //   }
+      //
+      //   return uptime
+      // },
+      // loadavg: function(state){
+      //   let loadavg = {current: [], minute: []}
+      //   if(state.hosts.current){
+      //     let currentHost = state.hosts.current
+      //
+      //     if(state.hosts[currentHost].os){
+      //       loadavg.current = state.hosts[currentHost].os.loadavg
+      //
+      //       if(state.hosts[currentHost].os.minute){
+      //         // console.log('state.hosts[currentHost].os.minute', state.hosts[currentHost].os.minute.loadavg)
+      //         loadavg.minute = state.hosts[currentHost].os.minute.loadavg
+      //       }
+      //
+      //     }
+      //
+      //   }
+      //
+      //   return loadavg
+      // },
+      // mem: function(state){
+      //   let mem = []
+      //   if(state.hosts.current){
+      //     let currentHost = state.hosts.current
+      //     // mem = state.hosts[currentHost].os.mem
+      //
+      //     if(state.hosts[currentHost].os){
+      //       let freemem = state.hosts[currentHost].os.freemem
+      //       let totalmem = state.hosts[currentHost].os.totalmem
+      //
+      //       Array.each(freemem, function(free, index){
+      //         let data = {
+      //           total: totalmem[index].value,
+      //           free: free.value,
+      //           timestamp: free.timestamp
+      //         }
+      //         let percentage = 100
+      //
+      //         if(data.total != 0)
+      //           percentage -= data.free * 100 / data.total;
+      //
+      //         data.percentage = percentage
+      //
+      //
+      //         mem.push(data)
+      //       })
+      //     }
+      //
+      //   }
+      //
+      //   return mem
+      // },
+      // cpu: function(state){
+      //   let cpu = []
+      //   if(state.hosts.current){
+      //     let currentHost = state.hosts.current
+      //
+      //     if(state.hosts[currentHost].os)
+      //       cpu = state.hosts[currentHost].os.cpu
+      //   }
+      //
+      //   return cpu
+      // },
+      // cpu_simple: function(state){
+      //   let cpu_simple = []
+      //   if(state.hosts.current){
+      //     let currentHost = state.hosts.current
+      //     // cpu_simple = state.hosts[currentHost].os.cpu_simple
+      //
+      //     if(state.hosts[currentHost].os){
+      //       let cpus = state.hosts[currentHost].os.cpus
+      //
+      //       Array.each(cpus, function(row, index){
+      //
+      //         let last = (!cpus[index - 1]) ? null : this.format_cpu_simple(cpus[index - 1])
+      //
+      //         // ////////console.log('cpu_simple last', last)
+      //
+      //         cpu_simple.push(this.format_cpu_simple(row, last))
+      //       }.bind(this))
+      //     }
+      //   }
+      //
+      //   // //////console.log('cpu_simple', cpu_simple)
+      //   return cpu_simple
+      // },
+      // networkInterfaces: function(state){
+      //   let networkInterfaces = []
+      //   if(state.hosts.current){
+      //     let currentHost = state.hosts.current
+      //
+      //   // //////console.log('state.hosts[currentHost].os.networkInterfaces', state.hosts[currentHost].os)
+      //     if(state.hosts[currentHost].os)
+      //       networkInterfaces = state.hosts[currentHost].os.networkInterfaces
+      //   }
+      //
+      //   return networkInterfaces
+      // }
     })
 
   ),
@@ -272,20 +275,20 @@ export default {
 
     let self = this;
 
-    this.$store.subscribe((mutation, state) => {
-      let type = mutation.type.replace(/\//g, '.')
-
-      /**
-      * match os.data|os.minute.data|os.blockdevices.data|...
-      */
-      let os_regexp = '^hosts\.'+this.currentHost+'\.os.*\.data'
-      let os = new RegExp(os_regexp);
-
-      if(type.test(os)== true){
-        console.log('mutation.type', type)
-        console.log('mutation.payload', mutation.payload)
-      }
-    })
+    // this.$store.subscribe((mutation, state) => {
+    //   let type = mutation.type.replace(/\//g, '.')
+    //
+    //   /**
+    //   * match os.data|os.minute.data|os.blockdevices.data|...
+    //   */
+    //   let os_regexp = '^hosts\.'+this.currentHost+'\.os.*\.data'
+    //   let os = new RegExp(os_regexp);
+    //
+    //   if(type.test(os)== true){
+    //     console.log('mutation.type', type)
+    //     console.log('mutation.payload', mutation.payload)
+    //   }
+    // })
 
 
     this.EventBus.$on('os.historical', doc => {
