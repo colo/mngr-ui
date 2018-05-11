@@ -52,9 +52,9 @@ let hostStats = {
       }
       else {
 
-        if(payload.key == 'loadavg'){
-          ////console.log('data', state, payload)
-        }
+        // if(payload.key == 'loadavg'){
+        //   ////console.log('data', state, payload)
+        // }
 
         state[payload.key].push(payload.value)
       }
@@ -104,6 +104,7 @@ export default {
   },
   data () {
     return {
+      computed_doc_properties_state: {}
       // reset: false
       // seconds: 300, //define the N timestamps to show
     }
@@ -147,7 +148,7 @@ export default {
             loadavg.current = state.hosts[currentHost].os.loadavg
 
             if(state.hosts[currentHost].os.minute){
-              //console.log('state.hosts[currentHost].os.minute', state.hosts[currentHost].os.minute.loadavg)
+              // console.log('state.hosts[currentHost].os.minute', state.hosts[currentHost].os.minute.loadavg)
               loadavg.minute = state.hosts[currentHost].os.minute.loadavg
             }
 
@@ -271,27 +272,61 @@ export default {
 
     let self = this;
 
+    this.$store.subscribe((mutation, state) => {
+      let type = mutation.type.replace(/\//g, '.')
+
+      /**
+      * match os.data|os.minute.data|os.blockdevices.data|...
+      */
+      let os_regexp = '^hosts\.'+this.currentHost+'\.os.*\.data'
+      let os = new RegExp(os_regexp);
+
+      if(type.test(os)== true){
+        console.log('mutation.type', type)
+        console.log('mutation.payload', mutation.payload)
+      }
+    })
+
 
     this.EventBus.$on('os.historical', doc => {
-      //console.log('recived doc via Event os.historical', doc)
+      console.log('recived doc via Event os.historical', doc)
 
       let {keys, path, host} = this.extract_data_os_historical_doc(doc)
 
-      if(this.register_host_store_module(host, path, keys) == true){
+      let register_commit = function(){
+        let register = this.register_host_store_module(host, path, keys)
+
+        if(register == true){
+          Object.each(keys, function(data, key){
 
 
-        Object.each(keys, function(data, key){
-          ////console.log('recived doc via Event os.historical', path, key, data)
+            this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
 
-          this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
+            let divisor = (path == 'os/minute') ? 60 : 3600
+            let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
 
-          let divisor = (path == 'os.minute') ? 60 : 3600
-          let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
+            console.log('recived doc via Event os.historical', path, divisor, splice, this.seconds)
 
-          this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: splice })
+            this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: splice })
 
-          // this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
-        }.bind(this))
+            // this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
+          }.bind(this))
+        }
+
+        return register
+      }.bind(this)
+
+
+      if(register_commit() != true){
+        let interval = setInterval(function(){
+          console.log('historical_interval', interval)
+
+          if(register_commit() == true){
+            clearInterval(interval)
+          }
+
+
+        }.bind(this), 1000)
       }
 
     //
@@ -317,13 +352,30 @@ export default {
 
         let {keys, path, host} = this.extract_data_os_doc(doc)
 
-        if(this.register_host_store_module(host, path, keys) == true){
+        let register_commit = function(){
+          let register = this.register_host_store_module(host, path, keys)
+          if(register == true){
+            Object.each(keys, function(data, key){
+              this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
+              this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
+            }.bind(this))
+          }
 
-          Object.each(keys, function(data, key){
-            this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
-            this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
-          }.bind(this))
+          return register
+        }.bind(this)
+
+        if(register_commit() != true){
+          let interval = setInterval(function(){
+            console.log('os_interval', interval, path)
+
+            if(register_commit() == true){
+              clearInterval(interval)
+            }
+
+
+          }.bind(this), 1000)
         }
+
       // }
       // else{
       //
@@ -381,7 +433,7 @@ export default {
           keys[key] = []
         })
 
-        path = doc[0].doc.metadata.path.replace('.', '/')
+        path = doc[0].doc.metadata.path.replace(/\./g, '/')
         host = doc[0].doc.metadata.host
 
         Array.each(doc, function(item){
@@ -395,7 +447,7 @@ export default {
         Object.each(doc.data, function(data, key){
           keys[key] = null
         })
-        path = doc.metadata.path.replace('.', '/')
+        path = doc.metadata.path.replace(/\./g, '/')
         host = doc.metadata.host
 
         Object.each(doc.data, function(value, key){

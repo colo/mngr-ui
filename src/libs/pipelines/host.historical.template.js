@@ -48,6 +48,11 @@ export default {
 				|| ( opts.type == 'range' && doc[0] && paths.test(doc[0].doc.metadata.path) ))
 			)
 			{
+				if( opts.type == 'range')
+				{
+				 	console.log('InputPollerCouchDBOSHistorical filter', doc)
+				}
+
 			 	next(doc)
 			}
       // if(doc != null && opts.type == 'periodical'){
@@ -200,7 +205,7 @@ export default {
 		function(doc){
       doc = JSON.decode(doc)
 
-      //console.log('InputPollerCouchDBOSHistorical->output', doc)
+      console.log('InputPollerCouchDBOSHistorical->output', doc)
       //
       // // ////console.log(doc.host)
       // let type = doc.type
