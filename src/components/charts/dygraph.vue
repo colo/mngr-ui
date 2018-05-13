@@ -206,7 +206,7 @@ export default {
       }.bind(this))
 
       if(this.options.init)
-        this.options.init(this)
+        this.options.init(this, this.chart, 'dygraph')
     },
     updateOptions (options, block_redraw){
 

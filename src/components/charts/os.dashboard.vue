@@ -159,8 +159,9 @@ export default {
 
   net_stats: net_stats,
   os_charts: os_charts,
-  blacklist_keys: /cpus|freemem|totalmem|networkInterfaces/, //don't add charts automatically for this os[key]
+  blacklist_keys: /cpus|totalmem|networkInterfaces/, //don't add charts automatically for this os[key]
   sync: null,
+  unwatchers: {},
   // visibles: {},
 
   data () {
@@ -180,71 +181,36 @@ export default {
     }
   },
 
-  created () {
+  mounted () {
 
 
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      //////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      ////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
       self.sync_charts()
 		})
 
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      ////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      //////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
       self.unsync_charts()
 		})
+
 
     this.$watch('$store.state.hosts.'+this.host+'.os', function (val, oldVal) {
       console.log('$store.state.hosts.'+this.host+'.os', val)
 
-      Object.each(val, function(stat, key){
-        if(Array.isArray(stat)){//it's stat
+      this.add_os_key(val)
 
-          /**
-          * automatically add reactive property
-          **/
-          this.$set(this.os, key, this.$store.state.hosts[this.host].os[key])
-
-          /**
-          * create chart automatically & not blacklisted
-          **/
-          if(this.$options.blacklist_keys.test(key) == false){
-          // if(!this.os_charts[key]){
-            let chart = Object.clone(DefaultDygraphLine)
-            chart.options.labels = ['Time']
-
-            if(Array.isArray(val[key][0].value)){//like ?loadavg', that has 3 values
-              for(let i= 0; i < val[key][0].value.length; i++){//create data columns
-                chart.options.labels.push(key+'_'+i)
-              }
-            }
-            else{//like 'uptime', one value only
-              chart.options.labels.push(key)
-            }
-
-
-            // if(this.$store.state.hosts[this.host].os.minute
-            //   && this.$store.state.hosts[this.host].os.minute[key]
-            // )
-              chart.options.labels.push(key+'_minute')//minute
-
-
-            this.$set(this.os_charts, key, chart)
-            this.create_chart(chart, key)
-          // }
-          }
-        }
-        else{
-        }
+      Object.each(this.$options.os_charts, function(chart, name){
+        this.create_chart(chart, name)
       }.bind(this))
+
     }.bind(this))
 
 
-    Object.each(this.$options.os_charts, function(chart, name){
-      this.create_chart(chart, name)
-    }.bind(this))
+
 
 
 
@@ -253,130 +219,130 @@ export default {
   watch: {
 
     // 'networkInterfaces_stats': function(val){
-    //   //////console.log('$watched', this.$refs)
+    //   ////////console.log('$watched', this.$refs)
     // },
-    'os.uptime': function(current){
-      let minute = (this.$store.state.hosts[this.host].os.minute) ? this.$store.state.hosts[this.host].os.minute.uptime : null
-      let val = {
-        current: current,
-        minute: minute
-      }
-
-
-      if(this.$refs[this.host+'_uptime'] && val.current.length > 0){
-
-        let data = []
-        Array.each(val.current, function(uptime){
-          data.push([new Date(uptime.timestamp), uptime.value])//null, minute column
-        })
-
-        Array.each(data, function(column, column_index){//insert minute stats
-          let timestamp = column[0]
-
-          // if(this.stats.uptime.data[0].length > data[column_index].length){//means there is one colum for minute
-            Array.each(val.minute, function(minute, minute_index){
-              if(
-                ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
-                || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
-                || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
-              ){
-                column[2] = minute.value.median
-              }
-            })
-          // }
-
-        }.bind(this))
-
-        this.$set(this.stats.uptime, 'data', data)
-
-        if(
-          this.stats.uptime.lastupdate < Date.now() - this.os_charts.uptime.interval &&
-          this.$refs[this.host+'_uptime'][0].chart != null &&
-          ( this.visibles[this.host+'_uptime'] != false || this.freezed == true ) &&
-          this.highlighted == false &&
-          this.paused == false
-        ){
-
-
-
-          // this.sync_charts()
-          // this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
-          this.$refs[this.host+'_uptime'][0].updateOptions(
-            { 'dateWindow': this.$refs[this.host+'_uptime'][0].chart.xAxisExtremes() },
-            false
-          )
-          this.stats.uptime.lastupdate = Date.now()
-          // this.$forceUpdate()
-        }
-      }
-
-    },
-    'os.loadavg': function(current){
-      let minute = (this.$store.state.hosts[this.host].os.minute) ? this.$store.state.hosts[this.host].os.minute.loadavg : null
-      let val = {
-        current: current,
-        minute: minute
-      }
-
-      // console.log('loadavg', val)
-
-      if(this.$refs[this.host+'_loadavg'] && val.current.length > 0){
-
-        let data = []
-
-        Array.each(val.current, function(loadavg){
-          let avg = []
-          avg.push(new Date(loadavg.timestamp))
-
-          Array.each(loadavg.value, function(value){
-            avg.push(value)
-          })
-
-          avg.push(null)//add minute column
-
-          data.push(avg)
-        })
-
-        Array.each(data, function(column, column_index){//insert minute stats
-          let timestamp = column[0]
-
-          Array.each(val.minute, function(minute, minute_index){
-            if(
-              ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
-              || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
-              || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
-            ){
-              column[4] = minute.value.median
-            }
-          })
-        })
-
-        // console.log('loadavg data', data)
-
-        this.$set(this.stats.loadavg, 'data', data)
-
-
-        if(
-          this.stats.loadavg.lastupdate < Date.now() - this.os_charts.loadavg.interval &&
-          this.$refs[this.host+'_loadavg'][0].chart != null &&
-          ( this.visibles[this.host+'_loadavg'] != false  || this.freezed == true ) &&
-          this.highlighted == false &&
-          this.paused == false
-        ){
-          // this.sync_charts()
-          // this.charts.loadavg.updateOptions( { 'file': this.stats.loadavg.data, 'dateWindow': this.charts.loadavg.xAxisExtremes() } )
-          this.$refs[this.host+'_loadavg'][0].updateOptions(
-            { 'dateWindow': this.$refs[this.host+'_loadavg'][0].chart.xAxisExtremes() },
-            false
-          )
-          this.stats.loadavg.lastupdate = Date.now()
-        }
-
-      }
-
-    },
+    // 'os.uptime': function(current){
+    //   let minute = (this.$store.state.hosts[this.host].os.minute) ? this.$store.state.hosts[this.host].os.minute.uptime : null
+    //   let val = {
+    //     current: current,
+    //     minute: minute
+    //   }
+    //
+    //
+    //   if(this.$refs[this.host+'_uptime'] && val.current.length > 0){
+    //
+    //     let data = []
+    //     Array.each(val.current, function(uptime){
+    //       data.push([new Date(uptime.timestamp), uptime.value, 0])//0, minute column
+    //     })
+    //
+    //     Array.each(data, function(column, column_index){//insert minute stats
+    //       let timestamp = column[0]
+    //
+    //       // if(this.stats.uptime.data[0].length > data[column_index].length){//means there is one colum for minute
+    //         Array.each(val.minute, function(minute, minute_index){
+    //           if(
+    //             ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
+    //             || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
+    //             || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
+    //           ){
+    //             column[2] = minute.value.median
+    //           }
+    //         })
+    //       // }
+    //
+    //     }.bind(this))
+    //
+    //     this.$set(this.stats.uptime, 'data', data)
+    //
+    //     if(
+    //       this.stats.uptime.lastupdate < Date.now() - this.os_charts.uptime.interval &&
+    //       this.$refs[this.host+'_uptime'][0].chart != null &&
+    //       ( this.visibles[this.host+'_uptime'] != false || this.freezed == true ) &&
+    //       this.highlighted == false &&
+    //       this.paused == false
+    //     ){
+    //
+    //
+    //
+    //       // this.sync_charts()
+    //       // this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
+    //       this.$refs[this.host+'_uptime'][0].updateOptions(
+    //         { 'dateWindow': this.$refs[this.host+'_uptime'][0].chart.xAxisExtremes() },
+    //         false
+    //       )
+    //       this.stats.uptime.lastupdate = Date.now()
+    //       // this.$forceUpdate()
+    //     }
+    //   }
+    //
+    // },
+    // 'os.loadavg': function(current){
+    //   let minute = (this.$store.state.hosts[this.host].os.minute) ? this.$store.state.hosts[this.host].os.minute.loadavg : null
+    //   let val = {
+    //     current: current,
+    //     minute: minute
+    //   }
+    //
+    //   // //console.log('loadavg', val)
+    //
+    //   if(this.$refs[this.host+'_loadavg'] && val.current.length > 0){
+    //
+    //     let data = []
+    //
+    //     Array.each(val.current, function(loadavg){
+    //       let avg = []
+    //       avg.push(new Date(loadavg.timestamp))
+    //
+    //       Array.each(loadavg.value, function(value){
+    //         avg.push(value)
+    //       })
+    //
+    //       avg.push(0)//add minute column
+    //
+    //       data.push(avg)
+    //     })
+    //
+    //     Array.each(data, function(column, column_index){//insert minute stats
+    //       let timestamp = column[0]
+    //
+    //       Array.each(val.minute, function(minute, minute_index){
+    //         if(
+    //           ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
+    //           || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
+    //           || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
+    //         ){
+    //           column[4] = minute.value.median
+    //         }
+    //       })
+    //     })
+    //
+    //     // //console.log('loadavg data', data)
+    //
+    //     this.$set(this.stats.loadavg, 'data', data)
+    //
+    //
+    //     if(
+    //       this.stats.loadavg.lastupdate < Date.now() - this.os_charts.loadavg.interval &&
+    //       this.$refs[this.host+'_loadavg'][0].chart != null &&
+    //       ( this.visibles[this.host+'_loadavg'] != false  || this.freezed == true ) &&
+    //       this.highlighted == false &&
+    //       this.paused == false
+    //     ){
+    //       // this.sync_charts()
+    //       // this.charts.loadavg.updateOptions( { 'file': this.stats.loadavg.data, 'dateWindow': this.charts.loadavg.xAxisExtremes() } )
+    //       this.$refs[this.host+'_loadavg'][0].updateOptions(
+    //         { 'dateWindow': this.$refs[this.host+'_loadavg'][0].chart.xAxisExtremes() },
+    //         false
+    //       )
+    //       this.stats.loadavg.lastupdate = Date.now()
+    //     }
+    //
+    //   }
+    //
+    // },
     'os.networkInterfaces': function(networkInterfaces){
-      //////console.log('networkInterfaces', networkInterfaces)
+      ////////console.log('networkInterfaces', networkInterfaces)
 
       let self = this
       if(networkInterfaces.getLast() !== null){
@@ -398,10 +364,10 @@ export default {
           **/
           Array.each(messures, function(messure){// "bytes" | "packets"
             if(!self.networkInterfaces_stats[iface][messure]){
-              let options = Object.clone(self.$options.net_stats)
+              let chart = Object.clone(self.$options.net_stats)
 
               self.$set(self.networkInterfaces_stats[iface], messure, {
-                options: options,
+                options: chart,
                 lastupdate: 0,
                 data: []
               })
@@ -446,7 +412,7 @@ export default {
                 }
                 else{
                   data = []
-                  console.log('stats.value[iface] undefined', iface)
+                  //console.log('stats.value[iface] undefined', iface)
                   /**
                   * should notify error??
                   **/
@@ -460,7 +426,7 @@ export default {
 
         })
 
-        //////////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+        ////////////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
         Object.each(this.networkInterfaces_stats, function(stat, iface){
 
@@ -468,11 +434,11 @@ export default {
 
 
             // if(document.getElementById(iface+'-'+messure)){
-            // //////console.log('updating NET', this.$refs)
+            // ////////console.log('updating NET', this.$refs)
 
             if(this.$refs[this.host+'_'+iface+'-'+messure]){
 
-              // //////console.log('updating NET', this.freezed, this.networkInterfaces_stats)
+              // ////////console.log('updating NET', this.freezed, this.networkInterfaces_stats)
 
               if(
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
@@ -518,9 +484,57 @@ export default {
   //     // this.suspended = true
   //
   //
-  //   //////console.log('updated suspended', this.to_suspend , this.suspended)
+  //   ////////console.log('updated suspended', this.to_suspend , this.suspended)
   // },
   methods: {
+    add_os_key (val){
+      Object.each(val, function(stat, key){
+        if(Array.isArray(stat)){//it's stat
+
+          /**
+          * automatically add reactive property
+          **/
+          this.$set(this.os, key, this.$store.state.hosts[this.host].os[key])
+
+          /**
+          * create chart automatically if it's not blacklisted
+          **/
+          if(
+            this.$options.blacklist_keys.test(key) == false
+            && Object.keys(this.$options.os_charts).contains(key) == false
+          ){
+          // if(!this.os_charts[key]){
+            let chart = Object.clone(DefaultDygraphLine)
+            chart.options.labels = ['Time']
+
+            if(Array.isArray(val[key][0].value)){//like 'loadavg', that has 3 values
+              for(let i= 0; i < val[key][0].value.length; i++){//create data columns
+                chart.options.labels.push(key+'_'+i)
+              }
+            }
+            else{//like 'uptime', one value only
+              chart.options.labels.push(key)
+            }
+
+
+            // if(this.$store.state.hosts[this.host].os.minute
+            //   && this.$store.state.hosts[this.host].os.minute[key]
+            // )
+              chart.options.labels.push(key+'_minute')//minute
+
+
+            this.create_chart(chart, key)
+
+          // }
+          }
+
+
+        }
+        else{
+          this.add_os_key(stat)//ex: blockdevices
+        }
+      }.bind(this))
+    },
     create_chart (chart, name){
       let data = [[]]
       if(chart.options.labels)
@@ -534,16 +548,178 @@ export default {
 
         })
 
-      this.$set(this.stats, name, {lastupdate: 0, 'data': data })
+      // if(!this.stats[name])
+      if(chart.init && typeOf(chart.init) == 'function')
+        chart.init(this, chart, 'chart')
 
+      this.$set(this.os_charts, name, chart)
+      this.$set(this.stats, name, {lastupdate: 0, 'data': data })
+      this.create_watcher(name, 'os')
 
       this.expanded.push(name)
     },
+    create_watcher(name, path){
+      //console.log('create_watcher',path+'.'+name, this._watchers)
+      let found = false
+      if(Array.isArray(this._watchers)){
+        Array.each(this._watchers, function(watcher){
+          if(watcher.expression == path+'.'+name && watcher.user == true)//means user already added a wtahcer for this chart
+            found = true
+        })
+      }
+
+      if(found == false){
+        //console.log('creating watcher',path+'.'+name)
+
+        if(this.$options.unwatchers[path+'.'+name]){
+          this.$options.unwatchers[path+'.'+name]()
+          delete this.$options.unwatchers[path+'.'+name]
+        }
+
+        let generic_data_watcher = function(current){
+          // //console.log('generic_data_watcher', arguments)
+
+          let minute = (this.$store.state.hosts[this.host][path].minute) ? this.$store.state.hosts[this.host][path].minute[name] : null
+          let val = {
+            current: current,
+            minute: minute
+          }
+
+
+          if(this.$refs[this.host+'_'+name] && val.current.length > 0){
+
+            let data = []
+            if(Array.isArray(val.current[0].value)){//multiple values, ex: loadavg
+              Array.each(val.current, function(value){
+                let tmp_data = []
+                tmp_data.push(new Date(value.timestamp))
+
+                Array.each(value.value, function(real_value){
+                  tmp_data.push(real_value)
+                })
+
+                tmp_data.push(0)//add minute column
+
+                data.push(tmp_data)
+              })
+            }
+            else{//single value, ex: uptime
+              Array.each(val.current, function(value){
+                data.push([new Date(value.timestamp), value.value, 0])//0, minute column
+              })
+            }
+
+
+
+
+            Array.each(data, function(column, column_index){//insert minute stats
+              let timestamp = column[0]
+
+              // if(this.stats.uptime.data[0].length > data[column_index].length){//means there is one colum for minute
+                Array.each(val.minute, function(minute, minute_index){
+                  if(
+                    ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
+                    || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
+                    || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
+                  ){
+                    column[column.length -1] = minute.value.median//last column
+                  }
+                })
+              // }
+
+            }.bind(this))
+
+            this.$set(this.stats[name], 'data', data)
+
+            if(
+              this.stats[name].lastupdate < Date.now() - this.os_charts.uptime.interval &&
+              this.$refs[this.host+'_'+name][0].chart != null &&
+              ( this.visibles[this.host+'_'+name] != false || this.freezed == true ) &&
+              this.highlighted == false &&
+              this.paused == false
+            ){
+
+
+
+              // this.sync_charts()
+              // this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
+              this.$refs[this.host+'_'+name][0].updateOptions(
+                { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
+                false
+              )
+              this.stats[name].lastupdate = Date.now()
+              // this.$forceUpdate()
+            }
+          }
+
+        }
+
+        this.$options.unwatchers[path+'.'+name] = this.$watch(path+'.'+name, generic_data_watcher)
+      }
+    },
+    // generic_stat_data_watcher (current){
+    //   //console.log('generic_stat_data_watcher', arguments)
+    //
+    //   let minute = (this.$store.state.hosts[this.host].os.minute) ? this.$store.state.hosts[this.host].os.minute.uptime : null
+    //   let val = {
+    //     current: current,
+    //     minute: minute
+    //   }
+    //
+    //
+    //   if(this.$refs[this.host+'_uptime'] && val.current.length > 0){
+    //
+    //     let data = []
+    //     Array.each(val.current, function(uptime){
+    //       data.push([new Date(uptime.timestamp), uptime.value, 0])//0, minute column
+    //     })
+    //
+    //     Array.each(data, function(column, column_index){//insert minute stats
+    //       let timestamp = column[0]
+    //
+    //       // if(this.stats.uptime.data[0].length > data[column_index].length){//means there is one colum for minute
+    //         Array.each(val.minute, function(minute, minute_index){
+    //           if(
+    //             ( column_index < 60 && minute_index == 0) //put firt minute on first 60 secs
+    //             || ( column_index > (data.length - 60) && minute_index == val.minute.length - 1 )//put last minute on last 60 secs
+    //             || ( timestamp > minute.range.start && timestamp < minute.range.end ) //if column is in this range
+    //           ){
+    //             column[2] = minute.value.median
+    //           }
+    //         })
+    //       // }
+    //
+    //     }.bind(this))
+    //
+    //     this.$set(this.stats.uptime, 'data', data)
+    //
+    //     if(
+    //       this.stats.uptime.lastupdate < Date.now() - this.os_charts.uptime.interval &&
+    //       this.$refs[this.host+'_uptime'][0].chart != null &&
+    //       ( this.visibles[this.host+'_uptime'] != false || this.freezed == true ) &&
+    //       this.highlighted == false &&
+    //       this.paused == false
+    //     ){
+    //
+    //
+    //
+    //       // this.sync_charts()
+    //       // this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
+    //       this.$refs[this.host+'_uptime'][0].updateOptions(
+    //         { 'dateWindow': this.$refs[this.host+'_uptime'][0].chart.xAxisExtremes() },
+    //         false
+    //       )
+    //       this.stats.uptime.lastupdate = Date.now()
+    //       // this.$forceUpdate()
+    //     }
+    //   }
+    //
+    // },
     visibilityChanged (isVisible, entry) {
       // this.visibles[entry.target.id.replace('-container','')] = isVisible
 
       this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
-      //console.log('visible', entry.target.id.replace('-container',''), this.visibles[entry.target.id.replace('-container','')])
+      ////console.log('visible', entry.target.id.replace('-container',''), this.visibles[entry.target.id.replace('-container','')])
 
       // if(this.$refs[entry.target.id.replace('-container','')]){
       //   this.$refs[entry.target.id.replace('-container','')][0].chart.setSelection(
@@ -559,15 +735,15 @@ export default {
         let gs = []
         // let sync = []
 
-        //////////console.log(this.$refs, this.host)
+        ////////////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          // ////////console.log('charts', name, ref)
+          // //////////console.log('charts', name, ref)
 
           if(ref[0] && ref[0].chart instanceof Dygraph
             && (this.visibles[name] != false || this.freezed == true ))
           {
-            ////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+            //////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
 
@@ -578,23 +754,23 @@ export default {
 
         // Object.each(this.charts, function(dygraph, name){
         //   if(this.visibles[name] == true){
-        //     // //////////////console.log('charts', dygraph)
+        //     // ////////////////console.log('charts', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
         //
         // Object.each(this.networkInterfaces_charts, function(dygraph, name){
         //   if(this.visibles[name] == true){
-        //     // //////////////console.log('networkInterfaces', dygraph)
+        //     // ////////////////console.log('networkInterfaces', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
 
-        // //////////////console.log(this.networkInterfaces_charts)
+        // ////////////////console.log(this.networkInterfaces_charts)
         //
 
 
-        // ////////////console.log(gs)
+        // //////////////console.log(gs)
         this.unsync_charts()
 
         if(gs.length > 1){
@@ -612,7 +788,7 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // //////////////console.log('detaching', this.$options.sync)
+        // ////////////////console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
@@ -646,10 +822,10 @@ export default {
     //
     //     formated[index] = date;
     //
-    //     // //////////////////////console.log('---timestamps---',formated)
+    //     // ////////////////////////console.log('---timestamps---',formated)
     //   })
     //
-    //   // //////////////////////console.log('---timestamps---',formated)
+    //   // ////////////////////////console.log('---timestamps---',formated)
     //   return formated;
     //
     // }
@@ -683,10 +859,10 @@ export default {
 
         data[index][0] = date;
 
-        // //////////////////////console.log('---timestamps---',formated)
+        // ////////////////////////console.log('---timestamps---',formated)
       })
 
-      // //////////////////////console.log('---timestamps---',formated)
+      // ////////////////////////console.log('---timestamps---',formated)
       return data;
 
     }

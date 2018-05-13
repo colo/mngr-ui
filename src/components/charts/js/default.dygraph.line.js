@@ -10,6 +10,7 @@ export default {
     //   // EventBus.$emit('cpu', doc) //update cpu widget
     // },
     "options": {
+      axisLabelFontSize: 12,
       /**
       * netdata options
       */
@@ -54,7 +55,7 @@ export default {
       // drawPoints: true,
       showRoller: false,
       // valueRange: [0.0, 1.2],
-      
+
      //  labels: ['Time', '1 min avg', '5 min avg', '15 min avg', 'minute median'],
      //  series: {
      //   '1 min avg': {

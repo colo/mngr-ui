@@ -3,6 +3,7 @@ export default {
   "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
   "interval": 0,
   "options": {
+    axisLabelFontSize: 12,
     /**
     * netdata options
     */
