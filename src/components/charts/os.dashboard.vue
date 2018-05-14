@@ -159,7 +159,7 @@ export default {
 
   net_stats: net_stats,
   os_charts: os_charts,
-  blacklist_keys: /cpus|totalmem|networkInterfaces/, //don't add charts automatically for this os[key]
+  blacklist_keys: /cpus|minute|totalmem|networkInterfaces/, //don't add charts automatically for this os[key]
   sync: null,
   unwatchers: {},
   // visibles: {},
@@ -199,12 +199,12 @@ export default {
 
 
     this.$watch('$store.state.hosts.'+this.host+'.os', function (val, oldVal) {
-      console.log('$store.state.hosts.'+this.host+'.os', val)
+      // console.log('$store.state.hosts.'+this.host+'.os', val)
 
       this.add_os_key(val)
 
       Object.each(this.$options.os_charts, function(chart, name){
-        this.create_chart(chart, name)
+        this.add_chart(chart, name)
       }.bind(this))
 
     }.bind(this))
@@ -341,8 +341,10 @@ export default {
     //   }
     //
     // },
+
+
     'os.networkInterfaces': function(networkInterfaces){
-      ////////console.log('networkInterfaces', networkInterfaces)
+      // console.log('networkInterfaces', networkInterfaces)
 
       let self = this
       if(networkInterfaces.getLast() !== null){
@@ -471,6 +473,16 @@ export default {
 
       }
     },
+    // 'os.cpus': function(cpus){
+    //   console.log('os.cpus', cpus)
+    // },
+    // 'os.blockdevices': function(blockdevices){
+    //   console.log('os.blockdevices', blockdevices)
+    //
+    //   let self = this
+    //   let devices = Object.keys(blockdevices)
+    //
+    // },
   },
   computed: Object.merge(
     mapState({
@@ -488,54 +500,77 @@ export default {
   // },
   methods: {
     add_os_key (val){
+      console.log('add_os_key', val)
+
       Object.each(val, function(stat, key){
+
+        /**
+        * automatically add reactive property
+        **/
+        this.$set(this.os, key, this.$store.state.hosts[this.host].os[key])
+
+        this.create_chart(stat, key)
+
+      }.bind(this))
+    },
+    create_chart (stat, name){
+      /**
+      * create chart automatically if it's not blacklisted
+      **/
+      if(
+        this.$options.blacklist_keys.test(name) == false
+        && Object.keys(this.$options.os_charts).contains(name) == false
+      ){
+
         if(Array.isArray(stat)){//it's stat
 
-          /**
-          * automatically add reactive property
-          **/
-          this.$set(this.os, key, this.$store.state.hosts[this.host].os[key])
 
-          /**
-          * create chart automatically if it's not blacklisted
-          **/
-          if(
-            this.$options.blacklist_keys.test(key) == false
-            && Object.keys(this.$options.os_charts).contains(key) == false
-          ){
-          // if(!this.os_charts[key]){
+          // if(!this.os_charts[name]){
             let chart = Object.clone(DefaultDygraphLine)
             chart.options.labels = ['Time']
 
-            if(Array.isArray(val[key][0].value)){//like 'loadavg', that has 3 values
-              for(let i= 0; i < val[key][0].value.length; i++){//create data columns
-                chart.options.labels.push(key+'_'+i)
+            if(Array.isArray(stat[0].value)){//like 'loadavg', that has 3 values
+
+              console.log('isArray', stat[0].value)
+
+              for(let i= 0; i < stat[0].value.length; i++){//create data columns
+                chart.options.labels.push(name+'_'+i)
               }
             }
+            else if(isNaN(stat[0].value)){
+              //sdX.stats.
+              console.log('isNan', stat[0])
+            }
             else{//like 'uptime', one value only
-              chart.options.labels.push(key)
+              console.log('isNumber', stat[0].value)
+
+              chart.options.labels.push(name)
             }
 
 
             // if(this.$store.state.hosts[this.host].os.minute
-            //   && this.$store.state.hosts[this.host].os.minute[key]
+            //   && this.$store.state.hosts[this.host].os.minute[name]
             // )
-              chart.options.labels.push(key+'_minute')//minute
+            chart.options.labels.push(name+'_minute')//minute
 
 
-            this.create_chart(chart, key)
+            this.add_chart(chart, name)
 
           // }
-          }
+
 
 
         }
         else{
-          this.add_os_key(stat)//ex: blockdevices
+          Object.each(stat, function(data, key){
+            this.create_chart(data, key)
+          }.bind(this))
+
         }
-      }.bind(this))
+
+      }
     },
-    create_chart (chart, name){
+    add_chart (chart, name){
       let data = [[]]
       if(chart.options.labels)
         Array.each(chart.options.labels, function(label, index){
@@ -563,7 +598,7 @@ export default {
       let found = false
       if(Array.isArray(this._watchers)){
         Array.each(this._watchers, function(watcher){
-          if(watcher.expression == path+'.'+name && watcher.user == true)//means user already added a wtahcer for this chart
+          if(watcher.expression == path+'.'+name && watcher.user == true)//means user already added a watcher for this chart
             found = true
         })
       }
