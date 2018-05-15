@@ -196,19 +196,19 @@ export default {
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      ////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      ////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
       self.sync_charts()
 		})
 
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      //////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      //////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
       self.unsync_charts()
 		})
 
 
     this.$watch('$store.state.hosts.'+this.host+'.os', function (val, oldVal) {
-      // console.log('$store.state.hosts.'+this.host+'.os', val)
+      // ////console.log('$store.state.hosts.'+this.host+'.os', val)
 
       this.add_os_key(val)
 
@@ -229,7 +229,7 @@ export default {
   watch: {
 
     // 'networkInterfaces_stats': function(val){
-    //   ////////console.log('$watched', this.$refs)
+    //   ////////////console.log('$watched', this.$refs)
     // },
     // 'os.uptime': function(current){
     //   let minute = (this.$store.state.hosts[this.host].os.minute) ? this.$store.state.hosts[this.host].os.minute.uptime : null
@@ -294,7 +294,7 @@ export default {
     //     minute: minute
     //   }
     //
-    //   // //console.log('loadavg', val)
+    //   // //////console.log('loadavg', val)
     //
     //   if(this.$refs[this.host+'_loadavg'] && val.current.length > 0){
     //
@@ -327,7 +327,7 @@ export default {
     //       })
     //     })
     //
-    //     // //console.log('loadavg data', data)
+    //     // //////console.log('loadavg data', data)
     //
     //     this.$set(this.stats.loadavg, 'data', data)
     //
@@ -354,7 +354,7 @@ export default {
 
 
     'os.networkInterfaces': function(networkInterfaces){
-      // console.log('networkInterfaces', networkInterfaces)
+      // ////console.log('networkInterfaces', networkInterfaces)
 
       let self = this
       if(networkInterfaces.getLast() !== null){
@@ -424,7 +424,7 @@ export default {
                 }
                 else{
                   data = []
-                  //console.log('stats.value[iface] undefined', iface)
+                  //////console.log('stats.value[iface] undefined', iface)
                   /**
                   * should notify error??
                   **/
@@ -438,7 +438,7 @@ export default {
 
         })
 
-        ////////////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+        ////////////////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
 
         Object.each(this.networkInterfaces_stats, function(stat, iface){
 
@@ -446,11 +446,11 @@ export default {
 
 
             // if(document.getElementById(iface+'-'+messure)){
-            // ////////console.log('updating NET', this.$refs)
+            // ////////////console.log('updating NET', this.$refs)
 
             if(this.$refs[this.host+'_'+iface+'-'+messure]){
 
-              // ////////console.log('updating NET', this.freezed, this.networkInterfaces_stats)
+              // ////////////console.log('updating NET', this.freezed, this.networkInterfaces_stats)
 
               if(
                 value.lastupdate < Date.now() - this.$options.net_stats.interval &&
@@ -484,10 +484,10 @@ export default {
       }
     },
     // 'os.cpus': function(cpus){
-    //   console.log('os.cpus', cpus)
+    //   ////console.log('os.cpus', cpus)
     // },
     // 'os.blockdevices': function(blockdevices){
-    //   console.log('os.blockdevices', blockdevices)
+    //   ////console.log('os.blockdevices', blockdevices)
     //
     //   let self = this
     //   let devices = Object.keys(blockdevices)
@@ -506,11 +506,11 @@ export default {
   //     // this.suspended = true
   //
   //
-  //   ////////console.log('updated suspended', this.to_suspend , this.suspended)
+  //   ////////////console.log('updated suspended', this.to_suspend , this.suspended)
   // },
   methods: {
     add_os_key (val){
-      console.log('add_os_key', val)
+      ////console.log('add_os_key', val)
 
       Object.each(val, function(stat, key){
 
@@ -561,18 +561,37 @@ export default {
               Array.each(dynamic_charts[name], function(dynamic){
 
                 if(Array.isArray(stat[0].value)){//like 'cpus'
-                  console.log('isArray', stat[0].value)
+                  // console.log('isArray', stat[0].value)
 
                   Array.each(stat[0].value, function(val, index){
+
                     let arr_chart = Object.merge(Object.clone(chart), dynamic)
                     watcher = dynamic.watch
 
-                    Object.each(val[watcher.value], function(tmp, tmp_key){
-                      chart.options.labels.push(tmp_key)
-                    })
+                    let chart_name = dynamic.name || name
 
-                    chart.options.labels.push(name+'_minute')//minute
-                    this.add_chart(arr_chart, name+'['+index+']', watcher)
+                    if(watcher.merge != true){
+                      chart_name += '_'+index
+                    }
+                    // else{
+                    //   chart_name = name
+                    // }
+
+                    if(watcher.merge != true || index == 0){//merge creates only once instance
+
+                      if(!dynamic.options || !dynamic.options.labels){
+                        Object.each(val[watcher.value], function(tmp, tmp_key){
+                          arr_chart.options.labels.push(tmp_key)
+                        })
+
+                        arr_chart.options.labels.push(name+'_minute')//minute
+                      }
+
+                      this.add_chart(arr_chart, chart_name, watcher)
+
+
+                    }
+
 
                     // for(let i= 0; i < val.length; i++){//create data columns
                     //   chart.options.labels.push(name+'_'+i)
@@ -588,7 +607,7 @@ export default {
                 }
                 else if(isNaN(stat[0].value)){
                   //sdX.stats.
-                  console.log('isNan', name, stat[0], dynamic)
+                  ////console.log('isNan', name, stat[0], dynamic)
 
                   // Array.each(this.$options.watch_value, function(watch){
                   //   if(watch.match.test(name) == true)
@@ -618,7 +637,7 @@ export default {
             else{
               if(Array.isArray(stat[0].value)){//like 'loadavg', that has 3 values
 
-                console.log('isArray', stat[0].value)
+                ////console.log('isArray', stat[0].value)
 
                 for(let i= 0; i < stat[0].value.length; i++){//create data columns
                   chart.options.labels.push(name+'_'+i)
@@ -629,7 +648,7 @@ export default {
               }
               // else if(isNaN(stat[0].value)){
               //   //sdX.stats.
-              //   console.log('isNan', name, stat[0], this.$options.os_dynamic_charts)
+              //   ////console.log('isNan', name, stat[0], this.$options.os_dynamic_charts)
               //
               //   // Array.each(this.$options.watch_value, function(watch){
               //   //   if(watch.match.test(name) == true)
@@ -654,7 +673,7 @@ export default {
               //
               // }
               else if(!isNaN(stat[0].value)){//like 'uptime', one value only
-                console.log('isNumber', stat[0].value)
+                ////console.log('isNumber', stat[0].value)
 
                 chart.options.labels.push(name)
 
@@ -710,7 +729,8 @@ export default {
       watcher.value = watcher.value || ''
       watcher.transform = watcher.transform || ''
 
-      //console.log('create_watcher',path+'.'+name, this._watchers)
+      // console.log('create_watcher',path+'.'+name, this._watchers)
+
       let found = false
       if(Array.isArray(this._watchers)){
         Array.each(this._watchers, function(watcher){
@@ -720,7 +740,7 @@ export default {
       }
 
       if(found == false){
-        console.log('creating watcher',path+'.'+name)
+        // console.log('creating watcher',path+'.'+name)
 
         if(this.$options.unwatchers[path+'.'+name]){
           this.$options.unwatchers[path+'.'+name]()
@@ -728,7 +748,7 @@ export default {
         }
 
         let generic_data_watcher = function(current){
-          console.log('generic_data_watcher', this.host+'_'+name, current)
+          // console.log('generic_data_watcher', this.host+'_'+name, current)
 
           let minute = (this.$store.state.hosts[this.host][path].minute) ? this.$store.state.hosts[this.host][path].minute[name] : null
           let val = {
@@ -736,7 +756,7 @@ export default {
             minute: minute
           }
 
-          console.log('type_value', name, val.current)
+          ////console.log('type_value', name, val.current)
 
           let type_value = null
           let value_length = 0
@@ -762,13 +782,13 @@ export default {
 
           if(this.$refs[this.host+'_'+name]){
 
-            // console.log('generic_data_watcher watch_value', watch_value)
+            // ////console.log('generic_data_watcher watch_value', watch_value)
 
             let data = []
 
 
             if(Array.isArray(type_value)){//multiple values, ex: loadavg
-              console.log('generic_data_watcher isArray', name, type_value)
+              ////console.log('generic_data_watcher isArray', name, type_value)
 
               Array.each(val.current, function(current){
                 let tmp_data = []
@@ -792,36 +812,46 @@ export default {
               })
             }
             else if(isNaN(type_value) || watcher.value != ''){
-              console.log('generic_data_watcher isNanN', name, val)
+
 
               if(Array.isArray(val.current[0].value) && val.current[0].value[0][watcher.value]){//cpus
+                let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
+                //console.log('generic_data_watcher isNanN', name, val, index)
+
                 let val_current = []
-                // Array.each(val.current, function(current){
-                //   // console.log('CPU current', current)
-                //
-                //   let value = {}
-                //   Array.each(current.value, function(val, index){//each cpu
-                //     // console.log('CPU times', current.timestamp, val[watcher.value])//cpu.times
-                //     if(index == 0){
-                //       value[watcher.value] = Object.clone(val[watcher.value])
-                //     }
-                //     else{
-                //       Object.each(val[watcher.value], function(prop, key){
-                //         value[watcher.value][key] += prop
-                //       }.bind(this))
-                //     }
-                //
-                //   }.bind(this))
-                //
-                //   val_current.push({timestamp: current.timestamp, value: value})
-                //
-                // }.bind(this))
-                //
-                // console.log('CPU current', val_current)
-                //
-                // val.current = Object.clone(val_current)
+                Array.each(val.current, function(current){
+                  // //console.log('CPU current', current)
+
+                  let value = {}
+                  Array.each(current.value, function(val, value_index){//each cpu
+
+                    if(watcher.merge !== true && value_index == index){////no merging - compare indexes to add to this watcher
+                      value[watcher.value] = Object.clone(val[watcher.value])
+                    }
+                    else{//merge all into a single stat
+                      if(value_index == 0){
+                        value[watcher.value] = Object.clone(val[watcher.value])
+                      }
+                      else{
+                        Object.each(val[watcher.value], function(prop, key){
+                          value[watcher.value][key] += prop
+                        })
+
+                      }
+                    }
+
+                  }.bind(this))
+
+                  val_current.push({timestamp: current.timestamp, value: value})
+
+                }.bind(this))
+
+                // //console.log('CPU new current', val_current)
+
+                val.current = val_current
               }
-              else{//blockdevices.sdX
+
+              // else{//blockdevices.sdX
                 let transformed_values = []
                 if(typeOf(watcher.transform) == 'function'){
                   transformed_values = watcher.transform(val.current)
@@ -829,6 +859,9 @@ export default {
                 else{
                   transformed_values = val.current
                 }
+
+                //console.log('transformed_values', transformed_values)
+
                 Array.each(transformed_values, function(current){
                   let tmp_data = []
                   tmp_data.push(new Date(current.timestamp))
@@ -851,12 +884,12 @@ export default {
                   data.push(tmp_data)
                 })
 
-              }
+              // }
 
 
             }
             else{//single value, ex: uptime
-              console.log('generic_data_watcher Num', name, type_value)
+              ////console.log('generic_data_watcher Num', name, type_value)
               Array.each(val.current, function(current){
                 let value = null
                 if(watcher.value != ''){
@@ -918,15 +951,15 @@ export default {
         }
 
         let watch_name = name
-        if(watch_name.indexOf('[') > 0 )//removes indixes, ex: cpu.0
-          watch_name = watch_name.substring(0, watch_name.indexOf('['))
+        if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
+          watch_name = watch_name.substring(0, watch_name.indexOf('_'))
 
-        console.log('gonna watch...', path+'.'+watch_name)
+        // console.log('gonna watch...', path+'.'+watch_name)
         this.$options.unwatchers[path+'.'+watch_name] = this.$watch(path+'.'+watch_name, generic_data_watcher)
       }
     },
     // generic_stat_data_watcher (current){
-    //   //console.log('generic_stat_data_watcher', arguments)
+    //   //////console.log('generic_stat_data_watcher', arguments)
     //
     //   let minute = (this.$store.state.hosts[this.host].os.minute) ? this.$store.state.hosts[this.host].os.minute.uptime : null
     //   let val = {
@@ -987,7 +1020,7 @@ export default {
       // this.visibles[entry.target.id.replace('-container','')] = isVisible
 
       this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
-      ////console.log('visible', entry.target.id.replace('-container',''), this.visibles[entry.target.id.replace('-container','')])
+      ////////console.log('visible', entry.target.id.replace('-container',''), this.visibles[entry.target.id.replace('-container','')])
 
       // if(this.$refs[entry.target.id.replace('-container','')]){
       //   this.$refs[entry.target.id.replace('-container','')][0].chart.setSelection(
@@ -1003,15 +1036,15 @@ export default {
         let gs = []
         // let sync = []
 
-        ////////////console.log(this.$refs, this.host)
+        ////////////////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          // //////////console.log('charts', name, ref)
+          // //////////////console.log('charts', name, ref)
 
           if(ref[0] && ref[0].chart instanceof Dygraph
             && (this.visibles[name] != false || this.freezed == true ))
           {
-            //////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+            //////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
 
@@ -1022,23 +1055,23 @@ export default {
 
         // Object.each(this.charts, function(dygraph, name){
         //   if(this.visibles[name] == true){
-        //     // ////////////////console.log('charts', dygraph)
+        //     // ////////////////////console.log('charts', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
         //
         // Object.each(this.networkInterfaces_charts, function(dygraph, name){
         //   if(this.visibles[name] == true){
-        //     // ////////////////console.log('networkInterfaces', dygraph)
+        //     // ////////////////////console.log('networkInterfaces', dygraph)
         //     gs.push(dygraph)
         //   }
         // }.bind(this))
 
-        // ////////////////console.log(this.networkInterfaces_charts)
+        // ////////////////////console.log(this.networkInterfaces_charts)
         //
 
 
-        // //////////////console.log(gs)
+        // //////////////////console.log(gs)
         this.unsync_charts()
 
         if(gs.length > 1){
@@ -1056,7 +1089,7 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // ////////////////console.log('detaching', this.$options.sync)
+        // ////////////////////console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
@@ -1090,10 +1123,10 @@ export default {
     //
     //     formated[index] = date;
     //
-    //     // ////////////////////////console.log('---timestamps---',formated)
+    //     // ////////////////////////////console.log('---timestamps---',formated)
     //   })
     //
-    //   // ////////////////////////console.log('---timestamps---',formated)
+    //   // ////////////////////////////console.log('---timestamps---',formated)
     //   return formated;
     //
     // }
@@ -1127,10 +1160,10 @@ export default {
 
         data[index][0] = date;
 
-        // ////////////////////////console.log('---timestamps---',formated)
+        // ////////////////////////////console.log('---timestamps---',formated)
       })
 
-      // ////////////////////////console.log('---timestamps---',formated)
+      // ////////////////////////////console.log('---timestamps---',formated)
       return data;
 
     }
