@@ -1,6 +1,7 @@
 <template>
   <div id="q-app">
     <router-view :EventBus="EventBus" :class="($q.loading.active) ? 'invisible' : 'visible'"  />
+    <!-- <router-view :EventBus="EventBus" /> -->
   </div>
 </template>
 
@@ -141,18 +142,21 @@ export default {
 
           // let null_range = (range[1] == null) ? true : false
 
-          if(range[1] != null){
+          if(range[1] != null)
             end = range[1]
 
-            this.$store.commit('app/freeze', true)
-            // this.$nextTick(() => this.$store.commit('app/pause', true))
-            // this.EventBus.$emit('suspend')
-          }
-          else{
-            this.$store.commit('app/freeze', false)
-            // this.$store.commit('app/pause', false)
-            // this.EventBus.$emit('resume')
-          }
+          // if(range[1] != null){
+          //   end = range[1]
+          //
+          //   this.$store.commit('app/freeze', true)
+          //   // this.$nextTick(() => this.$store.commit('app/pause', true))
+          //   // this.EventBus.$emit('suspend')
+          // }
+          // else{
+          //   this.$store.commit('app/freeze', false)
+          //   // this.$store.commit('app/pause', false)
+          //   // this.EventBus.$emit('resume')
+          // }
 
 
           pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
@@ -165,16 +169,9 @@ export default {
           // }
         }
 
-        this.$store.commit('app/reset', true)
 
-        this.$q.loading.show({
-          delay: 0, // ms
-          spinner: 'QSpinnerGears',
-          spinnerColor: 'blue',
-          customClass : 'bg-white'
-        })
 
-        
+
         // if(null_range == false){
         //   this.$nextTick(() => this.$store.commit('app/freeze', true))
         // }
@@ -189,6 +186,23 @@ export default {
 
 
       }.bind(this))
+
+      if(range[1] != null){
+        this.$store.commit('app/freeze', true)
+      }
+      else{
+        this.$store.commit('app/freeze', false)
+      }
+
+      this.$store.commit('app/reset', true)
+
+      this.$q.loading.show({
+        delay: 0, // ms
+        spinner: 'QSpinnerGears',
+        spinnerColor: 'blue',
+        customClass : 'bg-white'
+      })
+
     }
   },
   methods: {

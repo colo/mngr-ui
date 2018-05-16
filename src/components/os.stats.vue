@@ -243,16 +243,28 @@ export default {
 
   ),
   watch:{
-    '$store.state.app.range' : function(val){
-    // //
-    // //   this.$store.commit('app/reset', true)
-    // //
-    // //   // this.reset = true
-    // //   // let currentHost = this.$store.state.hosts.current
-    // //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
-    // //   // //////////console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
-      this.$store.commit('app/reset', false)
+    '$store.state.app.reset' : function(val){
+      console.log('store.state.app.reset', val)
     },
+    '$store.state.app.freeze' : function(val){
+      console.log('store.state.app.freeze', val)
+    },
+    '$store.state.app.pause' : function(val){
+      console.log('store.state.app.pause', val)
+    },
+    '$store.state.app.suspend' : function(val){
+      console.log('store.state.app.suspend', val)
+    },
+    // '$store.state.app.range' : function(val){
+    // // //
+    // // //   this.$store.commit('app/reset', true)
+    // // //
+    // // //   // this.reset = true
+    // // //   // let currentHost = this.$store.state.hosts.current
+    // // //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
+    // // //   // //////////console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
+    //   this.$store.commit('app/reset', false)
+    // },
     // '$store.state.hosts.all' : function(val){
     // //   // //////////console.log('$store.state.hosts.all', this.$store.state.hosts.all)
     // //   Array.each(this.$store.state.hosts.all, function(host){
@@ -268,11 +280,17 @@ export default {
     // this.$store.commit('app/reset', false)
     // }
   },
+  mounted: function(){
+    console.log('os.stats.vue mounted')
+    // this.$store.commit('app/reset', false)
+  },
   updated: function(){
-    console.log('os.stats.vue updated')
     this.$store.commit('app/reset', false)
+    console.log('os.stats.vue updated', this.$store.state.app)
   },
   created: function(){
+    console.log('os.stats.vue created')
+
     if(!window['EventBus'])
       window['EventBus'] = this.EventBus
 
@@ -352,6 +370,8 @@ export default {
 		})
 
     this.EventBus.$on('os', doc => {
+
+
       // console.log('recived doc via Event os', doc)
 
       // if(Array.isArray(doc)){
