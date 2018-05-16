@@ -77,7 +77,7 @@ export default {
     match: /cpus/,
     "options": {
       valueRange: [0, 100],
-      labels: ['Time', 'usage %', 'minute'],
+      labels: ['Time', 'usage %'],
       series: {
        'usage %': {
          color: 'red',
@@ -85,9 +85,9 @@ export default {
          // plotter: smoothPlotter,
        },
 
-     },
+      },
 
-   },
+    },
     watch: {
       merge: true,
       value: 'times',
@@ -146,5 +146,42 @@ export default {
     },
 
 
-  }
+  },
+  "os_freemem": {
+    match: /freemem/,
+    watch: {
+      // merge: true,
+      value: undefined,
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values){
+        // console.log('transform: ', values)
+        let transformed = []
+
+        Array.each(values, function(val, index){
+          let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+          transformed.push(transform)
+        })
+
+        // console.log('transform: ', transformed)
+
+        return transformed
+      }
+    },
+    init: function (vm, chart, type){
+      if(type == 'chart'
+        && vm.$store.state.hosts[vm.host]
+        && vm.$store.state.hosts[vm.host].os
+      ){
+        // if(vm.$store.state.hosts[vm.host])
+        chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
+        // console.log('valueRange', chart.options.valueRange)
+      }
+
+    },
+    "options": {
+      labels: ['Time', 'Mbytes'],
+    }
+  },
 }

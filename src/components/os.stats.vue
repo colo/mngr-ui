@@ -243,7 +243,7 @@ export default {
 
   ),
   watch:{
-    // // '$store.state.app.range' : function(val){
+    '$store.state.app.range' : function(val){
     // //
     // //   this.$store.commit('app/reset', true)
     // //
@@ -251,22 +251,25 @@ export default {
     // //   // let currentHost = this.$store.state.hosts.current
     // //   // this.$store.commit('hosts/'+currentHost+'/stats/reset')
     // //   // //////////console.log('$store.state.app.range....', this.$store.state.hosts[currentHost].stats)
-    // // },
+      this.$store.commit('app/reset', false)
+    },
     // '$store.state.hosts.all' : function(val){
-    //   // //////////console.log('$store.state.hosts.all', this.$store.state.hosts.all)
-    //   Array.each(this.$store.state.hosts.all, function(host){
-    //     // register a nested module `nested/myModule`
-    //     if(!this.$store.state.hosts[host].stats){
-    //       // //////////console.log('registering....', host, hostStats)
-    //       this.$store.registerModule(['hosts', host, 'stats'], hostStats)
-    //       this.$store.registerModule(['hosts', host, 'stats', 'minute'], hostStats)
-    //     }
-    //       // this.$store.commit('hosts/'+host+'/seconds', self.seconds)
-    //   }.bind(this))
-    //
+    // //   // //////////console.log('$store.state.hosts.all', this.$store.state.hosts.all)
+    // //   Array.each(this.$store.state.hosts.all, function(host){
+    // //     // register a nested module `nested/myModule`
+    // //     if(!this.$store.state.hosts[host].stats){
+    // //       // //////////console.log('registering....', host, hostStats)
+    // //       this.$store.registerModule(['hosts', host, 'stats'], hostStats)
+    // //       this.$store.registerModule(['hosts', host, 'stats', 'minute'], hostStats)
+    // //     }
+    // //       // this.$store.commit('hosts/'+host+'/seconds', self.seconds)
+    // //   }.bind(this))
+    // //
+    // this.$store.commit('app/reset', false)
     // }
   },
   updated: function(){
+    console.log('os.stats.vue updated')
     this.$store.commit('app/reset', false)
   },
   created: function(){
@@ -349,7 +352,7 @@ export default {
 		})
 
     this.EventBus.$on('os', doc => {
-      // ////////console.log('recived doc via Event os', doc)
+      // console.log('recived doc via Event os', doc)
 
       // if(Array.isArray(doc)){
 

@@ -124,7 +124,7 @@ export default {
     //
     // },
     '$store.state.app.range' : function(range){
-      //////console.log('store.state.app.range', range)
+      console.log('store.state.app.range', range)
 
       Array.each(this.hosts_pipelines, function(pipe){
 
@@ -174,6 +174,7 @@ export default {
           customClass : 'bg-white'
         })
 
+        
         // if(null_range == false){
         //   this.$nextTick(() => this.$store.commit('app/freeze', true))
         // }
