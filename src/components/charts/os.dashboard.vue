@@ -493,20 +493,44 @@ export default {
                 else if(isNaN(stat[0].value)){
                   //sdX.stats.
 
-                  chart = Object.merge(chart, dynamic)
-                  watcher = dynamic.watch
+                  // console.log('isNan', name, stat[0], dynamic)
+                  let filtered = false
+                  if(dynamic.watch.filters){
+                    Array.each(dynamic.watch.filters, function(filter){
+                      let prop_to_filter = Object.keys(filter)[0]
+                      let value_to_filter = filter[prop_to_filter]
 
-                  Object.each(stat[0].value[watcher.value], function(tmp, tmp_key){
-                    chart.options.labels.push(tmp_key)
-                  })
+                      if(
+                        stat[0].value[prop_to_filter]
+                        && value_to_filter.test(stat[0].value[prop_to_filter]) == true
+                      ){
+                        filtered = true
+                      }
 
-                  // chart.options.labels.push(name+'_minute')//minute
-                  this.add_chart(chart, name, watcher)
+                    })
+                  }
+                  else{
+                    filtered = true
+                  }
+
+                  if(filtered == true){
+                    chart = Object.merge(chart, dynamic)
+                    watcher = dynamic.watch
+
+                    if(!dynamic.options || !dynamic.options.labels){
+                      Object.each(stat[0].value[watcher.value], function(tmp, tmp_key){
+                        chart.options.labels.push(tmp_key)
+                      })
+                    }
+                    // chart.options.labels.push(name+'_minute')//minute
+                    this.add_chart(chart, name, watcher)
+                  }
+
 
 
                 }
                 else{
-                  // //////console.log('isNumber', name, stat[0], dynamic)
+
                   chart = Object.merge(Object.clone(chart), dynamic)
                   watcher = dynamic.watch
 
@@ -678,8 +702,9 @@ export default {
             }
             else if(isNaN(type_value) || watcher.value != ''){
 
-
               if(Array.isArray(val.current[0].value) && val.current[0].value[0][watcher.value]){//cpus
+                // console.log('generic_data_watcher isNaN', name, type_value)
+
                 let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
                 ////////console.log('generic_data_watcher isNanN', name, val, index)
 
@@ -725,9 +750,14 @@ export default {
                   transformed_values = val.current
                 }
 
-                ////////console.log('transformed_values', transformed_values)
+                // console.log('transformed_values', name, transformed_values)
+
+                if(!Array.isArray(transformed_values))
+                  transformed_values = [transformed_values]
 
                 Array.each(transformed_values, function(current){
+                  // console.log('transformed_values', name, current)
+
                   let tmp_data = []
                   tmp_data.push(new Date(current.timestamp))
 
@@ -739,10 +769,15 @@ export default {
                     value = current.value
                   }
 
-                  Object.each(value, function(real_value){
-                    real_value = real_value * 1
-                    tmp_data.push(real_value)
-                  })
+                  if(!isNaN(value)){//mounts[mount_point].value.percentage
+                    tmp_data.push(value * 1)
+                  }
+                  else{
+                    Object.each(value, function(real_value){
+                      real_value = real_value * 1
+                      tmp_data.push(real_value)
+                    })
+                  }
 
                   // tmp_data.push(0)//add minute column
 
