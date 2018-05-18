@@ -448,11 +448,11 @@ export default {
 
       // if(!this.stats[name])
 
+      if(chart.init && typeOf(chart.init) == 'function')
+        chart.init(this, chart, 'chart')
+        
       if(!chart.watch || chart.watch.managed != true){
 
-        if(chart.init && typeOf(chart.init) == 'function')
-          chart.init(this, chart, 'chart')
-          
         this.$set(this.charts, 'os.'+name, chart)
         this.$set(this.stats, 'os.'+name, {lastupdate: 0, 'data': data })
       }
