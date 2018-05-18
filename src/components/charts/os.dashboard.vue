@@ -44,7 +44,7 @@
 
      </q-collapsible>
 
-     <template v-for="(stat, iface) in networkInterfaces_stats">
+     <!-- <template v-for="(stat, iface) in networkInterfaces_stats">
 
        <q-collapsible
          :no-ripple="true"
@@ -60,12 +60,7 @@
        >
 
         <el-card shadow="hover">
-         <!-- <at-card :bordered="false"> -->
-           <!-- <div
-             :id="iface+'-'+messure"
-             :style="$options.net_stats.style"
-             v-observe-visibility="visibilityChanged"
-           ></div> -->
+
 
              <dygraph-vue
               :visible="visibles[host+'_'+iface+'-'+messure]"
@@ -79,11 +74,11 @@
               >
              </dygraph-vue>
 
-         <!-- </at-card> -->
+
        </el-card>
 
      </q-collapsible>
-    </template>
+    </template> -->
 
    </div>
 
@@ -139,13 +134,9 @@ export default {
   os_static_charts: os_static_charts,
   os_dynamic_charts: os_dynamic_charts,
 
-  blacklist_keys: /minute|totalmem|networkInterfaces/, //don't add charts automatically for this os[key]
-  // watch_value: [
-  //   {
-  //     match: /blockdevices\..*/,
-  //     value: 'stats'
-  //   }
-  // ],
+  // blacklist_keys: /minute|totalmem|networkInterfaces/, //don't add charts automatically for this os[key]
+  blacklist_keys: /minute|totalmem/, //don't add charts automatically for this os[key]
+
   sync: null,
   unwatchers: {},
   // visibles: {},
@@ -158,7 +149,7 @@ export default {
 
       charts: {},
       stats: {},
-      networkInterfaces_stats: {},
+      // networkInterfaces_stats: {},
 
     }
   },
@@ -176,7 +167,7 @@ export default {
   updated: function(){
     this.$store.commit('app/reset', false)
 
-    ////console.log('os.dashboard.vue updated', this.$store.state.app, this.os)
+    //////console.log('os.dashboard.vue updated', this.$store.state.app, this.os)
   },
   created (){
 
@@ -185,13 +176,13 @@ export default {
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      //////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      ////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
       self.sync_charts()
 		})
 
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      ////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      //////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
       self.unsync_charts()
 		})
   },
@@ -202,7 +193,7 @@ export default {
     //if "remounted" the $watch ain't gonna work if it's not changed
     if(this.$store.state.hosts[this.host] && this.$store.state.hosts[this.host].os){
       // this.$set(this.os, {})
-      ////console.log('remounted', this._watchers)
+      //////console.log('remounted', this._watchers)
       this.object_to_charts(this.$store.state.hosts[this.host].os)
     }
 
@@ -212,9 +203,7 @@ export default {
 
     }.bind(this))
 
-    this.$watch('$store.state.hosts.'+this.host+'.os.networkInterfaces', this.networkInterfaces_watcher)
-
-    ////console.log('os.dashboard.vue mounted', this.os)
+    // this.$watch('$store.state.hosts.'+this.host+'.os.networkInterfaces', this.networkInterfaces_watcher)
 
 
   },
@@ -276,11 +265,11 @@ export default {
       }
     },
     _process_dynamic_chart (chart, name, stat){
-      // console.log('_process_dynamic_chart',  name, chart)
+      // //console.log('_process_dynamic_chart',  name, chart)
       // let watcher = {value: ''}
 
       if(Array.isArray(stat[0].value)){//like 'cpus'
-        // //////console.log('isArray', stat[0].value)
+        // ////////console.log('isArray', stat[0].value)
 
         Array.each(stat[0].value, function(val, index){
 
@@ -330,9 +319,10 @@ export default {
       else if(isNaN(stat[0].value)){
         //sdX.stats.
 
-        // console.log('isNan', name, stat[0], chart)
+        //console.log('isNan', name, stat, chart)
+
         let filtered = false
-        if(chart.watch.filters){
+        if(chart.watch && chart.watch.filters){
           Array.each(chart.watch.filters, function(filter){
             let prop_to_filter = Object.keys(filter)[0]
             let value_to_filter = filter[prop_to_filter]
@@ -360,11 +350,18 @@ export default {
 
             chart.options.labels = []
 
-            Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
-              chart.options.labels.push(tmp_key)
-            })
+            //if no "watch.value" property, everything should be manage on "trasnform" function
+            if(chart.watch && chart.watch.managed != true
+              // && chart.watch.value
+            ){
+              Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
+                chart.options.labels.push(tmp_key)
+              })
 
-            chart.options.labels.unshift('Time')
+              chart.options.labels.unshift('Time')
+            }
+
+
           }
           // chart.options.labels.push(name+'_minute')//minute
 
@@ -434,7 +431,7 @@ export default {
       return charts
     },
     add_chart (chart, name){
-      // ////console.log('add_chart',chart, name, watcher)
+      // //////console.log('add_chart',chart, name, watcher)
 
       let data = [[]]
       if(chart.options.labels)
@@ -450,11 +447,16 @@ export default {
         })
 
       // if(!this.stats[name])
-      if(chart.init && typeOf(chart.init) == 'function')
-        chart.init(this, chart, 'chart')
 
-      this.$set(this.charts, 'os.'+name, chart)
-      this.$set(this.stats, 'os.'+name, {lastupdate: 0, 'data': data })
+      if(!chart.watch || chart.watch.managed != true){
+
+        if(chart.init && typeOf(chart.init) == 'function')
+          chart.init(this, chart, 'chart')
+          
+        this.$set(this.charts, 'os.'+name, chart)
+        this.$set(this.stats, 'os.'+name, {lastupdate: 0, 'data': data })
+      }
+
       this.create_watcher('os.'+name, chart.watch)
 
       this.expanded.push(name)
@@ -465,7 +467,7 @@ export default {
       watcher.value = watcher.value || ''
       watcher.transform = watcher.transform || ''
 
-      ////console.log('create_watcher',path+'.'+name, this._watchers)
+      //////console.log('create_watcher',path+'.'+name, this._watchers)
 
       let watch_name = name
       if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
@@ -485,23 +487,23 @@ export default {
         })
       }
 
-      //console.log('before creating watcher',path+'.'+name, watch_name)
+      ////console.log('before creating watcher',path+'.'+name, watch_name)
 
       if(found_watcher == false){
-        //console.log('creating watcher',path+'.'+name, watch_name)
+        ////console.log('creating watcher',path+'.'+name, watch_name)
 
         let generic_data_watcher = function(current){
           this.generic_data_watcher(current, watcher, name)
         }
 
-        //console.log('gonna watch...', path+'.'+watch_name)
+        ////console.log('gonna watch...', path+'.'+watch_name)
         this.$options.unwatchers[name] = this.$watch('$store.state.hosts.'+this.host+'.'+watch_name, generic_data_watcher)
 
       }
     },
 
     generic_data_watcher (current, watcher, name){
-      // //console.log('generic_data_watcher', this.host+'_'+name)
+      //console.log('generic_data_watcher', this.host+'_'+name)
 
       // let minute = (this.$store.state.hosts[this.host][path].minute) ? this.$store.state.hosts[this.host][path].minute[name] : null
       // let val = {
@@ -509,167 +511,164 @@ export default {
       //   // minute: minute
       // }
 
-      //////////console.log('type_value', name, val.current)
-
-      let type_value = null
-      let value_length = 0
-      if(watcher.value != ''){
-
-        type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher.value]) ? current[0].value[0][watcher.value] : current[0].value[watcher.value]
-        // value_length = (Array.isArray(val.current.value) && val.current.value[0][watcher.value]) ? val.current.value[0][watcher.value].length : val.current[0].value[watcher.value].length
+      ////////////console.log('type_value', name, val.current)
+      if(watcher.managed == true){
+        watcher.transform(current, this)
       }
       else{
-        type_value = current[0].value
-        // value_length = current.length
-      }
+        let type_value = null
+        let value_length = 0
+        if(watcher.value != ''){
 
-
-
-      if(this.$refs[this.host+'_'+name]){
-
-        // //////////console.log('generic_data_watcher watch_value', watch_value)
-
-        let data = []
-
-
-        if(Array.isArray(type_value)){//multiple values, ex: loadavg
-          //////////console.log('generic_data_watcher isArray', name, type_value)
-
-          Array.each(current, function(item){
-            let tmp_data = []
-            tmp_data.push(new Date(item.timestamp))
-
-            let value = null
-            if(watcher.value != ''){
-              value = item.value[watcher.value]
-            }
-            else{
-              value = item.value
-            }
-
-            Array.each(value, function(real_value){
-              tmp_data.push(real_value)
-            })
-
-            // tmp_data.push(0)//add minute column
-
-            data.push(tmp_data)
-          })
+          type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher.value]) ? current[0].value[0][watcher.value] : current[0].value[watcher.value]
+          // value_length = (Array.isArray(val.current.value) && val.current.value[0][watcher.value]) ? val.current.value[0][watcher.value].length : val.current[0].value[watcher.value].length
         }
-        else if(isNaN(type_value) || watcher.value != ''){
+        else{
+          type_value = current[0].value
+          // value_length = current.length
+        }
 
-          if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
-            // console.log('generic_data_watcher isNaN', name, type_value)
+        if(this.$refs[this.host+'_'+name]){
 
-            let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
-            ////////console.log('generic_data_watcher isNanN', name, val, index)
+          let data = []
 
-            let val_current = []
-            Array.each(current, function(item){
-              // ////////console.log('CPU item', item)
-
-              let value = {}
-              Array.each(item.value, function(val, value_index){//each cpu
-
-                if(watcher.merge !== true && value_index == 0){////no merging - compare indexes to add to this watcher
-                  value[watcher.value] = Object.clone(val[watcher.value])
-                }
-                else{//merge all into a single stat
-                  if(value_index == 0){
-                    value[watcher.value] = Object.clone(val[watcher.value])
-                  }
-                  else{
-                    Object.each(val[watcher.value], function(prop, key){
-                      value[watcher.value][key] += prop
-                    })
-
-                  }
-                }
-
-              }.bind(this))
-
-              val_current.push({timestamp: item.timestamp, value: value})
-
-            }.bind(this))
-
-            // ////////console.log('CPU new current', val_current)
-
-            current = val_current
-          }
-
-          // else{//blockdevices.sdX
-            let transformed_values = []
+          if(Array.isArray(type_value)){//multiple values, ex: loadavg
             if(typeOf(watcher.transform) == 'function'){
-              transformed_values = watcher.transform(current)
-            }
-            else{
-              transformed_values = current
+              current = watcher.transform(current, this)
             }
 
-            // console.log('transformed_values', name, transformed_values)
+            data = this._current_array_to_data(current, watcher)
+          }
+          else if(isNaN(type_value) || watcher.value != ''){
 
-            if(!Array.isArray(transformed_values))
-              transformed_values = [transformed_values]
+            if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
+              // //console.log('generic_data_watcher isNaN', name, type_value, current)
 
-            Array.each(transformed_values, function(current){
-              // console.log('transformed_values', name, current)
+              current = this._current_nested_array(current, watcher, name)
+            }
 
-              let tmp_data = []
-              tmp_data.push(new Date(current.timestamp))
+            // else{//blockdevices.sdX
 
-              let value = null
-              if(watcher.value != ''){
-                value = current.value[watcher.value]
-              }
-              else{
-                value = current.value
-              }
+            if(typeOf(watcher.transform) == 'function'){
+              current = watcher.transform(current, this)
+            }
 
-              if(!isNaN(value)){//mounts[mount_point].value.percentage
-                tmp_data.push(value * 1)
-              }
-              else{
-                Object.each(value, function(real_value){
-                  real_value = real_value * 1
-                  tmp_data.push(real_value)
-                })
-              }
+            if(!Array.isArray(current))
+              current = [current]
 
-              // tmp_data.push(0)//add minute column
+            data = this._current_array_to_data(current, watcher)
 
-              data.push(tmp_data)
-            })
+          }
+          else{//single value, ex: uptime
+            ////////////console.log('generic_data_watcher Num', name, type_value)
+            if(typeOf(watcher.transform) == 'function'){
+              current = watcher.transform(current, this)
+            }
 
-          // }
+            data = this._current_number_to_data (current, watcher)
 
 
-        }
-        else{//single value, ex: uptime
-          //////////console.log('generic_data_watcher Num', name, type_value)
-          if(typeOf(watcher.transform) == 'function'){
-            current = watcher.transform(current)
           }
 
-          Array.each(current, function(current){
-            let value = null
-            if(watcher.value != ''){
-              value = current.value[watcher.value]
-            }
-            else{
-              value = current.value
-            }
-
-            // data.push([new Date(current.timestamp), value, 0])//0, minute column
-            data.push([new Date(current.timestamp), value])//0, minute column
-          })
-
+          this.update_chart_stat(name, data)
 
         }
-
-        this.update_chart_stat(name, data)
-
       }
 
+
+    },
+    _current_nested_array(current, watcher, name){
+
+      let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
+      //////////console.log('generic_data_watcher isNanN', name, val, index)
+
+      let val_current = []
+      Array.each(current, function(item){
+        // //////////console.log('CPU item', item)
+
+        let value = {}
+        Array.each(item.value, function(val, value_index){//each cpu
+
+          if(watcher.merge !== true && value_index == index){////no merging - compare indexes to add to this watcher
+            value[watcher.value] = Object.clone(val[watcher.value])
+          }
+          else{//merge all into a single stat
+            if(value_index == 0){
+              value[watcher.value] = Object.clone(val[watcher.value])
+            }
+            else{
+              Object.each(val[watcher.value], function(prop, key){
+                value[watcher.value][key] += prop
+              })
+
+            }
+          }
+
+        }.bind(this))
+
+        val_current.push({timestamp: item.timestamp, value: value})
+
+      }.bind(this))
+
+      // //////////console.log('CPU new current', val_current)
+
+      return val_current
+    },
+    _current_number_to_data (current, watcher){
+      let data = []
+      Array.each(current, function(current){
+        let value = null
+        if(watcher.value != ''){
+          value = current.value[watcher.value]
+        }
+        else{
+          value = current.value
+        }
+
+        // data.push([new Date(current.timestamp), value, 0])//0, minute column
+        data.push([new Date(current.timestamp), value])//0, minute column
+      })
+
+      return data
+    },
+    _current_array_to_data (current, watcher){
+      let data = []
+      Array.each(current, function(item){
+        let tmp_data = []
+        tmp_data.push(new Date(item.timestamp))
+
+        let value = null
+        if(watcher.value != ''){
+          value = item.value[watcher.value]
+        }
+        else{
+          value = item.value
+        }
+
+        // Array.each(value, function(real_value){
+        //   tmp_data.push(real_value)
+        // })
+        if(Array.isArray(value)){
+          Array.each(value, function(real_value){
+            tmp_data.push(real_value)
+          })
+        }
+        else if(!isNaN(value)){//mounts[mount_point].value.percentage
+          tmp_data.push(value * 1)
+        }
+        else{
+          Object.each(value, function(real_value){
+            real_value = real_value * 1
+            tmp_data.push(real_value)
+          })
+        }
+
+        // tmp_data.push(0)//add minute column
+
+        data.push(tmp_data)
+      })
+
+      return data
     },
     update_chart_stat (name, data){
       this.$set(this.stats[name], 'data', data)
@@ -704,15 +703,15 @@ export default {
         let gs = []
         // let sync = []
 
-        //////////////////////console.log(this.$refs, this.host)
+        ////////////////////////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          // ////////////////////console.log('charts', name, ref)
+          // //////////////////////console.log('charts', name, ref)
 
           if(ref[0] && ref[0].chart instanceof Dygraph
             && (this.visibles[name] != false || this.freezed == true ))
           {
-            ////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+            //////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
 
@@ -736,7 +735,7 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // //////////////////////////console.log('detaching', this.$options.sync)
+        // ////////////////////////////console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
@@ -772,144 +771,144 @@ export default {
     //
     //     data[index][0] = date;
     //
-    //     // //////////////////////////////////console.log('---timestamps---',formated)
+    //     // ////////////////////////////////////console.log('---timestamps---',formated)
     //   })
     //
-    //   // //////////////////////////////////console.log('---timestamps---',formated)
+    //   // ////////////////////////////////////console.log('---timestamps---',formated)
     //   return data;
     //
     // },
 
-    networkInterfaces_watcher (networkInterfaces){
-      // //////////console.log('networkInterfaces', networkInterfaces)
-
-      let self = this
-      if(networkInterfaces.getLast() !== null){
-
-        let val = networkInterfaces.getLast().value
-        let ifaces = Object.keys(val)
-        let properties = Object.keys(val[ifaces[0]])
-        let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
-
-
-        Array.each(ifaces, function(iface){
-          if(!self.networkInterfaces_stats[iface])
-            self.$set(self.networkInterfaces_stats, iface, {})
-
-
-          /**
-          * turn data property->messure (ex: transmited { bytes: .. }),
-          * to: messure->property (ex: bytes {transmited:.., recived: ... })
-          **/
-          Array.each(messures, function(messure){// "bytes" | "packets"
-            if(!self.networkInterfaces_stats[iface][messure]){
-              let chart = Object.clone(self.$options.net_stats)
-
-              self.$set(self.networkInterfaces_stats[iface], messure, {
-                options: chart,
-                lastupdate: 0,
-                data: []
-              })
-            }
-
-
-              // self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
-
-              // let data = []
-              // let stat = []
-              // let data = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
-              let data = []
-              Array.each(networkInterfaces, function(stats, index){
-                let timestamp =  new Date(stats.timestamp)
-
-                let recived = 0
-                let transmited = 0
-                let prev_recived = 0
-                let prev_transmited = 0
-
-                if(stats.value[iface] !== undefined){
-                  let current_recived = stats.value[iface]['recived'][messure]
-                  let current_transmited = stats.value[iface]['transmited'][messure]
-
-                  if(index > 0 && networkInterfaces[index - 1].value[iface]){
-                    prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
-                    prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
-                  }
-
-                  // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
-                  recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
-
-                  // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
-                  transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
-
-                  if(messure == 'bytes'){ //bps -> Kbps
-                      transmited = transmited / 128
-                      recived = recived / 128
-                  }
-
-                  data.push([timestamp, recived, transmited])
-                }
-                else{
-                  data = []
-                  ////////////console.log('stats.value[iface] undefined', iface)
-                  /**
-                  * should notify error??
-                  **/
-                }
-              })
-
-              self.$set(self.networkInterfaces_stats[iface][messure], 'data', data)
-              // self.networkInterfaces_stats[iface][messure].data = data
-
-          })
-
-        })
-
-        //////////////////////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
-
-        Object.each(this.networkInterfaces_stats, function(stat, iface){
-
-          Object.each(stat, function(value, messure){
-
-
-            // if(document.getElementById(iface+'-'+messure)){
-            // //////////////////console.log('updating NET', this.$refs)
-
-            if(this.$refs[this.host+'_'+iface+'-'+messure]){
-
-              // //////////////////console.log('updating NET', this.freezed, this.networkInterfaces_stats)
-
-              if(
-                value.lastupdate < Date.now() - this.$options.net_stats.interval &&
-                this.$refs[this.host+'_'+iface+'-'+messure][0].chart != null &&
-                ( this.visibles[this.host+'_'+iface+'-'+messure] != false  || this.freezed == true ) &&
-                this.highlighted == false &&
-                this.paused == false
-              ){
-
-                // this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
-                //    'file': value.data,
-                //    'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
-                //  });
-
-
-                this.$refs[this.host+'_'+iface+'-'+messure][0].updateOptions(
-                  { 'dateWindow': this.$refs[this.host+'_'+iface+'-'+messure][0].chart.xAxisExtremes() },
-                  false
-                )
-
-                value.lastupdate = Date.now()
-
-              }
-            }
-
-          }.bind(this))
-        }.bind(this))
-
-
-
-      }
-    }
+    // networkInterfaces_watcher (networkInterfaces){
+    //   // ////////////console.log('networkInterfaces', networkInterfaces)
+    //
+    //   let self = this
+    //   if(networkInterfaces.getLast() !== null){
+    //
+    //     let val = networkInterfaces.getLast().value
+    //     let ifaces = Object.keys(val)
+    //     let properties = Object.keys(val[ifaces[0]])
+    //     let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
+    //
+    //
+    //     Array.each(ifaces, function(iface){
+    //       if(!self.networkInterfaces_stats[iface])
+    //         self.$set(self.networkInterfaces_stats, iface, {})
+    //
+    //
+    //       /**
+    //       * turn data property->messure (ex: transmited { bytes: .. }),
+    //       * to: messure->property (ex: bytes {transmited:.., recived: ... })
+    //       **/
+    //       Array.each(messures, function(messure){// "bytes" | "packets"
+    //         if(!self.networkInterfaces_stats[iface][messure]){
+    //           let chart = Object.clone(self.$options.net_stats)
+    //
+    //           self.$set(self.networkInterfaces_stats[iface], messure, {
+    //             options: chart,
+    //             lastupdate: 0,
+    //             data: []
+    //           })
+    //         }
+    //
+    //
+    //           // self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
+    //
+    //           // let data = []
+    //           // let stat = []
+    //           // let data = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
+    //           let data = []
+    //           Array.each(networkInterfaces, function(stats, index){
+    //             let timestamp =  new Date(stats.timestamp)
+    //
+    //             let recived = 0
+    //             let transmited = 0
+    //             let prev_recived = 0
+    //             let prev_transmited = 0
+    //
+    //             if(stats.value[iface] !== undefined){
+    //               let current_recived = stats.value[iface]['recived'][messure]
+    //               let current_transmited = stats.value[iface]['transmited'][messure]
+    //
+    //               if(index > 0 && networkInterfaces[index - 1].value[iface]){
+    //                 prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
+    //                 prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
+    //               }
+    //
+    //               // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
+    //               recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
+    //
+    //               // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
+    //               transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
+    //
+    //               if(messure == 'bytes'){ //bps -> Kbps
+    //                   transmited = transmited / 128
+    //                   recived = recived / 128
+    //               }
+    //
+    //               data.push([timestamp, recived, transmited])
+    //             }
+    //             else{
+    //               data = []
+    //               //////////////console.log('stats.value[iface] undefined', iface)
+    //               /**
+    //               * should notify error??
+    //               **/
+    //             }
+    //           })
+    //
+    //           self.$set(self.networkInterfaces_stats[iface][messure], 'data', data)
+    //           // self.networkInterfaces_stats[iface][messure].data = data
+    //
+    //       })
+    //
+    //     })
+    //
+    //     ////////////////////////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
+    //
+    //     Object.each(this.networkInterfaces_stats, function(stat, iface){
+    //
+    //       Object.each(stat, function(value, messure){
+    //
+    //
+    //         // if(document.getElementById(iface+'-'+messure)){
+    //         // ////////////////////console.log('updating NET', this.$refs)
+    //
+    //         if(this.$refs[this.host+'_'+iface+'-'+messure]){
+    //
+    //           // ////////////////////console.log('updating NET', this.freezed, this.networkInterfaces_stats)
+    //
+    //           if(
+    //             value.lastupdate < Date.now() - this.$options.net_stats.interval &&
+    //             this.$refs[this.host+'_'+iface+'-'+messure][0].chart != null &&
+    //             ( this.visibles[this.host+'_'+iface+'-'+messure] != false  || this.freezed == true ) &&
+    //             this.highlighted == false &&
+    //             this.paused == false
+    //           ){
+    //
+    //             // this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
+    //             //    'file': value.data,
+    //             //    'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
+    //             //  });
+    //
+    //
+    //             this.$refs[this.host+'_'+iface+'-'+messure][0].updateOptions(
+    //               { 'dateWindow': this.$refs[this.host+'_'+iface+'-'+messure][0].chart.xAxisExtremes() },
+    //               false
+    //             )
+    //
+    //             value.lastupdate = Date.now()
+    //
+    //           }
+    //         }
+    //
+    //       }.bind(this))
+    //     }.bind(this))
+    //
+    //
+    //
+    //   }
+    // }
 
   },
 }
