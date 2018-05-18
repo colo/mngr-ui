@@ -220,6 +220,7 @@ export default {
       }
     },
     init: function (vm, chart, type){
+      // console.log('chart', chart)
       if(type == 'chart'
         && vm.$store.state.hosts[vm.host]
         && vm.$store.state.hosts[vm.host].os
