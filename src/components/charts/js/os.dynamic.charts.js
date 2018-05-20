@@ -17,6 +17,7 @@ export default {
           let properties = Object.keys(val[ifaces[0]])
           let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
 
+          let chart = Object.clone(DefaultNetDygraphLine)
 
           Array.each(ifaces, function(iface){
             // if(!vm.stats.networkInterfaces+'.'+iface)
@@ -29,22 +30,11 @@ export default {
             **/
             Array.each(messures, function(messure){// "bytes" | "packets"
               if(!vm.stats['os.networkInterfaces.'+iface+'.'+messure]){
-                let chart = Object.clone(DefaultNetDygraphLine)
 
-                vm.$set(vm.charts, 'os.networkInterfaces.'+iface+'.'+messure, chart)
-
-                vm.$set(vm.stats, 'os.networkInterfaces.'+iface+'.'+messure, {
-                  lastupdate: 0,
-                  data: []
-                })
+                vm.add_chart('networkInterfaces.'+iface+'.'+messure, chart)
               }
 
 
-              // vm.stats.networkInterfaces+'.'+iface[messure] = { lastupdate: 0, data: [] }
-
-              // let data = []
-              // let stat = []
-              // let data = JSON.parse(JSON.stringify(vm.stats.networkInterfaces+'.'+iface[messure].data))
               let data = []
               Array.each(networkInterfaces, function(stats, index){
                 let timestamp =  new Date(stats.timestamp)
@@ -85,92 +75,13 @@ export default {
                 }
               })
 
-              vm.$set(vm.stats['os.networkInterfaces.'+iface+'.'+messure], 'data', data)
-              // vm.stats.networkInterfaces+'.'+iface[messure].data = data
+              // vm.$set(vm.stats['os.networkInterfaces.'+iface+'.'+messure], 'data', data)
+              vm.update_chart_stat('os.networkInterfaces.'+iface+'.'+messure, data)
 
             })
 
           })
 
-          //////////////////////////console.log('vm.stats.networkInterfaces', vm.stats.networkInterfaces)
-
-          Object.each(vm.stats, function(value, name){
-
-            Array.each(ifaces, function(iface){
-              let search = new RegExp("networkInterfaces\."+iface+".*", "g")
-              if(search.test(name)){
-                let messure = name.split('.')[3]
-
-                  // console.log('vm.stats', iface, messure, vm.$refs)
-
-                  if(vm.$refs[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
-
-
-                    // //////////////////console.log('updating NET', vm.freezed, vm.stats.networkInterfaces)
-
-                    if(
-                      value.lastupdate < Date.now() - vm.$options.net_stats.interval &&
-                      vm.$refs[vm.host+'_os.networkInterfaces.'+iface+'.'+messure][0].chart != null &&
-                      ( vm.visibles[vm.host+'_os.networkInterfaces.'+iface+'.'+messure] != false  || vm.freezed == true ) &&
-                      vm.highlighted == false &&
-                      vm.paused == false
-                    ){
-
-                      // vm.networkInterfaces_charts[iface+'-'+messure].updateOptions({
-                      //    'file': value.data,
-                      //    'dateWindow': vm.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
-                      //  });
-
-                      vm.$refs[vm.host+'_os.networkInterfaces.'+iface+'.'+messure][0].updateOptions(
-                        { 'dateWindow': vm.$refs[vm.host+'_os.networkInterfaces.'+iface+'.'+messure][0].chart.xAxisExtremes() },
-                        false
-                      )
-
-                      value.lastupdate = Date.now()
-
-                    }
-                  }
-              }
-            })
-            //
-            // // Object.each(stat, function(value, messure){
-            //
-            //
-            //   // if(document.getElementById(iface+'-'+messure)){
-            //   // //////////////////console.log('updating NET', vm.$refs)
-            //
-            //   if(vm.$refs[vm.host+'_'+iface+'-'+messure]){
-            //
-            //     // //////////////////console.log('updating NET', vm.freezed, vm.stats.networkInterfaces)
-            //
-            //     if(
-            //       value.lastupdate < Date.now() - vm.$options.net_stats.interval &&
-            //       vm.$refs[vm.host+'_'+iface+'-'+messure][0].chart != null &&
-            //       ( vm.visibles[vm.host+'_'+iface+'-'+messure] != false  || vm.freezed == true ) &&
-            //       vm.highlighted == false &&
-            //       vm.paused == false
-            //     ){
-            //
-            //       // vm.networkInterfaces_charts[iface+'-'+messure].updateOptions({
-            //       //    'file': value.data,
-            //       //    'dateWindow': vm.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
-            //       //  });
-            //
-            //
-            //       vm.$refs[vm.host+'_'+iface+'-'+messure][0].updateOptions(
-            //         { 'dateWindow': vm.$refs[vm.host+'_'+iface+'-'+messure][0].chart.xAxisExtremes() },
-            //         false
-            //       )
-            //
-            //       value.lastupdate = Date.now()
-            //
-            //     }
-            //   }
-            //
-            // // }.bind(vm))
-
-
-          }.bind(vm))
 
 
 
@@ -178,166 +89,32 @@ export default {
 
         // return values
       }
-      // transform: function(networkInterfaces, vm){
-      //   // console.log('networkInterfaces transform: ', values, vm)
-      //
-      //   // //////////console.log('networkInterfaces', networkInterfaces)
-      //
-      //   if(networkInterfaces.getLast() !== null){
-      //
-      //     let val = networkInterfaces.getLast().value
-      //     let ifaces = Object.keys(val)
-      //     let properties = Object.keys(val[ifaces[0]])
-      //     let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
-      //
-      //
-      //     Array.each(ifaces, function(iface){
-      //       if(!vm.networkInterfaces_stats[iface])
-      //         vm.$set(vm.networkInterfaces_stats, iface, {})
-      //
-      //
-      //       /**
-      //       * turn data property->messure (ex: transmited { bytes: .. }),
-      //       * to: messure->property (ex: bytes {transmited:.., recived: ... })
-      //       **/
-      //       Array.each(messures, function(messure){// "bytes" | "packets"
-      //         if(!vm.networkInterfaces_stats[iface][messure]){
-      //           let chart = Object.clone(vm.$options.net_stats)
-      //
-      //           vm.$set(vm.networkInterfaces_stats[iface], messure, {
-      //             options: chart,
-      //             lastupdate: 0,
-      //             data: []
-      //           })
-      //         }
-      //
-      //
-      //         // vm.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
-      //
-      //         // let data = []
-      //         // let stat = []
-      //         // let data = JSON.parse(JSON.stringify(vm.networkInterfaces_stats[iface][messure].data))
-      //         let data = []
-      //         Array.each(networkInterfaces, function(stats, index){
-      //           let timestamp =  new Date(stats.timestamp)
-      //
-      //           let recived = 0
-      //           let transmited = 0
-      //           let prev_recived = 0
-      //           let prev_transmited = 0
-      //
-      //           if(stats.value[iface] !== undefined){
-      //             let current_recived = stats.value[iface]['recived'][messure]
-      //             let current_transmited = stats.value[iface]['transmited'][messure]
-      //
-      //             if(index > 0 && networkInterfaces[index - 1].value[iface]){
-      //               prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
-      //               prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
-      //             }
-      //
-      //             // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
-      //             recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
-      //
-      //             // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
-      //             transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
-      //
-      //             if(messure == 'bytes'){ //bps -> Kbps
-      //                 transmited = transmited / 128
-      //                 recived = recived / 128
-      //             }
-      //
-      //             data.push([timestamp, recived, transmited])
-      //           }
-      //           else{
-      //             data = []
-      //             ////////////console.log('stats.value[iface] undefined', iface)
-      //             /**
-      //             * should notify error??
-      //             **/
-      //           }
-      //         })
-      //
-      //         vm.$set(vm.networkInterfaces_stats[iface][messure], 'data', data)
-      //         // vm.networkInterfaces_stats[iface][messure].data = data
-      //
-      //       })
-      //
-      //     })
-      //
-      //     //////////////////////////console.log('vm.networkInterfaces_stats', vm.networkInterfaces_stats)
-      //
-      //     Object.each(vm.networkInterfaces_stats, function(stat, iface){
-      //
-      //       Object.each(stat, function(value, messure){
-      //
-      //
-      //         // if(document.getElementById(iface+'-'+messure)){
-      //         // //////////////////console.log('updating NET', vm.$refs)
-      //
-      //         if(vm.$refs[vm.host+'_'+iface+'-'+messure]){
-      //
-      //           // //////////////////console.log('updating NET', vm.freezed, vm.networkInterfaces_stats)
-      //
-      //           if(
-      //             value.lastupdate < Date.now() - vm.$options.net_stats.interval &&
-      //             vm.$refs[vm.host+'_'+iface+'-'+messure][0].chart != null &&
-      //             ( vm.visibles[vm.host+'_'+iface+'-'+messure] != false  || vm.freezed == true ) &&
-      //             vm.highlighted == false &&
-      //             vm.paused == false
-      //           ){
-      //
-      //             // vm.networkInterfaces_charts[iface+'-'+messure].updateOptions({
-      //             //    'file': value.data,
-      //             //    'dateWindow': vm.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
-      //             //  });
-      //
-      //
-      //             vm.$refs[vm.host+'_'+iface+'-'+messure][0].updateOptions(
-      //               { 'dateWindow': vm.$refs[vm.host+'_'+iface+'-'+messure][0].chart.xAxisExtremes() },
-      //               false
-      //             )
-      //
-      //             value.lastupdate = Date.now()
-      //
-      //           }
-      //         }
-      //
-      //       }.bind(vm))
-      //     }.bind(vm))
-      //
-      //
-      //
-      //   }
-      //
-      //   return values
-      // }
+
     }
 
   },
   "mounts_percentage": {
     match: /mounts/,
+    // label: 'somelabel',
+    labeling: function(stat){
+      // // console.log('mounts_percentage', stat)
+      // let name = ''
+      // if(stat[0].value.mount_point == '/'){
+      //   name = '_root'
+      // }
+      // else{
+      //   name = stat[0].value.mount_point.replace('/', '_')
+      // }
+
+      return 'mounts['+stat[0].value.mount_point+']'
+    },
     watch: {
       // merge: true,
       filters: [{
         type: /ext.*/
       }],
       value: 'percentage',
-      /**
-      * @trasnform: diff between each value against its prev one
-      */
-      // transform: function(values){
-      //   // console.log('transform: ', values)
-      //   let transformed = []
-      //
-      //   Array.each(values, function(val, index){
-      //     let transform = { timestamp: val.timestamp, value: val.value.percentage }
-      //     transformed.push(transform)
-      //   })
-      //
-      //   console.log('transform: ', transformed)
-      //
-      //   return transformed
-      // }
+
     },
     // init: function (vm, chart, type){
     //   if(type == 'chart'
@@ -489,20 +266,7 @@ export default {
 
           transform.value.times.usage = (percentage > 100) ? 100 : percentage
 
-          // }
-          // else{
-          //   Object.each(val.value.times, function(stat, key){
-          //     if(key == 'idle'){//represent idle on the negative sideof axes
-          //       stat = 0 - stat
-          //       let value = ((stat + prev.value.times[key]) < 0) ? stat + prev.value.times[key] : 0
-          //       transform.value.times[key] = value
-          //     }
-          //     else{
-          //       let value = ((stat - prev.value.times[key]) > 0) ? stat - prev.value.times[key] : 0
-          //       transform.value.times[key] = value
-          //     }
-          //   })
-          // }
+
           prev = Object.clone(current)
           transformed.push(transform)
         })

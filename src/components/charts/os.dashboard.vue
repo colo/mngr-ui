@@ -5,38 +5,42 @@
       <!-- OS stats -->
 
      <q-collapsible
+      v-for="(chart, name) in charts"
       :no-ripple="true"
       :opened="true"
       icon="info"
-      :label="name"
+      :label="beautifyLabel(chart.label || name)"
       :separator="true"
       header-class="text-primary bg-white"
-      v-for="(stat, name) in charts"
       :key="name"
       :name="name"
+      v-if="hide[name] != true"
      >
 
-      <el-card shadow="hover">
+      <el-card shadow="hover"
+        v-observe-visibility="visibilityChanged"
+        :id="host+'_'+name+'-card'"
+      >
        <!-- <at-card :bordered="false"> -->
          <!-- <div
           :id="name"
-          :style="stat.style"
+          :style="chart.style"
           v-observe-visibility="visibilityChanged"
           >
         </div> -->
 
           <dygraph-vue
+           v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
            :visible="visibles[host+'_'+name]"
            :ref="host+'_'+name"
            :id="host+'_'+name"
-           :options="stat"
+           :options="chart"
            :stat="stats[name]"
            :EventBus="EventBus"
            :freezed="freezed"
-           v-observe-visibility="visibilityChanged"
            >
           </dygraph-vue>
-
+          <!-- :visible="visibles[host+'_'+name]" -->
        <!-- </at-card> -->
      </el-card>
 
@@ -87,6 +91,9 @@
 
 <script>
 
+import { frameDebounce } from 'quasar'
+
+
 import dygraphVue from './dygraph'
 
 import Dygraph from 'dygraphs'
@@ -103,7 +110,7 @@ import '../../libs/synchronizer' //modified version
 import DefaultDygraphLine from './js/default.dygraph.line'
 import os_static_charts from './js/os.static.charts'
 import os_dynamic_charts from './js/os.dynamic.charts'
-import net_stats from './js/net.dashboard'
+// import net_stats from './js/net.dashboard'
 
 import { mapState } from 'vuex'
 
@@ -130,7 +137,7 @@ export default {
   },
 
 
-  net_stats: net_stats,
+  // net_stats: net_stats,
   os_static_charts: os_static_charts,
   os_dynamic_charts: os_dynamic_charts,
 
@@ -139,13 +146,15 @@ export default {
 
   sync: null,
   unwatchers: {},
-  // visibles: {},
+  visibles: {},
+  has_no_data: {},
 
   data () {
     return {
+      hide: {},
       visibles: {},
       highlighted: false,
-      expanded: [],
+      // expanded: [],
 
       charts: {},
       stats: {},
@@ -167,7 +176,7 @@ export default {
   updated: function(){
     this.$store.commit('app/reset', false)
 
-    //////console.log('os.dashboard.vue updated', this.$store.state.app, this.os)
+    ////////console.log('os.dashboard.vue updated', this.$store.state.app, this.os)
   },
   created (){
 
@@ -176,13 +185,13 @@ export default {
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      ////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      //////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
       self.sync_charts()
 		})
 
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      //////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      ////////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
       self.unsync_charts()
 		})
   },
@@ -193,7 +202,7 @@ export default {
     //if "remounted" the $watch ain't gonna work if it's not changed
     if(this.$store.state.hosts[this.host] && this.$store.state.hosts[this.host].os){
       // this.$set(this.os, {})
-      //////console.log('remounted', this._watchers)
+      ////////console.log('remounted', this._watchers)
       this.object_to_charts(this.$store.state.hosts[this.host].os)
     }
 
@@ -208,6 +217,25 @@ export default {
 
   },
   methods: {
+    _process_chart_label (chart, stat) {
+      if(chart.labeling && typeOf(chart.labeling) == 'function'){
+
+        return chart.labeling(stat)
+      }
+      else if(chart.label){
+        return chart.label
+      }
+      else{
+        return this._process_chart_name(chart, stat)
+      }
+    },
+    _process_chart_name (chart, stat){
+      if(chart.name && typeOf(chart.name) == 'function') return chart.name(stat)
+      else if(chart.name) return chart.name
+    },
+    beautifyLabel (label) {
+      return label.replace('_', '.')
+    },
     object_to_charts (val){
       Object.each(val, function(stat, key){
 
@@ -217,7 +245,7 @@ export default {
 
       Object.each(this.$options.os_static_charts, function(chart, name){
         chart = Object.merge(Object.clone(DefaultDygraphLine), chart)
-        this.add_chart(chart, name)
+        this.process_chart(chart, name)
       }.bind(this))
     },
 
@@ -265,11 +293,11 @@ export default {
       }
     },
     _process_dynamic_chart (chart, name, stat){
-      // //console.log('_process_dynamic_chart',  name, chart)
+      // ////console.log('_process_dynamic_chart',  name, chart)
       // let watcher = {value: ''}
 
       if(Array.isArray(stat[0].value)){//like 'cpus'
-        // ////////console.log('isArray', stat[0].value)
+        // //////////console.log('isArray', stat[0].value)
 
         Array.each(stat[0].value, function(val, index){
 
@@ -277,7 +305,8 @@ export default {
           let arr_chart = Object.clone(chart)
           // watcher = chart.watch
 
-          let chart_name = chart.name || name
+          arr_chart.label = this._process_chart_label(chart, stat) || name
+          let chart_name = this._process_chart_name(chart, stat) || name
 
           if(chart.watch.merge != true){
             chart_name += '_'+index
@@ -303,7 +332,7 @@ export default {
               // arr_chart.options.labels.push(name+'_minute')//minute
             }
 
-            this.add_chart(arr_chart, chart_name)
+            this.process_chart(arr_chart, chart_name)
 
 
           }
@@ -319,7 +348,7 @@ export default {
       else if(isNaN(stat[0].value)){
         //sdX.stats.
 
-        //console.log('isNan', name, stat, chart)
+        ////console.log('isNan', name, stat, chart)
 
         let filtered = false
         if(chart.watch && chart.watch.filters){
@@ -355,6 +384,7 @@ export default {
               // && chart.watch.value
             ){
               Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
+                // //console.log('labeling...', tmp)
                 chart.options.labels.push(tmp_key)
               })
 
@@ -364,9 +394,10 @@ export default {
 
           }
           // chart.options.labels.push(name+'_minute')//minute
+          chart.label = this._process_chart_label(chart, stat) || name
+          let chart_name = this._process_chart_name(chart, stat) || name
 
-
-          this.add_chart(chart, name)
+          this.process_chart(chart, chart_name)
         }
 
 
@@ -377,7 +408,8 @@ export default {
         // chart = Object.merge(Object.clone(chart), chart)
         // watcher = chart.watch
 
-        let chart_name = chart.name || name
+        chart.label = this._process_chart_label(chart, stat) || name
+        let chart_name = this._process_chart_name(chart, stat) || name
 
         if(!chart.options || !chart.options.labels){
           if(!chart.options)
@@ -392,7 +424,7 @@ export default {
 
 
         // chart.options.labels.push(name+'_minute')//minute
-        this.add_chart(chart, chart_name)
+        this.process_chart(chart, chart_name)
       }
 
 
@@ -408,12 +440,12 @@ export default {
         }
 
         // chart.options.labels.push(name+'_minute')//minute
-        this.add_chart(chart, name)
+        this.process_chart(chart, name)
       }
       else if(!isNaN(stat[0].value)){//like 'uptime', one value only
 
         chart.options.labels.push(name)
-        this.add_chart(chart, name)
+        this.process_chart(chart, name)
       }
     },
     _get_dynamic_charts (name, dynamic_charts){
@@ -430,11 +462,27 @@ export default {
 
       return charts
     },
-    add_chart (chart, name){
-      // //////console.log('add_chart',chart, name, watcher)
+    process_chart (chart, name){
+      //console.log('process_chart',chart, name)
 
+
+
+      // if(!this.stats[name])
+
+      if(!chart.watch || chart.watch.managed != true){
+
+        this.add_chart(name, chart)
+      }
+
+      if(chart.init && typeOf(chart.init) == 'function')
+        chart.init(this, chart, 'chart')
+
+      this.create_watcher('os.'+name, chart.watch)
+
+    },
+    add_chart (name, chart){
       let data = [[]]
-      if(chart.options.labels)
+      if(chart.options && chart.options.labels)
         Array.each(chart.options.labels, function(label, index){
           if(index == 0){
             data[0].push(Date.now())
@@ -446,20 +494,11 @@ export default {
 
         })
 
-      // if(!this.stats[name])
 
-      if(chart.init && typeOf(chart.init) == 'function')
-        chart.init(this, chart, 'chart')
-        
-      if(!chart.watch || chart.watch.managed != true){
+      this.$set(this.charts, 'os.'+name, chart)
+      this.$set(this.stats, 'os.'+name, {lastupdate: 0, 'data': data })
 
-        this.$set(this.charts, 'os.'+name, chart)
-        this.$set(this.stats, 'os.'+name, {lastupdate: 0, 'data': data })
-      }
-
-      this.create_watcher('os.'+name, chart.watch)
-
-      this.expanded.push(name)
+      // this.expanded.push(name)
     },
     // create_watcher(name, path, watcher){
     create_watcher(name, watcher){
@@ -467,7 +506,7 @@ export default {
       watcher.value = watcher.value || ''
       watcher.transform = watcher.transform || ''
 
-      //////console.log('create_watcher',path+'.'+name, this._watchers)
+      ////////console.log('create_watcher',path+'.'+name, this._watchers)
 
       let watch_name = name
       if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
@@ -487,23 +526,23 @@ export default {
         })
       }
 
-      ////console.log('before creating watcher',path+'.'+name, watch_name)
+      //////console.log('before creating watcher',path+'.'+name, watch_name)
 
       if(found_watcher == false){
-        ////console.log('creating watcher',path+'.'+name, watch_name)
+        // //console.log('creating watcher',name, watch_name)
 
         let generic_data_watcher = function(current){
           this.generic_data_watcher(current, watcher, name)
         }
 
-        ////console.log('gonna watch...', path+'.'+watch_name)
+        //////console.log('gonna watch...', path+'.'+watch_name)
         this.$options.unwatchers[name] = this.$watch('$store.state.hosts.'+this.host+'.'+watch_name, generic_data_watcher)
 
       }
     },
 
     generic_data_watcher (current, watcher, name){
-      //console.log('generic_data_watcher', this.host+'_'+name)
+      // console.log('generic_data_watcher', this.host+'_'+name, current)
 
       // let minute = (this.$store.state.hosts[this.host][path].minute) ? this.$store.state.hosts[this.host][path].minute[name] : null
       // let val = {
@@ -511,7 +550,7 @@ export default {
       //   // minute: minute
       // }
 
-      ////////////console.log('type_value', name, val.current)
+      //////////////console.log('type_value', name, val.current)
       if(watcher.managed == true){
         watcher.transform(current, this)
       }
@@ -542,7 +581,7 @@ export default {
           else if(isNaN(type_value) || watcher.value != ''){
 
             if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
-              // //console.log('generic_data_watcher isNaN', name, type_value, current)
+              // ////console.log('generic_data_watcher isNaN', name, type_value, current)
 
               current = this._current_nested_array(current, watcher, name)
             }
@@ -560,7 +599,7 @@ export default {
 
           }
           else{//single value, ex: uptime
-            ////////////console.log('generic_data_watcher Num', name, type_value)
+            //////////////console.log('generic_data_watcher Num', name, type_value)
             if(typeOf(watcher.transform) == 'function'){
               current = watcher.transform(current, this)
             }
@@ -580,11 +619,11 @@ export default {
     _current_nested_array(current, watcher, name){
 
       let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
-      //////////console.log('generic_data_watcher isNanN', name, val, index)
+      ////////////console.log('generic_data_watcher isNanN', name, val, index)
 
       let val_current = []
       Array.each(current, function(item){
-        // //////////console.log('CPU item', item)
+        // ////////////console.log('CPU item', item)
 
         let value = {}
         Array.each(item.value, function(val, value_index){//each cpu
@@ -610,7 +649,7 @@ export default {
 
       }.bind(this))
 
-      // //////////console.log('CPU new current', val_current)
+      // ////////////console.log('CPU new current', val_current)
 
       return val_current
     },
@@ -671,47 +710,86 @@ export default {
       return data
     },
     update_chart_stat (name, data){
-      this.$set(this.stats[name], 'data', data)
+      // console.log('update_chart_stat', name, data)
 
-      if(
-        this.stats[name].lastupdate < Date.now() - this.charts[name].interval
-        && this.$refs[this.host+'_'+name][0].chart != null
-        && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
-        && this.highlighted == false
-        && this.paused == false
-        && data.length > 0
-      ){
+      if(this.hide[name] != true){
+
+        let has_data = true
+        Array.each(data, function(columns){
+           has_data = columns.some(function(column, index){
+             if(index == 0) return false//timestamp column
+             return column > 0;
+          });
+        })
+
+
+        if(!this.$options.has_no_data[name])
+          this.$options.has_no_data[name] = 0
+
+        this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
+
+        if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
+          this.$set(this.hide, name, true)
+
+        console.log('has_data ', name, has_data, this.$options.has_no_data[name])
+
+        this.$set(this.stats[name], 'data', data)
+
+        if(
+          this.stats[name].lastupdate < Date.now() - this.charts[name].interval
+          && (this.$refs[this.host+'_'+name]
+            && this.$refs[this.host+'_'+name][0]
+            && this.$refs[this.host+'_'+name][0].chart != null
+          )
+          && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
+          && this.highlighted == false
+          && this.paused == false
+          && data.length > 0
+        ){
 
 
 
-        // this.sync_charts()
-        // this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
+          // this.sync_charts()
+          // this.charts.uptime.updateOptions( { 'file': this.stats.uptime.data, 'dateWindow': this.charts.uptime.xAxisExtremes() } );
 
-        this.$refs[this.host+'_'+name][0].updateOptions(
-          { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
-          false
-        )
-        this.stats[name].lastupdate = Date.now()
-        // this.$forceUpdate()
+          this.$refs[this.host+'_'+name][0].updateOptions(
+            { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
+            false
+          )
+          this.stats[name].lastupdate = Date.now()
+          // this.$forceUpdate()
+        }
+        
       }
     },
     visibilityChanged (isVisible, entry) {
-      this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
+      // //console.log('visibilityChanged', isVisible, entry.target.id)
+      // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
+      this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
+
+      frameDebounce(function() {//performance reasons
+        // //console.log('visibilityChanged frameDebounce')
+        Object.each(this.$options.visibles, function(bool, visible){
+          this.$set(this.visibles, visible, bool)
+        }.bind(this))
+
+      }.bind(this))()
+
     },
     sync_charts(){
       if(this.$options.sync == null){
         let gs = []
         // let sync = []
 
-        ////////////////////////console.log(this.$refs, this.host)
+        //////////////////////////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          // //////////////////////console.log('charts', name, ref)
+          // ////////////////////////console.log('charts', name, ref)
 
           if(ref[0] && ref[0].chart instanceof Dygraph
             && (this.visibles[name] != false || this.freezed == true ))
           {
-            //////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+            ////////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
 
@@ -735,180 +813,12 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // ////////////////////////////console.log('detaching', this.$options.sync)
+        // //////////////////////////////console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
     },
 
-    // format_timestamps(data){//expects timestamp to be on [0] possition
-    //
-    //   // let formated = []
-    //   Array.each(data, function(value, index){
-    //     let timestamp = value[0]
-    //
-    //     let start = '';
-    //     let end = '';
-    //     let date = new Date(timestamp);
-    //
-    //     // if(index == 0 || index == this.columns.length - 1){
-    //     if(index == 0 || index == data.length - 1){
-    //       date = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-    //     }
-    //     // else if(){
-    //     //   date = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-    //     // }
-    //     else{
-    //       let seconds = date.toLocaleTimeString([], {second:'2-digit'})
-    //       if(seconds == '0'){
-    //         date = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-    //       }
-    //       else{
-    //         date = seconds
-    //       }
-    //
-    //     }
-    //
-    //     data[index][0] = date;
-    //
-    //     // ////////////////////////////////////console.log('---timestamps---',formated)
-    //   })
-    //
-    //   // ////////////////////////////////////console.log('---timestamps---',formated)
-    //   return data;
-    //
-    // },
-
-    // networkInterfaces_watcher (networkInterfaces){
-    //   // ////////////console.log('networkInterfaces', networkInterfaces)
-    //
-    //   let self = this
-    //   if(networkInterfaces.getLast() !== null){
-    //
-    //     let val = networkInterfaces.getLast().value
-    //     let ifaces = Object.keys(val)
-    //     let properties = Object.keys(val[ifaces[0]])
-    //     let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
-    //
-    //
-    //     Array.each(ifaces, function(iface){
-    //       if(!self.networkInterfaces_stats[iface])
-    //         self.$set(self.networkInterfaces_stats, iface, {})
-    //
-    //
-    //       /**
-    //       * turn data property->messure (ex: transmited { bytes: .. }),
-    //       * to: messure->property (ex: bytes {transmited:.., recived: ... })
-    //       **/
-    //       Array.each(messures, function(messure){// "bytes" | "packets"
-    //         if(!self.networkInterfaces_stats[iface][messure]){
-    //           let chart = Object.clone(self.$options.net_stats)
-    //
-    //           self.$set(self.networkInterfaces_stats[iface], messure, {
-    //             options: chart,
-    //             lastupdate: 0,
-    //             data: []
-    //           })
-    //         }
-    //
-    //
-    //           // self.networkInterfaces_stats[iface][messure] = { lastupdate: 0, data: [] }
-    //
-    //           // let data = []
-    //           // let stat = []
-    //           // let data = JSON.parse(JSON.stringify(self.networkInterfaces_stats[iface][messure].data))
-    //           let data = []
-    //           Array.each(networkInterfaces, function(stats, index){
-    //             let timestamp =  new Date(stats.timestamp)
-    //
-    //             let recived = 0
-    //             let transmited = 0
-    //             let prev_recived = 0
-    //             let prev_transmited = 0
-    //
-    //             if(stats.value[iface] !== undefined){
-    //               let current_recived = stats.value[iface]['recived'][messure]
-    //               let current_transmited = stats.value[iface]['transmited'][messure]
-    //
-    //               if(index > 0 && networkInterfaces[index - 1].value[iface]){
-    //                 prev_recived = networkInterfaces[index - 1].value[iface]['recived'][messure]
-    //                 prev_transmited = networkInterfaces[index - 1].value[iface]['transmited'][messure]
-    //               }
-    //
-    //               // let prev_recived = (index > 0) ? networkInterfaces[index - 1].value[iface]['recived'][messure] : 0
-    //               recived = (prev_recived == 0) ? 0 : 0 - (current_recived - prev_recived)//negative, so it end up ploting under X axis
-    //
-    //               // let prev_transmited = (index > 0) ? networkInterfaces[index - 1].value[iface]['transmited'][messure] : 0
-    //               transmited = (prev_transmited == 0) ? 0: current_transmited - prev_transmited
-    //
-    //               if(messure == 'bytes'){ //bps -> Kbps
-    //                   transmited = transmited / 128
-    //                   recived = recived / 128
-    //               }
-    //
-    //               data.push([timestamp, recived, transmited])
-    //             }
-    //             else{
-    //               data = []
-    //               //////////////console.log('stats.value[iface] undefined', iface)
-    //               /**
-    //               * should notify error??
-    //               **/
-    //             }
-    //           })
-    //
-    //           self.$set(self.networkInterfaces_stats[iface][messure], 'data', data)
-    //           // self.networkInterfaces_stats[iface][messure].data = data
-    //
-    //       })
-    //
-    //     })
-    //
-    //     ////////////////////////////console.log('self.networkInterfaces_stats', self.networkInterfaces_stats)
-    //
-    //     Object.each(this.networkInterfaces_stats, function(stat, iface){
-    //
-    //       Object.each(stat, function(value, messure){
-    //
-    //
-    //         // if(document.getElementById(iface+'-'+messure)){
-    //         // ////////////////////console.log('updating NET', this.$refs)
-    //
-    //         if(this.$refs[this.host+'_'+iface+'-'+messure]){
-    //
-    //           // ////////////////////console.log('updating NET', this.freezed, this.networkInterfaces_stats)
-    //
-    //           if(
-    //             value.lastupdate < Date.now() - this.$options.net_stats.interval &&
-    //             this.$refs[this.host+'_'+iface+'-'+messure][0].chart != null &&
-    //             ( this.visibles[this.host+'_'+iface+'-'+messure] != false  || this.freezed == true ) &&
-    //             this.highlighted == false &&
-    //             this.paused == false
-    //           ){
-    //
-    //             // this.networkInterfaces_charts[iface+'-'+messure].updateOptions({
-    //             //    'file': value.data,
-    //             //    'dateWindow': this.networkInterfaces_charts[iface+'-'+messure].xAxisExtremes()
-    //             //  });
-    //
-    //
-    //             this.$refs[this.host+'_'+iface+'-'+messure][0].updateOptions(
-    //               { 'dateWindow': this.$refs[this.host+'_'+iface+'-'+messure][0].chart.xAxisExtremes() },
-    //               false
-    //             )
-    //
-    //             value.lastupdate = Date.now()
-    //
-    //           }
-    //         }
-    //
-    //       }.bind(this))
-    //     }.bind(this))
-    //
-    //
-    //
-    //   }
-    // }
 
   },
 }

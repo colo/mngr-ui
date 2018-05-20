@@ -213,7 +213,7 @@ export default {
 
       let self = this
 
-      ////console.log('updating chart, suspended...', this.id, this.$options.freezed, this.freezed)
+      // console.log('updating chart...', this.id)
 
       // let data =  Array.clone(self.stat.data)
 
