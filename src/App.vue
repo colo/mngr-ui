@@ -21,7 +21,14 @@ import HostTemplatePipeline from './libs/pipelines/host.template'
 import HostHistoricalTemplatePipeline from './libs/pipelines/host.historical.template'
 import HostMuninTemplatePipeline from './libs/pipelines/host.munin.template'
 
-import hostStore from './store/host'
+// import hostStore from './store/host'
+let hostStore = {
+  namespaced: true,
+  state: {},
+  getters: {},
+  actions: {},
+  mutations: { }
+}
 
 
 

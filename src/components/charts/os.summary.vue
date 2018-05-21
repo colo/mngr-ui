@@ -85,7 +85,7 @@ import stats from './js/os.summary'
 
 export default {
   // name: 'App',
-  name: 'osresume',
+  name: 'os-summary',
 
   visibles: {},
   // uptime_chart: null,

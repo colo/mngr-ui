@@ -1,7 +1,8 @@
+import DefaultDygraphLine from './default.dygraph.line'
 import DefaultNetDygraphLine from './default.net.dygraph.line'
 
 export default {
-  "networkInterfaces": {
+  "networkInterfaces": Object.merge(Object.clone(DefaultNetDygraphLine), {
     match: /networkInterfaces/,
     watch: {
       managed: true,
@@ -92,8 +93,8 @@ export default {
 
     }
 
-  },
-  "mounts_percentage": {
+  }),
+  "mounts_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
     match: /mounts/,
     // label: 'somelabel',
     labeling: function(stat){
@@ -106,7 +107,7 @@ export default {
       //   name = stat[0].value.mount_point.replace('/', '_')
       // }
 
-      return 'mounts['+stat[0].value.mount_point+']'
+      return 'os.mounts['+stat[0].value.mount_point+']'
     },
     watch: {
       // merge: true,
@@ -140,8 +141,8 @@ export default {
 
       },
     }
-  },
-  "blkdev_stats": {
+  }),
+  "blkdev_stats": Object.merge(Object.clone(DefaultDygraphLine),{
     match: /blockdevices\..*/,
     watch: {
       value: 'stats',
@@ -172,8 +173,8 @@ export default {
       }
     }
 
-  },
-  "cpu_times": {
+  }),
+  "cpu_times": Object.merge(Object.clone(DefaultDygraphLine),{
     name: 'cpus_times',
     match: /cpus/,
     watch: {
@@ -213,8 +214,8 @@ export default {
       }
     }
 
-  },
-  "cpu_simple": {
+  }),
+  "cpu_simple": Object.merge(Object.clone(DefaultDygraphLine),{
     name: 'cpus_simple',
     match: /cpus/,
     "options": {
@@ -275,8 +276,8 @@ export default {
     },
 
 
-  },
-  "os_freemem": {
+  }),
+  "os_freemem": Object.merge(Object.clone(DefaultDygraphLine),{
     match: /freemem/,
     watch: {
       // merge: true,
@@ -313,5 +314,5 @@ export default {
     "options": {
       labels: ['Time', 'Mbytes'],
     }
-  },
+  }),
 }

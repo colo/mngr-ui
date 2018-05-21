@@ -73,7 +73,7 @@ module.exports = function (ctx) {
         'QCardMain',
         'QCollapsible',
         'QSpinnerGears',
-        'QKnob'
+        'QKnob',
         // 'QBtnDropdown'
         // 'QPageSticky'
       ],

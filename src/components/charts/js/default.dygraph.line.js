@@ -15,7 +15,7 @@ export default {
       * netdata options
       */
       xRangePad: 0,
-      yRangePad: 1,
+      yRangePad: 10,
       pixelRatio: 1,
       drawGapEdgePoints: true,
       stepPlot: false,
