@@ -6,7 +6,7 @@ export default {
     match: /networkInterfaces/,
     watch: {
       managed: true,
-      transform: function(networkInterfaces, vm){
+      transform: function(networkInterfaces, vm, watcher){
         // console.log('networkInterfaces transform: ', networkInterfaces)
 
         // //////////console.log('networkInterfaces', networkInterfaces)

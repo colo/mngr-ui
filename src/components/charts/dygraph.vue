@@ -146,6 +146,12 @@ export default {
       if(this.options.init)
         this.options.init(this, this.chart, 'dygraph')
     },
+    update (){
+      this.updateOptions(
+        { 'dateWindow': this.chart.xAxisExtremes() },
+        false
+      )
+    },
     updateOptions (options, block_redraw){
 
       let self = this

@@ -34,7 +34,10 @@ export default {
         || ( this.$options.dynamic_whitelist
           && this.$options.dynamic_whitelist.test(name) == true )
         )
-        && Object.keys(this.$options.static_charts).contains(name) == false
+        && (
+          !this.$options.static_charts
+          || Object.keys(this.$options.static_charts).contains(name) == false
+        )
       ){
 
         if(Array.isArray(stat)){//it's stat
@@ -289,12 +292,12 @@ export default {
 
       let found_watcher = false
 
-      if(Array.isArray(this._watchers)){
-        Array.each(this._watchers, function(watcher){
-          if(watcher.expression == name && watcher.user == true)//means user already added a watcher for this chart
-            found_watcher = true
-        })
-      }
+      // if(Array.isArray(this._watchers)){
+      //   Array.each(this._watchers, function(watcher){
+      //     if(watcher.expression == name && watcher.user == true)//means user already added a watcher for this chart
+      //       found_watcher = true
+      //   })
+      // }
 
       if(found_watcher == false){
 
@@ -302,7 +305,7 @@ export default {
           this.generic_data_watcher(current, watcher, name)
         }
 
-        // console.log('gonna watch...', name, watch_name)
+        console.log('gonna watch...', name, path+watch_name)
         this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
 
       }
@@ -315,7 +318,7 @@ export default {
 
       //////////////console.log('type_value', name, val.current)
       if(watcher.managed == true){
-        watcher.transform(current, this)
+        watcher.transform(current, this, watcher)
       }
       else{
         let type_value = null
@@ -336,7 +339,7 @@ export default {
 
           if(Array.isArray(type_value)){//multiple values, ex: loadavg
             if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this)
+              current = watcher.transform(current, this, watcher)
             }
 
             data = this._current_array_to_data(current, watcher)
@@ -352,7 +355,7 @@ export default {
             // else{//blockdevices.sdX
 
             if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this)
+              current = watcher.transform(current, this, watcher)
             }
 
             if(!Array.isArray(current))
@@ -364,7 +367,7 @@ export default {
           else{//single value, ex: uptime
             //////////////console.log('generic_data_watcher Num', name, type_value)
             if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this)
+              current = watcher.transform(current, this, watcher)
             }
 
             data = this._current_number_to_data (current, watcher)

@@ -323,10 +323,13 @@ export default {
           && data.length > 0
         ){
 
-          this.$refs[this.host+'_'+name][0].updateOptions(
-            { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
-            false
-          )
+          // this.$refs[this.host+'_'+name][0].updateOptions(
+          //   { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
+          //   false
+          // )
+
+          this.$refs[this.host+'_'+name][0].update()//default update
+          
           this.stats[name].lastupdate = Date.now()
           // this.$forceUpdate()
         }

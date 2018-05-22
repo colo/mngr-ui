@@ -47,11 +47,14 @@
 
 <script>
 
+import qKnobWrapper from './qknob.wrapper'
+
 import Dashboard from '../mixins/dashboard'
 
 import { frameDebounce } from 'quasar'
 
-import static_charts from './js/os.summary'
+// import static_charts from './js/os.summary'
+import dynamic_charts from './js/os.summary'
 
 import { mapState } from 'vuex'
 
@@ -60,6 +63,12 @@ export default {
 
   // name: 'App',
   name: 'os-summary',
+
+  components: {
+    qKnobWrapper
+    // IEcharts
+    // VueCharts
+  },
 
   props: {
     EventBus: {
@@ -75,9 +84,9 @@ export default {
 
   // DefaultChart: DefaultChart,
 
-  static_charts: static_charts,
-  // dynamic_charts: dynamic_charts,
-
+  // static_charts: static_charts,
+  dynamic_charts: dynamic_charts,
+  dynamic_whitelist: /freemem/,
   // dynamic_blacklist: /minute|totalmem/, //don't add charts automatically for this os[key]
 
   sync: null,
@@ -150,10 +159,10 @@ export default {
 
       }.bind(this))
 
-      Object.each(this.$options.static_charts, function(chart, name){
-        // chart = Object.merge(Object.clone(DefaultChart), chart)
-        this.process_chart(chart, name)
-      }.bind(this))
+      // Object.each(this.$options.static_charts, function(chart, name){
+      //   // chart = Object.merge(Object.clone(DefaultChart), chart)
+      //   this.process_chart(chart, name)
+      // }.bind(this))
     },
 
 
@@ -235,6 +244,12 @@ export default {
     /**
     * @override chart [mixin]
     **/
+    /**
+    * update chart data
+    **/
+    update_chart_stat (name, data){
+      console.log('summary update_chart_stat', name, data)
+    },
     // update_chart_stat (name, data){
     //   // console.log('update_chart_stat', name, data)
     //
