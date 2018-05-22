@@ -47,7 +47,7 @@ export default {
 
                 // chart = Object.merge(Object.clone(chart), dynamic)
                 // this.process_dynamic_chart(chart, name, stat)
-                this.process_dynamic_chart(dynamic, name, stat)
+                this.process_dynamic_chart(Object.clone(dynamic), name, stat)
 
               }.bind(this))
             }
@@ -55,7 +55,11 @@ export default {
 
               let chart = Object.clone(this.$options.DefaultChart)
 
-              this.process_generic_chart(chart, name, stat)
+              // this.process_generic_chart(chart, name, stat)
+              this.process_chart(
+                chart.pre_process(chart, name, stat),
+                name
+              )
 
             }
 
@@ -72,26 +76,27 @@ export default {
     },
     /**
     * process
+    * @moved char.pre_process
     */
-    process_generic_chart (chart, name, stat){
-
-      chart.options.labels = ['Time']
-
-      if(Array.isArray(stat[0].value)){//like 'loadavg', that has 3 values
-
-        for(let i= 0; i < stat[0].value.length; i++){//create data columns
-          chart.options.labels.push(name+'_'+i)
-        }
-
-        // chart.options.labels.push(name+'_minute')//minute
-        this.process_chart(chart, name)
-      }
-      else if(!isNaN(stat[0].value)){//like 'uptime', one value only
-
-        chart.options.labels.push(name)
-        this.process_chart(chart, name)
-      }
-    },
+    // process_generic_chart (chart, name, stat){
+    //
+    //   chart.options.labels = ['Time']
+    //
+    //   if(Array.isArray(stat[0].value)){//like 'loadavg', that has 3 values
+    //
+    //     for(let i= 0; i < stat[0].value.length; i++){//create data columns
+    //       chart.options.labels.push(name+'_'+i)
+    //     }
+    //
+    //     // chart.options.labels.push(name+'_minute')//minute
+    //     this.process_chart(chart, name)
+    //   }
+    //   else if(!isNaN(stat[0].value)){//like 'uptime', one value only
+    //
+    //     chart.options.labels.push(name)
+    //     this.process_chart(chart, name)
+    //   }
+    // },
     process_dynamic_chart (chart, name, stat){
       // ////console.log('process_dynamic_chart',  name, chart)
       // let watcher = {value: ''}
@@ -117,22 +122,29 @@ export default {
 
           if(chart.watch.merge != true || index == 0){//merge creates only once instance
 
-            if(!arr_chart.options || !arr_chart.options.labels){
-              if(!arr_chart.options)
-                arr_chart.options = {}
+            /**
+            * @moved chart.pre_process
+            **/
+            // if(!arr_chart.options || !arr_chart.options.labels){
+            //   if(!arr_chart.options)
+            //     arr_chart.options = {}
+            //
+            //   arr_chart.options.labels = []
+            //
+            //   Object.each(val[chart.watch.value], function(tmp, tmp_key){
+            //     arr_chart.options.labels.push(tmp_key)
+            //   })
+            //
+            //   arr_chart.options.labels.unshift('Time')
+            //
+            //   // arr_chart.options.labels.push(name+'_minute')//minute
+            // }
 
-              arr_chart.options.labels = []
-
-              Object.each(val[chart.watch.value], function(tmp, tmp_key){
-                arr_chart.options.labels.push(tmp_key)
-              })
-
-              arr_chart.options.labels.unshift('Time')
-
-              // arr_chart.options.labels.push(name+'_minute')//minute
-            }
-
-            this.process_chart(arr_chart, chart_name)
+            // this.process_chart(arr_chart, chart_name)
+            this.process_chart(
+              arr_chart.pre_process(arr_chart, chart_name, stat),
+              chart_name
+            )
 
 
           }
@@ -170,30 +182,34 @@ export default {
         }
 
         if(filtered == true){
-          // chart = Object.merge(chart, chart)
-          // watcher = chart.watch
-
-          if(!chart.options || !chart.options.labels){
-            if(!chart.options)
-              chart.options = {}
-
-            chart.options.labels = []
-
-            //if no "watch.value" property, everything should be manage on "trasnform" function
-            if(chart.watch && chart.watch.managed != true
-              // && chart.watch.value
-            ){
-              Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
-                // //console.log('labeling...', tmp)
-                chart.options.labels.push(tmp_key)
-              })
-
-              chart.options.labels.unshift('Time')
-            }
 
 
-          }
-          // chart.options.labels.push(name+'_minute')//minute
+          /**
+          * @moved chart.pre_process
+          **/
+          // if(!chart.options || !chart.options.labels){
+          //   if(!chart.options)
+          //     chart.options = {}
+          //
+          //   chart.options.labels = []
+          //
+          //
+          //   //if no "watch.value" property, everything should be manage on "trasnform" function
+          //   if(chart.watch && chart.watch.managed != true
+          //     // && chart.watch.value
+          //   ){
+          //     Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
+          //       // //console.log('labeling...', tmp)
+          //       chart.options.labels.push(tmp_key)
+          //     })
+          //
+          //     chart.options.labels.unshift('Time')
+          //   }
+          //
+          //
+          // }
+          chart = chart.pre_process(chart, name, stat)
+
           chart.label = this.process_chart_label(chart, stat) || name
           let chart_name = this.process_chart_name(chart, stat) || name
 
@@ -205,26 +221,31 @@ export default {
       }
       else{
 
-        // chart = Object.merge(Object.clone(chart), chart)
-        // watcher = chart.watch
-
+        // // chart = Object.merge(Object.clone(chart), chart)
+        // // watcher = chart.watch
+        //
         chart.label = this.process_chart_label(chart, stat) || name
         let chart_name = this.process_chart_name(chart, stat) || name
+        //
+        // if(!chart.options || !chart.options.labels){
+        //   if(!chart.options)
+        //     chart.options = {}
+        //
+        //   chart.options.labels = []
+        //
+        //   chart.options.labels.push(name)
+        //
+        //   chart.options.labels.unshift('Time')
+        // }
+        //
+        //
+        // // chart.options.labels.push(name+'_minute')//minute
+        // this.process_chart(chart, chart_name)
 
-        if(!chart.options || !chart.options.labels){
-          if(!chart.options)
-            chart.options = {}
-
-          chart.options.labels = []
-
-          chart.options.labels.push(name)
-
-          chart.options.labels.unshift('Time')
-        }
-
-
-        // chart.options.labels.push(name+'_minute')//minute
-        this.process_chart(chart, chart_name)
+        this.process_chart(
+          chart.pre_process(chart, chart_name, stat),
+          name
+        )
       }
 
 

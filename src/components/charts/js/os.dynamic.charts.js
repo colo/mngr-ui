@@ -98,7 +98,7 @@ export default {
     match: /mounts/,
     // label: 'somelabel',
     labeling: function(stat){
-      // // console.log('mounts_percentage', stat)
+      // console.log('mounts_percentage', stat)
       // let name = ''
       // if(stat[0].value.mount_point == '/'){
       //   name = '_root'
