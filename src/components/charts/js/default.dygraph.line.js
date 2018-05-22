@@ -1,5 +1,5 @@
 export default {
-
+    component: 'dygraph-vue',
     // "class": "chart-with-legend-right dygraph-with-legend-right",
     "style": "width:100%; height:126px;",
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",

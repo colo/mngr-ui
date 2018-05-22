@@ -29,7 +29,20 @@
           >
         </div> -->
 
-          <dygraph-vue
+          <component
+            :is="chart.component"
+            v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
+            :visible="visibles[host+'_'+name]"
+            :ref="host+'_'+name"
+            :id="host+'_'+name"
+            :options="chart"
+            :stat="stats[name]"
+            :EventBus="EventBus"
+            :freezed="freezed"
+          />
+          </component>
+
+          <!-- <dygraph-vue
            v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
            :visible="visibles[host+'_'+name]"
            :ref="host+'_'+name"
@@ -39,8 +52,8 @@
            :EventBus="EventBus"
            :freezed="freezed"
            >
-          </dygraph-vue>
-          <!-- :visible="visibles[host+'_'+name]" -->
+          </dygraph-vue> -->
+
        <!-- </at-card> -->
      </el-card>
 
@@ -106,16 +119,17 @@ export default {
 
   },
 
+  has_no_data: {},
+  sync: null,
+  visibles: {},
+
+  /**
+  * @override chart [mixin]
+  **/
   DefaultChart: DefaultChart,
-  // net_stats: net_stats,
   static_charts: static_charts,
   dynamic_charts: dynamic_charts,
-
   dynamic_blacklist: /minute|totalmem/, //don't add charts automatically for this os[key]
-
-  sync: null,
-
-  visibles: {},
 
 
   data () {
@@ -162,12 +176,12 @@ export default {
     if(this.$store.state.hosts[this.host] && this.$store.state.hosts[this.host].os){
       // this.$set(this.os, {})
       ////////console.log('remounted', this._watchers)
-      this.object_to_charts(this.$store.state.hosts[this.host].os)
+      this.initialize_all_charts(this.$store.state.hosts[this.host].os)
     }
 
     this.$watch('$store.state.hosts.'+this.host+'.os', function (val, oldVal) {
 
-      this.object_to_charts(val)
+      this.initialize_all_charts(val)
 
     }.bind(this))
 
@@ -176,11 +190,13 @@ export default {
 
   },
   methods: {
-
-    object_to_charts (val){
+    /**
+    * initlize all charts, dynamics & static
+    */
+    initialize_all_charts (val){
       Object.each(val, function(stat, key){
 
-        this.create_dynamic_chart(stat, key)
+        this.parse_chart_from_stat(stat, key)
 
       }.bind(this))
 
@@ -190,64 +206,6 @@ export default {
       }.bind(this))
     },
 
-
-
-    add_chart (name, chart){
-      this._add_chart('os.'+name, chart)
-    },
-
-    create_watcher(name, watcher){
-      this._create_watcher('$store.state.hosts.'+this.host+'.', 'os.'+name, watcher)
-    },
-
-    update_chart_stat (name, data){
-      // console.log('update_chart_stat', name, data)
-
-      if(this.hide[name] != true){
-
-        let has_data = true
-        Array.each(data, function(columns){
-           has_data = columns.some(function(column, index){
-             if(index == 0) return false//timestamp column
-             return column > 0;
-          });
-        })
-
-
-        if(!this.$options.has_no_data[name])
-          this.$options.has_no_data[name] = 0
-
-        this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
-
-        if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
-          this.$set(this.hide, name, true)
-
-        // console.log('has_data ', name, has_data, this.$options.has_no_data[name])
-
-        this.$set(this.stats[name], 'data', data)
-
-        if(
-          this.stats[name].lastupdate < Date.now() - this.charts[name].interval
-          && (this.$refs[this.host+'_'+name]
-            && this.$refs[this.host+'_'+name][0]
-            && this.$refs[this.host+'_'+name][0].chart != null
-          )
-          && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
-          && this.highlighted == false
-          && this.paused == false
-          && data.length > 0
-        ){
-
-          this.$refs[this.host+'_'+name][0].updateOptions(
-            { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
-            false
-          )
-          this.stats[name].lastupdate = Date.now()
-          // this.$forceUpdate()
-        }
-
-      }
-    },
 
     /**
     * UI related
@@ -310,6 +268,70 @@ export default {
     },
     beautifyLabel (label) {
       return label.replace('_', '.')
+    },
+
+    /**
+    * @override dashboard [mixin]
+    **/
+    add_chart (name, chart){
+      this._add_chart('os.'+name, chart)
+    },
+    /**
+    * @override chart [mixin]
+    **/
+    create_watcher(name, watcher){
+      this._create_watcher('$store.state.hosts.'+this.host+'.', 'os.'+name, watcher)
+    },
+    /**
+    * @override chart [mixin]
+    **/
+    update_chart_stat (name, data){
+      // console.log('update_chart_stat', name, data)
+
+      if(this.hide[name] != true){
+
+        let has_data = true
+        Array.each(data, function(columns){
+           has_data = columns.some(function(column, index){
+             if(index == 0) return false//timestamp column
+             return column > 0;
+          });
+        })
+
+
+        if(!this.$options.has_no_data[name])
+          this.$options.has_no_data[name] = 0
+
+        this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
+
+        if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
+          this.$set(this.hide, name, true)
+
+        // console.log('has_data ', name, has_data, this.$options.has_no_data[name])
+
+        this.$set(this.stats[name], 'data', data)
+
+        if(
+          this.stats[name].lastupdate < Date.now() - this.charts[name].interval
+          && (this.$refs[this.host+'_'+name]
+            && this.$refs[this.host+'_'+name][0]
+            && this.$refs[this.host+'_'+name][0].chart != null
+          )
+          && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
+          && this.highlighted == false
+          && this.paused == false
+          && data.length > 0
+        ){
+
+          this.$refs[this.host+'_'+name][0].updateOptions(
+            { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
+            false
+          )
+          this.stats[name].lastupdate = Date.now()
+          // this.$forceUpdate()
+        }
+
+      }
     },
 
   },

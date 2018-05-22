@@ -1,98 +1,66 @@
 <template>
 
-      <!-- OS stats -->
+  <q-collapsible
+    :no-ripple="true"
+    :opened="true"
+    icon="info"
+    :separator="true"
+    header-class="text-primary bg-white"
+    label="System Overview"
+  >
 
-    <q-collapsible
-      :opened="true"
-      icon="info"
-      :separator="true"
-      header-class="text-primary bg-white"
-      label="System Overview"
-    >
-    <!-- :key="name"
-    :ref="name"
-    :name="name"
-    :label="name" -->
-    <!-- v-for="(stat, name) in $options.stats" -->
+    <el-card shadow="hover">
+     <!-- <at-card :bordered="false"> -->
+       <div class="row justify-center">
+         <div
+          v-for="(chart, name) in charts"
+          class="col-sm-2 col-md-3 justify-center"
+          :style="chart.style"
+          :key="host+'_'+name"
+          :ref="host+'_'+name"
+          :id="host+'_'+name+'-summary-card-container'"
+          v-observe-visibility="visibilityChanged"
+          >
+            <!-- https://github.com/vuejs/babel-plugin-transform-vue-jsx/issues/86 -->
 
-      <el-card shadow="hover">
-       <!-- <at-card :bordered="false"> -->
-         <div class="row justify-center">
-           <div
-            v-for="(stat, name) in $options.stats"
-            class="col-sm-2 col-md-3 justify-center"
-            :style="stat.style"
-            :key="host+'_'+name"
-            :ref="host+'_'+name"
-            :id="host+'_'+name+'-card-container'"
-            v-observe-visibility="visibilityChanged"
-            >
-              <!-- https://github.com/vuejs/babel-plugin-transform-vue-jsx/issues/86 -->
-              <!-- <component
-                :is="stat.component.type"
-                :class="stat.component.class"
-                v-model="stats[name].data"
-                v-bind="stat.component.options"
-              />
-                <slot v-bind:content="stat.component.content">
-                  {{ content }}
-                </slot>
-
-              </component> -->
-              <!-- v-bind="stat.component.options" -->
-              <!-- v-model="stat.component['v-model']" -->
-              <!-- v-bind="stat.component.options" -->
-              <q-knob v-if="stat.component == 'q-knob'"
-               v-model="stats[name].data"
-               readonly
-               v-bind="stat.options"
-               :id="host+'_'+name"
-              >
-                <q-icon class="on-left" :name="stat.icon" />{{stats[name].data}} %
-              </q-knob>
-
-             <vue-epochjs v-else-if="stat.component == 'epochjs'"
-              v-bind="stat.options"
-              :percent="stats[name].data"
+            <component
+              :is="chart.component"
+              v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
+              :visible="visibles[host+'_'+name]"
+              :ref="host+'_'+name"
               :id="host+'_'+name"
-             />
+              :options="chart"
+              :stat="stats[name]"
+              :EventBus="EventBus"
+              :freezed="freezed"
+            />
+            </component>
 
-             <vue-easy-pie-chart v-else v-bind="stat.options"
-             :percent="stats[name].data"
-             :id="host+'_'+name"
-             />
+         </div>
+      </div>
+     <!-- </at-card> -->
+   </el-card>
 
-             <!-- <p>{{name}}</p> -->
-           </div>
-        </div>
-       <!-- </at-card> -->
-     </el-card>
-
-    </q-collapsible>
-
+  </q-collapsible>
 
 </template>
 
 <script>
 
-import VueEasyPieChart from 'vue-easy-pie-chart'
-import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
+import Dashboard from '../mixins/dashboard'
 
-import VueEpochjs from './epochjs'
+import { frameDebounce } from 'quasar'
 
-import stats from './js/os.summary'
+import static_charts from './js/os.summary'
 
+import { mapState } from 'vuex'
 
 export default {
+  mixins: [Dashboard],
+
   // name: 'App',
   name: 'os-summary',
 
-  visibles: {},
-  // uptime_chart: null,
-  components: {
-    VueEasyPieChart,
-    VueEpochjs
-  },
   props: {
     EventBus: {
       type: [Object],
@@ -102,162 +70,223 @@ export default {
       type: [String],
       default: () => ('')
     },
-    timestamps: {
-      type: [Array],
-      default: () => ([])
-    },
-    mem: {
-      type: [Array],
-      default: () => ([])
-    },
-    cpu: {
-      type: [Array],
-       default: () => ([])
-    },
-    // uptime: {
-    //   type: [Array],
-    //   default: () => ([])
-    // },
-    // loadavg: {
-    //   type: [Array],
-    //   default: () => ([])
-    // },
-    // networkInterfaces: {
-    //   type: [Array],
-    //   default: () => ([])
-    // }
+
   },
 
-  stats: stats,
+  // DefaultChart: DefaultChart,
+
+  static_charts: static_charts,
+  // dynamic_charts: dynamic_charts,
+
+  // dynamic_blacklist: /minute|totalmem/, //don't add charts automatically for this os[key]
+
+  sync: null,
+
+  visibles: {},
+
 
   data () {
     return {
-      charts : {},
-      stats: {},
+      hide: {},
+      visibles: {},
+      highlighted: false,
+
     }
   },
-  // updated () {
-  //   this.$q.loading.hide()
+
+  computed: Object.merge(
+    mapState({
+      paused: state => state.app.pause,
+      freezed: state => state.app.freeze,
+    })
+  ),
+  // updated: function(){
+  //   this.$store.commit('app/reset', false)
   // },
-  created () {
-    Object.each(this.$options.stats, function(stat, name){
+  // created (){
+  //
+  //   let self = this
+  //   this.EventBus.$on('highlightCallback', function(params) {
+  //     this.highlighted = true
+  //     //////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+  //     self.sync_charts()
+	// 	})
+  //
+  //   this.EventBus.$on('unhighlightCallback', event => {
+  //     this.highlighted = false
+  //     ////////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+  //     self.unsync_charts()
+	// 	})
+  // },
 
-      // let data = [[]]
-      // if(stat.options.labels)
-      //   Array.each(stat.options.labels, function(label, index){
-      //     if(index == 0){
-      //       data[0].push(Date.now())
-      //     }
-      //     else{
-      //       data[0].push(0)
-      //     }
-      //
-      //
-      //   })
-
-      this.$set(this.stats, name, {lastupdate: 0, 'data': 0 })
-
-
-      // this.$set(this.charts, name, new Dygraph(
-      //     document.getElementById(name),  // containing div
-      //     this.stats[name].data,
-      //     stat.options
-      //   ))
-      //
-      // if(stat.init)
-      //   stat.init(this.charts[name], this.stats[name])
-      //
-      // this.expanded.push(name)
-    }.bind(this))
-  },
   mounted () {
 
-    // Object.each(this.$options.stats, function(stat, name){
-    // //
-    // //   let data = [[]]
-    // //   if(stat.options.labels)
-    // //     Array.each(stat.options.labels, function(label, index){
-    // //       if(index == 0){
-    // //         data[0].push(Date.now())
-    // //       }
-    // //       else{
-    // //         data[0].push(0)
-    // //       }
-    // //
-    // //
-    // //     })
-    // //
-    // //   this.$set(this.stats, name, {lastupdate: 0, 'data': data })
-    // //   // stat.option.dataProvider = this.stats[name].data
-    // //   this.$set(this.charts, name, new Dygraph(
-    // //       document.getElementById(name),  // containing div
-    // //       this.stats[name].data,
-    // //       stat.options
-    // //     ))
-    // //
-    // //   if(stat.init)
-    // //     stat.init(this.charts[name], this.stats[name])
-    // //
-    // //   this.expanded.push(name)
-    //   // this.$set(this.$refs[name][0],'value', this.stats[name].data)
-    //   //console.log('this.$refs', name, this.$refs[name])
-    // }.bind(this))
 
-  },
+    //if "remounted" the $watch ain't gonna work if it's not changed
+    if(this.$store.state.hosts[this.host] && this.$store.state.hosts[this.host].os){
+      // this.$set(this.os, {})
+      // console.log('remounted', this._watchers)
+      this.initialize_all_charts(this.$store.state.hosts[this.host].os)
+    }
 
-  watch: {
-    mem: function(val){
-      // //console.log('mem val', val)
-      if(this.$refs[this.host+'_mem']){
-        if(
-          this.stats.mem.lastupdate < Date.now() - this.$options.stats.mem.interval
-          && this.$options.visibles[this.host+'_mem'] == true
-        ){
-          let last = val.getLast()
+    this.$watch('$store.state.hosts.'+this.host+'.os', function (val, oldVal) {
 
-          if(last == null)
-            last = { percentage: 0 }
+      this.initialize_all_charts(val)
 
-          last.percentage = parseFloat(last.percentage.toFixed(2))
-          this.stats.mem.data = last.percentage
-          this.stats.mem.lastupdate = Date.now()
-        }
-      }
-    },
-    cpu: function(val){
-      // //console.log('cpu val', val)
-      if(this.$refs[this.host+'_cpu']){
-        if(
-          this.stats.cpu.lastupdate < Date.now() - this.$options.stats.cpu.interval
-          && this.$options.visibles[this.host+'_cpu'] == true
-        ){
-          // //console.log('update cpu')
-          let last = val.getLast()
+    }.bind(this))
 
-          if(last == null)
-            last = { percentage: 0 }
+    // this.$watch('$store.state.hosts.'+this.host+'.os.networkInterfaces', this.networkInterfaces_watcher)
 
-          last.percentage = parseFloat(last.percentage.toFixed(2))
-          this.stats.cpu.data = last.percentage
-          this.stats.cpu.lastupdate = Date.now()
-        }
 
-      }
-
-		},
-  },
-
-  computed: {
   },
   methods: {
-    visibilityChanged (isVisible, entry) {
-      this.$options.visibles[entry.target.id] = isVisible
-      console.log('visible', isVisible, entry.target.id)
+    /**
+    * initlize all charts, dynamics & static
+    */
+    initialize_all_charts (val){
+      Object.each(val, function(stat, key){
+
+        this.parse_chart_from_stat(stat, key)
+
+      }.bind(this))
+
+      Object.each(this.$options.static_charts, function(chart, name){
+        // chart = Object.merge(Object.clone(DefaultChart), chart)
+        this.process_chart(chart, name)
+      }.bind(this))
     },
+
+
+    /**
+    * UI related
+    **/
+    visibilityChanged (isVisible, entry) {
+      console.log('visibilityChanged', isVisible, entry.target.id)
+      // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
+      this.$options.visibles[entry.target.id.replace('-summary-card-container','')] = isVisible
+
+      frameDebounce(function() {//performance reasons
+        // //console.log('visibilityChanged frameDebounce')
+        Object.each(this.$options.visibles, function(bool, visible){
+          this.$set(this.visibles, visible, bool)
+        }.bind(this))
+
+      }.bind(this))()
+
+    },
+    // sync_charts(){
+    //   if(this.$options.sync == null){
+    //     let gs = []
+    //     // let sync = []
+    //
+    //     //////////////////////////console.log(this.$refs, this.host)
+    //     Object.each(this.$refs, function(ref, name){
+    //
+    //       // ////////////////////////console.log('charts', name, ref)
+    //
+    //       if(ref[0] && ref[0].chart instanceof Dygraph
+    //         && (this.visibles[name] != false || this.freezed == true ))
+    //       {
+    //         ////////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+    //
+    //       // if(ref[0].chart instanceof Dygraph){
+    //
+    //         gs.push(ref[0].chart)
+    //         // sync.push(ref[0])
+    //       }
+    //     }.bind(this))
+    //
+    //     this.unsync_charts()
+    //
+    //     if(gs.length > 1){
+    //       this.$options.sync = synchronize(gs, {
+    //         zoom: true,
+    //         // selection: true,
+    //         range: false
+    //       })
+    //
+    //
+    //     }
+    //   }
+    // },
+    // unsync_charts(){
+    //   if(this.$options.sync){
+    //     // console.log('detaching', this.$options.sync)
+    //     this.$options.sync.detach()
+    //     this.$options.sync = null
+    //   }
+    // },
+    beautifyLabel (label) {
+      return label.replace('_', '.')
+    },
+
+    /**
+    * @override dashboard [mixin]
+    **/
+    add_chart (name, chart){
+      this._add_chart('os.'+name, chart)
+    },
+    /**
+    * @override chart [mixin]
+    **/
+    create_watcher(name, watcher){
+      this._create_watcher('$store.state.hosts.'+this.host+'.', 'os.'+name, watcher)
+    },
+    /**
+    * @override chart [mixin]
+    **/
+    // update_chart_stat (name, data){
+    //   // console.log('update_chart_stat', name, data)
+    //
+    //   if(this.hide[name] != true){
+    //
+    //     let has_data = true
+    //     Array.each(data, function(columns){
+    //        has_data = columns.some(function(column, index){
+    //          if(index == 0) return false//timestamp column
+    //          return column > 0;
+    //       });
+    //     })
+    //
+    //
+    //     if(!this.$options.has_no_data[name])
+    //       this.$options.has_no_data[name] = 0
+    //
+    //     this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
+    //
+    //     if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
+    //       this.$set(this.hide, name, true)
+    //
+    //     // console.log('has_data ', name, has_data, this.$options.has_no_data[name])
+    //
+    //     this.$set(this.stats[name], 'data', data)
+    //
+    //     if(
+    //       this.stats[name].lastupdate < Date.now() - this.charts[name].interval
+    //       && (this.$refs[this.host+'_'+name]
+    //         && this.$refs[this.host+'_'+name][0]
+    //         && this.$refs[this.host+'_'+name][0].chart != null
+    //       )
+    //       && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
+    //       && this.highlighted == false
+    //       && this.paused == false
+    //       && data.length > 0
+    //     ){
+    //
+    //       this.$refs[this.host+'_'+name][0].updateOptions(
+    //         { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
+    //         false
+    //       )
+    //       this.stats[name].lastupdate = Date.now()
+    //       // this.$forceUpdate()
+    //     }
+    //
+    //   }
+    // },
+
   },
 }
 </script>
 
-<style scoped>
-
+<style>
 </style>

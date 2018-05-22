@@ -1,14 +1,12 @@
 <template>
   <div class="col-sm-12 col-md-19">
     <q-list>
-      <!-- <os-summary
+      <os-summary
         v-if="reset == false"
-        :mem="mem"
-        :cpu="cpu_simple"
         :EventBus="EventBus"
         :host="currentHost"
         :key="'os-summary'+currentHost"
-      /> -->
+      />
       <!-- :timestamps="timestamps" -->
 
       <os-dashboard
@@ -17,7 +15,7 @@
         :host="currentHost"
         :key="'os-dashboard'+currentHost"
       />
-      
+
     </q-list>
 
   </div>
