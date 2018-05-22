@@ -305,7 +305,7 @@ export default {
           this.generic_data_watcher(current, watcher, name)
         }
 
-        console.log('gonna watch...', name, path+watch_name)
+        // console.log('gonna watch...', name, path+watch_name)
         this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
 
       }

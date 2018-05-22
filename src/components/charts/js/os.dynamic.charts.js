@@ -215,8 +215,8 @@ export default {
     }
 
   }),
-  "cpu_simple": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'cpus_simple',
+  "os_cpu": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'cpus_simple',
     match: /cpus/,
     "options": {
       valueRange: [0, 100],

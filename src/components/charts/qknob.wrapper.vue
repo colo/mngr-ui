@@ -19,14 +19,14 @@
     </div>
   </div> -->
   <q-knob
-   v-model="stat.data.getLast()[1]"
+   v-model="model"
    readonly
-   v-bind="stat.options"
+   v-bind="options.options"
    :ref="id"
    :id="id"
    :class="options.class"
   >
-    <q-icon class="on-left" :name="stat.icon" />{{stat.data.getLast()[1]}} %
+    <q-icon class="on-left" :name="options.icon" />{{model}} %
   </q-knob>
 </template>
 
@@ -70,8 +70,9 @@ export default {
   },
   data () {
     return {
+      model: 0,
       // container_class_helper: '',
-      // chart: null,
+      chart: null,
       // highlighted: false,
       // ready: false,
       // to_suspend: false,
@@ -84,7 +85,8 @@ export default {
     }
   },
 
-  // created () {
+  created () {
+    this.chart = this
   //   // //console.log('created', this.id, this.visible)
   //
   //   this.EventBus.$on('highlightCallback', params => {
@@ -130,7 +132,7 @@ export default {
   //     this.chart = null
   //   }
   //   this.$off()
-  // },
+  },
   methods: {
 
     // _create_dygraph (){
@@ -153,12 +155,10 @@ export default {
     //   if(this.options.init)
     //     this.options.init(this, this.chart, 'dygraph')
     // },
-    // update (){
-    //   this.updateOptions(
-    //     { 'dateWindow': this.chart.xAxisExtremes() },
-    //     false
-    //   )
-    // },
+    update () {
+      // console.log('qknob update')
+      this.model = this.stat.data.getLast()[1]
+    },
     // updateOptions (options, block_redraw){
     //
     //   let self = this

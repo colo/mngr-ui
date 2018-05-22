@@ -17,7 +17,6 @@
           class="col-sm-2 col-md-3 justify-center"
           :style="chart.style"
           :key="host+'_'+name"
-          :ref="host+'_'+name"
           :id="host+'_'+name+'-summary-card-container'"
           v-observe-visibility="visibilityChanged"
           >
@@ -86,11 +85,11 @@ export default {
 
   // static_charts: static_charts,
   dynamic_charts: dynamic_charts,
-  dynamic_whitelist: /freemem/,
+  dynamic_whitelist: /freemem|cpus/,
   // dynamic_blacklist: /minute|totalmem/, //don't add charts automatically for this os[key]
 
+  has_no_data: {},
   sync: null,
-
   visibles: {},
 
 
@@ -239,6 +238,7 @@ export default {
     * @override chart [mixin]
     **/
     create_watcher(name, watcher){
+      console.log('gonna watch...', name, watcher)
       this._create_watcher('$store.state.hosts.'+this.host+'.', 'os.'+name, watcher)
     },
     /**
@@ -247,57 +247,59 @@ export default {
     /**
     * update chart data
     **/
-    update_chart_stat (name, data){
-      console.log('summary update_chart_stat', name, data)
-    },
     // update_chart_stat (name, data){
-    //   // console.log('update_chart_stat', name, data)
-    //
-    //   if(this.hide[name] != true){
-    //
-    //     let has_data = true
-    //     Array.each(data, function(columns){
-    //        has_data = columns.some(function(column, index){
-    //          if(index == 0) return false//timestamp column
-    //          return column > 0;
-    //       });
-    //     })
-    //
-    //
-    //     if(!this.$options.has_no_data[name])
-    //       this.$options.has_no_data[name] = 0
-    //
-    //     this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
-    //
-    //     if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
-    //       this.$set(this.hide, name, true)
-    //
-    //     // console.log('has_data ', name, has_data, this.$options.has_no_data[name])
-    //
-    //     this.$set(this.stats[name], 'data', data)
-    //
-    //     if(
-    //       this.stats[name].lastupdate < Date.now() - this.charts[name].interval
-    //       && (this.$refs[this.host+'_'+name]
-    //         && this.$refs[this.host+'_'+name][0]
-    //         && this.$refs[this.host+'_'+name][0].chart != null
-    //       )
-    //       && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
-    //       && this.highlighted == false
-    //       && this.paused == false
-    //       && data.length > 0
-    //     ){
-    //
-    //       this.$refs[this.host+'_'+name][0].updateOptions(
-    //         { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
-    //         false
-    //       )
-    //       this.stats[name].lastupdate = Date.now()
-    //       // this.$forceUpdate()
-    //     }
-    //
-    //   }
+    //   console.log('summary update_chart_stat', name, data)
     // },
+    update_chart_stat (name, data){
+      console.log('update_chart_stat', name, data)
+
+      if(this.hide[name] != true){
+
+
+
+        let has_data = true
+        Array.each(data, function(columns){
+           has_data = columns.some(function(column, index){
+             if(index == 0) return false//timestamp column
+             return column > 0;
+          });
+        })
+
+
+        if(!this.$options.has_no_data[name])
+          this.$options.has_no_data[name] = 0
+
+        this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
+
+        if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
+          this.$set(this.hide, name, true)
+
+        // console.log('has_data ', name, has_data, this.$options.has_no_data[name])
+
+        this.$set(this.stats[name], 'data', data)
+
+        // console.log('update_chart_stat', this.$refs, name)
+
+        if(
+          this.stats[name].lastupdate < Date.now() - this.charts[name].interval
+          && (this.$refs[this.host+'_'+name]
+            && this.$refs[this.host+'_'+name][0]
+            && this.$refs[this.host+'_'+name][0].chart != null
+          )
+          && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
+          && this.highlighted == false
+          && this.paused == false
+          && data.length > 0
+        ){
+          // console.log('update_chart_stat', name, data)
+
+          this.$refs[this.host+'_'+name][0].update()
+          this.stats[name].lastupdate = Date.now()
+          // this.$forceUpdate()
+        }
+
+      }
+    },
 
   },
 }
