@@ -15,11 +15,11 @@
          <div
           v-for="(chart, name) in charts"
           class="col-sm-2 col-md-3 justify-center"
-          :style="chart.style"
           :key="host+'_'+name"
           :id="host+'_'+name+'-summary-card-container'"
           v-observe-visibility="visibilityChanged"
           >
+          <!-- :style="chart.style" -->
             <!-- https://github.com/vuejs/babel-plugin-transform-vue-jsx/issues/86 -->
 
             <component
@@ -47,6 +47,7 @@
 <script>
 
 import qKnobWrapper from './qknob.wrapper'
+import vueEasyPieChartWrapper from './vueEasyPieChart.wrapper'
 
 import Dashboard from '../mixins/dashboard'
 
@@ -64,7 +65,8 @@ export default {
   name: 'os-summary',
 
   components: {
-    qKnobWrapper
+    qKnobWrapper,
+    vueEasyPieChartWrapper
     // IEcharts
     // VueCharts
   },
@@ -231,15 +233,19 @@ export default {
     /**
     * @override dashboard [mixin]
     **/
-    add_chart (name, chart){
-      this._add_chart('os.'+name, chart)
-    },
+    // add_chart (name, chart){
+    //   this._add_chart('summary_'+name, chart)
+    // },
     /**
     * @override chart [mixin]
     **/
     create_watcher(name, watcher){
-      console.log('gonna watch...', name, watcher)
-      this._create_watcher('$store.state.hosts.'+this.host+'.', 'os.'+name, watcher)
+      // console.log('gonna watch...', name, watcher)
+      let watch_name = name
+      if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
+        watch_name = watch_name.substring(0, watch_name.indexOf('_'))
+
+      this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, 'summary.'+name, watcher)
     },
     /**
     * @override chart [mixin]
@@ -251,7 +257,7 @@ export default {
     //   console.log('summary update_chart_stat', name, data)
     // },
     update_chart_stat (name, data){
-      console.log('update_chart_stat', name, data)
+      // console.log('update_chart_stat', name, data)
 
       if(this.hide[name] != true){
 
@@ -274,7 +280,7 @@ export default {
         if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
           this.$set(this.hide, name, true)
 
-        // console.log('has_data ', name, has_data, this.$options.has_no_data[name])
+        console.log('has_data ', name, has_data, this.$options.has_no_data[name])
 
         this.$set(this.stats[name], 'data', data)
 

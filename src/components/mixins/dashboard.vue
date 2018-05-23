@@ -8,7 +8,7 @@ export default {
 
 
   unwatchers: {},
-  
+
   data () {
     return {
 
@@ -37,7 +37,8 @@ export default {
 
         })
 
-
+      console.log('adding chart...', name)
+      
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': data })
 

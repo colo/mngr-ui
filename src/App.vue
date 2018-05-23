@@ -306,7 +306,7 @@ export default {
 
       Array.each(doc.hosts, function(host){
         if(!this.$store.state.hosts[host])
-          this.$store.registerModule(['hosts', host], hostStore)
+          this.$store.registerModule(['hosts', host], Object.clone(hostStore))
 
       }.bind(this))
 

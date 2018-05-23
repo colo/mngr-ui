@@ -281,9 +281,9 @@ export default {
       watcher.value = watcher.value || ''
       watcher.transform = watcher.transform || ''
 
-      let watch_name = name
-      if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
-        watch_name = watch_name.substring(0, watch_name.indexOf('_'))
+      // let watch_name = name
+      // if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
+      //   watch_name = watch_name.substring(0, watch_name.indexOf('_'))
 
       if(this.$options.unwatchers[name]){
         this.$options.unwatchers[name]()
@@ -292,12 +292,12 @@ export default {
 
       let found_watcher = false
 
-      // if(Array.isArray(this._watchers)){
-      //   Array.each(this._watchers, function(watcher){
-      //     if(watcher.expression == name && watcher.user == true)//means user already added a watcher for this chart
-      //       found_watcher = true
-      //   })
-      // }
+      if(Array.isArray(this._watchers)){
+        Array.each(this._watchers, function(watcher){
+          if(watcher.expression == name && watcher.user == true)//means user already added a watcher for this chart
+            found_watcher = true
+        })
+      }
 
       if(found_watcher == false){
 
@@ -305,15 +305,16 @@ export default {
           this.generic_data_watcher(current, watcher, name)
         }
 
-        // console.log('gonna watch...', name, path+watch_name)
-        this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
+        console.log('gonna watch...', name, path)
+        // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
+        this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
 
       }
     },
 
     generic_data_watcher (current, watcher, name){
       // console.log('generic_data_watcher', this.host+'_'+name, current)
-
+      console.log('generic_data_watcher', this.host+'_'+name)
 
 
       //////////////console.log('type_value', name, val.current)

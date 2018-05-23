@@ -1,7 +1,10 @@
 import DefaultQKnob from './default.qknob.js'
+import DefaultVueEasyPieChart from './default.vueEasyPieChart.js'
 
 export default {
-  "summary_freemem": Object.merge(Object.clone(DefaultQKnob),{
+  // "summary_freemem": Object.merge(Object.clone(DefaultQKnob),{
+  "summary.freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+    name : 'summary.freemem',
     icon: 'memory',
     match: /freemem/,
     labeling: 'Free Mem',
@@ -38,8 +41,9 @@ export default {
       }
     },
   }),
-  "summary_cpu": Object.merge(Object.clone(DefaultQKnob),{
-    name: 'cpus_simple',
+  // "summary_cpu": Object.merge(Object.clone(DefaultQKnob),{
+  "summary.cpus": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+    name: 'summary.cpus',
     icon: 'flash_on',
     match: /cpus/,
     labeling: 'CPU Usage',
@@ -89,7 +93,7 @@ export default {
 
           // console.log('transform: ', diff_time)
 
-          transform.value.times.usage = (percentage > 100) ? 100 : parseFloat(percentage.toFixed(2))
+          transform.value.times.usage = (percentage > 100) ? 100 : parseFloat(percentage.toFixed(1))
 
 
           prev = Object.clone(current)

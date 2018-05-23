@@ -1,47 +1,30 @@
 <template>
-  <!-- <div
-    :id="id+'-container'"
-    class="netdata-container-with-legend"
-    v-bind:class="container_class_helper"
-    :style="options.style"
-  >
-     <div
-       :ref="id"
-       :id="id"
-       :class="options.class"
-     >
-
-    </div>
-    <div
-    class="netdata-chart-legend"
-    :id="id+'-netdata-chart-legend'"
-    >
-    </div>
-  </div> -->
   <div
-  :style="options.style"
   :class="options.class"
   >
-    <q-knob
-     v-model="percentage"
-     readonly
-     v-bind="options.options"
-     :ref="id"
-     :id="id"
-     :class="options.class"
-    >
-      <q-icon class="on-left" :name="options.icon" />{{percentage}} %
-    </q-knob>
+    <vue-easy-pie-chart
+      v-bind="options.options"
+      :percent="percentage"
+      :id="id"
+    />
   </div>
+
 </template>
 
 
 <script>
 
+import VueEasyPieChart from 'vue-easy-pie-chart'
+import 'vue-easy-pie-chart/dist/vue-easy-pie-chart.css'
+
 
 export default {
-  name: 'q-knob-wrapper',
+  name: 'vue-easy-pie-chart-wrapper',
 
+  components: {
+    VueEasyPieChart
+  },
+  
   // chart: null,
   freezed: false,
 
@@ -162,6 +145,7 @@ export default {
     // },
     update () {
       // console.log('qknob update')
+      // this.model = this.stat.data.getLast()[1]
       this.percentage = this.stat.data.getLast()[1]
     },
     // updateOptions (options, block_redraw){

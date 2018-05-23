@@ -28,7 +28,7 @@ import Dygraph from 'dygraphs'
 import 'dygraphs/dist/dygraph.css'
 
 export default {
-  name: 'dygraph',
+  name: 'dygraph-wrapper',
 
   // chart: null,
   freezed: false,

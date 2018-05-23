@@ -32,7 +32,7 @@ export default {
             Array.each(messures, function(messure){// "bytes" | "packets"
               if(!vm.stats['os.networkInterfaces.'+iface+'.'+messure]){
 
-                vm.add_chart('networkInterfaces.'+iface+'.'+messure, chart)
+                vm.add_chart('os.networkInterfaces.'+iface+'.'+messure, chart)
               }
 
 
@@ -95,6 +95,7 @@ export default {
 
   }),
   "mounts_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
+    name: 'mounts_percentage',
     match: /mounts/,
     // label: 'somelabel',
     labeling: function(stat){
@@ -215,8 +216,8 @@ export default {
     }
 
   }),
-  "os_cpu": Object.merge(Object.clone(DefaultDygraphLine),{
-    // name: 'cpus_simple',
+  "os.cpus_simple": Object.merge(Object.clone(DefaultDygraphLine),{
+    name: 'cpus_simple',
     match: /cpus/,
     "options": {
       valueRange: [0, 100],
@@ -277,7 +278,8 @@ export default {
 
 
   }),
-  "os_freemem": Object.merge(Object.clone(DefaultDygraphLine),{
+  "os.freemem": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'os.freemem',
     match: /freemem/,
     watch: {
       // merge: true,

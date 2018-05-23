@@ -75,7 +75,7 @@ import Dashboard from '../mixins/dashboard'
 import { frameDebounce } from 'quasar'
 
 
-import dygraphVue from './dygraph'
+import dygraphWrapper from './dygraph.wrapper'
 
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
@@ -103,7 +103,7 @@ export default {
 
   // uptime_chart: null,
   components: {
-    dygraphVue
+    dygraphWrapper
     // IEcharts
     // VueCharts
   },
@@ -273,14 +273,18 @@ export default {
     /**
     * @override dashboard [mixin]
     **/
-    add_chart (name, chart){
-      this._add_chart('os.'+name, chart)
-    },
+    // add_chart (name, chart){
+    //   this._add_chart('os.'+name, chart)
+    // },
     /**
     * @override chart [mixin]
     **/
     create_watcher(name, watcher){
-      this._create_watcher('$store.state.hosts.'+this.host+'.', 'os.'+name, watcher)
+      let watch_name = name
+      if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
+        watch_name = watch_name.substring(0, watch_name.indexOf('_'))
+
+      this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, name, watcher)
     },
     /**
     * @override chart [mixin]
@@ -329,7 +333,7 @@ export default {
           // )
 
           this.$refs[this.host+'_'+name][0].update()//default update
-          
+
           this.stats[name].lastupdate = Date.now()
           // this.$forceUpdate()
         }
