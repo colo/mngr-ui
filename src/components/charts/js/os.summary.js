@@ -2,9 +2,9 @@ import DefaultQKnob from './default.qknob.js'
 import DefaultVueEasyPieChart from './default.vueEasyPieChart.js'
 
 export default {
-  // "summary_freemem": Object.merge(Object.clone(DefaultQKnob),{
-  "summary.freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
-    name : 'summary.freemem',
+  // "freemem": Object.merge(Object.clone(DefaultQKnob),{
+  "freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+    // name : 'summary.freemem',
     icon: 'memory',
     match: /freemem/,
     labeling: 'Free Mem',
@@ -41,9 +41,9 @@ export default {
       }
     },
   }),
-  // "summary_cpu": Object.merge(Object.clone(DefaultQKnob),{
-  "summary.cpus": Object.merge(Object.clone(DefaultVueEasyPieChart),{
-    name: 'summary.cpus',
+  // "cpus": Object.merge(Object.clone(DefaultQKnob),{
+  "cpus": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+    // name: 'summary.cpus',
     icon: 'flash_on',
     match: /cpus/,
     labeling: 'CPU Usage',

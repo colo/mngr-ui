@@ -95,7 +95,7 @@ export default {
 
   }),
   "mounts_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'mounts_percentage',
+    // name: 'mounts_percentage',
     match: /mounts/,
     // label: 'somelabel',
     labeling: function(stat){
@@ -175,8 +175,8 @@ export default {
     }
 
   }),
-  "cpu_times": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'cpus_times',
+  "cpus_times": Object.merge(Object.clone(DefaultDygraphLine),{
+    name: 'os.cpus_times',
     match: /cpus/,
     watch: {
       merge: true,
@@ -216,8 +216,8 @@ export default {
     }
 
   }),
-  "os.cpus_simple": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'cpus_simple',
+  "cpus_simple": Object.merge(Object.clone(DefaultDygraphLine),{
+    name: 'os.cpus_simple',
     match: /cpus/,
     "options": {
       valueRange: [0, 100],
@@ -278,7 +278,7 @@ export default {
 
 
   }),
-  "os.freemem": Object.merge(Object.clone(DefaultDygraphLine),{
+  "freemem": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'os.freemem',
     match: /freemem/,
     watch: {

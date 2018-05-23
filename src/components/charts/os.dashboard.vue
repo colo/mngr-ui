@@ -21,6 +21,7 @@
         v-observe-visibility="visibilityChanged"
         :id="host+'_'+name+'-card'"
       >
+      <!-- {{name}} -->
        <!-- <at-card :bordered="false"> -->
          <!-- <div
           :id="name"
@@ -158,13 +159,13 @@ export default {
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      //////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      ////////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
       self.sync_charts()
 		})
 
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      ////////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      //////////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
       self.unsync_charts()
 		})
   },
@@ -175,7 +176,7 @@ export default {
     //if "remounted" the $watch ain't gonna work if it's not changed
     if(this.$store.state.hosts[this.host] && this.$store.state.hosts[this.host].os){
       // this.$set(this.os, {})
-      ////////console.log('remounted', this._watchers)
+      //////////console.log('remounted', this._watchers)
       this.initialize_all_charts(this.$store.state.hosts[this.host].os)
     }
 
@@ -211,12 +212,12 @@ export default {
     * UI related
     **/
     visibilityChanged (isVisible, entry) {
-      // //console.log('visibilityChanged', isVisible, entry.target.id)
+      // ////console.log('visibilityChanged', isVisible, entry.target.id)
       // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
       this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
 
       frameDebounce(function() {//performance reasons
-        // //console.log('visibilityChanged frameDebounce')
+        // ////console.log('visibilityChanged frameDebounce')
         Object.each(this.$options.visibles, function(bool, visible){
           this.$set(this.visibles, visible, bool)
         }.bind(this))
@@ -229,15 +230,15 @@ export default {
         let gs = []
         // let sync = []
 
-        //////////////////////////console.log(this.$refs, this.host)
+        ////////////////////////////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          // ////////////////////////console.log('charts', name, ref)
+          // //////////////////////////console.log('charts', name, ref)
 
           if(ref[0] && ref[0].chart instanceof Dygraph
             && (this.visibles[name] != false || this.freezed == true ))
           {
-            ////////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+            //////////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
 
@@ -261,7 +262,7 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // console.log('detaching', this.$options.sync)
+        // //console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
@@ -276,6 +277,47 @@ export default {
     // add_chart (name, chart){
     //   this._add_chart('os.'+name, chart)
     // },
+    // process_chart_name (chart, stat){
+    //   let name = ''
+    //   if(chart.name && typeOf(chart.name) == 'function') name = chart.name(stat)
+    //   else if(chart.name) name = chart.name
+    //
+    //   if(name.indexOf('os.') < 0)
+    //     name = 'os.'+name
+    //
+    //   return name
+    // },
+    // process_chart_label (chart, stat) {
+    //   let label = ''
+    //   if(chart.labeling && typeOf(chart.labeling) == 'function'){
+    //
+    //     label = chart.labeling(stat)
+    //   }
+    //   else if(chart.label){
+    //     label = chart.label
+    //   }
+    //   else{
+    //     label = this.process_chart_name(chart, stat)
+    //   }
+    //
+    //     if(label && label.indexOf('os.') < 0)
+    //       label = 'os.'+label
+    //
+    //     return label
+    // },
+    process_chart (chart, name){
+
+      if(name.indexOf('os.') < 0)
+        name = 'os.'+name
+
+
+      if(!chart.watch || chart.watch.managed != true){
+
+        this.add_chart(name, chart)
+      }
+
+      this._process_chart(chart, name)
+    },
     /**
     * @override chart [mixin]
     **/
@@ -284,13 +326,16 @@ export default {
       if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
         watch_name = watch_name.substring(0, watch_name.indexOf('_'))
 
+      watch_name = watch_name.replace(/os\./, '', 'g')
+
       this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, name, watcher)
     },
     /**
     * @override chart [mixin]
     **/
     update_chart_stat (name, data){
-      // console.log('update_chart_stat', name, data)
+      // //console.log('update_chart_stat', name, data)
+      // //console.log('update_chart_stat', name)
 
       if(this.hide[name] != true){
 
@@ -311,7 +356,7 @@ export default {
         if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
           this.$set(this.hide, name, true)
 
-        // console.log('has_data ', name, has_data, this.$options.has_no_data[name])
+        //console.log('has_data ', name, has_data, this.stats)
 
         this.$set(this.stats[name], 'data', data)
 

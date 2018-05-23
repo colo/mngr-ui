@@ -101,11 +101,11 @@ export default {
     //   }
     // },
     process_dynamic_chart (chart, name, stat){
-      // ////console.log('process_dynamic_chart',  name, chart)
+      // //////console.log('process_dynamic_chart',  name, chart)
       // let watcher = {value: ''}
 
       if(Array.isArray(stat[0].value)){//like 'cpus'
-        // //////////console.log('isArray', stat[0].value)
+        // ////////////console.log('isArray', stat[0].value)
 
         Array.each(stat[0].value, function(val, index){
 
@@ -163,7 +163,7 @@ export default {
       else if(isNaN(stat[0].value)){
         //sdX.stats.
 
-        ////console.log('isNan', name, stat, chart)
+        //////console.log('isNan', name, stat, chart)
 
         let filtered = false
         if(chart.watch && chart.watch.filters){
@@ -202,7 +202,7 @@ export default {
           //     // && chart.watch.value
           //   ){
           //     Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
-          //       // //console.log('labeling...', tmp)
+          //       // ////console.log('labeling...', tmp)
           //       chart.options.labels.push(tmp_key)
           //     })
           //
@@ -305,7 +305,7 @@ export default {
           this.generic_data_watcher(current, watcher, name)
         }
 
-        console.log('gonna watch...', name, path)
+        //console.log('gonna watch...', name, path)
         // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
         this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
 
@@ -313,11 +313,11 @@ export default {
     },
 
     generic_data_watcher (current, watcher, name){
-      // console.log('generic_data_watcher', this.host+'_'+name, current)
-      console.log('generic_data_watcher', this.host+'_'+name)
+      // //console.log('generic_data_watcher', this.host+'_'+name, current)
+      //console.log('generic_data_watcher', this.host+'_'+name)
 
 
-      //////////////console.log('type_value', name, val.current)
+      ////////////////console.log('type_value', name, val.current)
       if(watcher.managed == true){
         watcher.transform(current, this, watcher)
       }
@@ -348,7 +348,7 @@ export default {
           else if(isNaN(type_value) || watcher.value != ''){
 
             if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
-              // ////console.log('generic_data_watcher isNaN', name, type_value, current)
+              // //////console.log('generic_data_watcher isNaN', name, type_value, current)
 
               current = this._current_nested_array(current, watcher, name)
             }
@@ -366,7 +366,7 @@ export default {
 
           }
           else{//single value, ex: uptime
-            //////////////console.log('generic_data_watcher Num', name, type_value)
+            ////////////////console.log('generic_data_watcher Num', name, type_value)
             if(typeOf(watcher.transform) == 'function'){
               current = watcher.transform(current, this, watcher)
             }
@@ -414,11 +414,11 @@ export default {
     _current_nested_array(current, watcher, name){
 
       let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
-      ////////////console.log('generic_data_watcher isNanN', name, val, index)
+      //////////////console.log('generic_data_watcher isNanN', name, val, index)
 
       let val_current = []
       Array.each(current, function(item){
-        // ////////////console.log('CPU item', item)
+        // //////////////console.log('CPU item', item)
 
         let value = {}
         Array.each(item.value, function(val, value_index){//each cpu
@@ -444,7 +444,7 @@ export default {
 
       }.bind(this))
 
-      // ////////////console.log('CPU new current', val_current)
+      // //////////////console.log('CPU new current', val_current)
 
       return val_current
     },
