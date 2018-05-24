@@ -49,6 +49,9 @@
 import qKnobWrapper from './wrappers/qknob'
 import vueEasyPieChartWrapper from './wrappers/vueEasyPieChart'
 import vueCanvasGaugeWrapper from './wrappers/vueCanvasGauge'
+import vueTrendWrapper from './wrappers/vueTrend'
+import vueBarsWrapper from './wrappers/vueBars'
+import vueOdometerWrapper from './wrappers/vueOdometer'
 
 import Dashboard from './mixins/dashboard'
 
@@ -68,7 +71,10 @@ export default {
   components: {
     qKnobWrapper,
     vueEasyPieChartWrapper,
-    vueCanvasGaugeWrapper
+    vueCanvasGaugeWrapper,
+    vueTrendWrapper,
+    vueBarsWrapper,
+    vueOdometerWrapper
     // IEcharts
     // VueCharts
   },
@@ -89,7 +95,7 @@ export default {
 
   // static_charts: static_charts,
   dynamic_charts: dynamic_charts,
-  dynamic_whitelist: /mounts|freemem|cpus/,
+  dynamic_whitelist: /uptime|loadavg|mounts|freemem|cpus/,
   // dynamic_blacklist: /minute|totalmem/, //don't add charts automatically for this os[key]
 
   has_no_data: {},

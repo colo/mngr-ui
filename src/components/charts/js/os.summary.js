@@ -1,11 +1,61 @@
 import DefaultQKnob from './default.qknob.js'
 import DefaultVueEasyPieChart from './default.vueEasyPieChart.js'
 import DefaultVueCanvasGauge from './default.vueCanvasGauge.js'
+import DefaultVueTrend from './default.vueTrend.js'
+import DefaultVueBars from './default.vueBars.js'
+import DefaultVueOdometer from './default.vueOdometer.js'
 
 export default {
-  // "freemem": Object.merge(Object.clone(DefaultQKnob),{
+  "uptime_seconds": Object.merge(Object.clone(DefaultVueOdometer),{
+    name: 'uptime_seconds',
+    match: /uptime/,
+
+    // watch: {
+    //   merge: true,//merging so we get only one chart, not 3 as there are 3 load values
+    //   value: 0,//watch only the load[0]
+    // },
+  }),
+  // "uptime_days": Object.merge(Object.clone(DefaultVueOdometer),{
+  //   name: 'uptime_days',
+  //   match: /uptime/,
+  //
+  //   watch: {
+  //     // merge: true,
+  //     // value: undefined,
+  //     /**
+  //     * @trasnform: diff between each value against its prev one
+  //     */
+  //     transform: function(values, vm, watcher){
+  //       // console.log('transform: ', values)
+  //       let transformed = []
+  //
+  //       Array.each(values, function(val, index){
+  //         // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+  //         let transform = { timestamp: val.timestamp, value: Math.round( val.value  / 60 / 60 / 24 ) }
+  //         transformed.push(transform)
+  //       })
+  //
+  //       // // console.log('transform: ', transformed)
+  //
+  //       return transformed
+  //     }
+  //   },
+  // }),
+  "loadavg": Object.merge(Object.clone(DefaultVueTrend),{
+    match: /loadavg/,
+    "options": {
+      min: undefined,
+      max: undefined,
+    },
+    watch: {
+      merge: true,//merging so we get only one chart, not 3 as there are 3 load values
+      value: 0,//watch only the load[0]
+    },
+  }),
+  "freemem": Object.merge(Object.clone(DefaultQKnob),{
   // "freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
-  "freemem": Object.merge(Object.clone(DefaultVueCanvasGauge),{
+  // "freemem": Object.merge(Object.clone(DefaultVueCanvasGauge),{
+  // "freemem": Object.merge(Object.clone(DefaultVueTrend),{
     // name : 'summary.freemem',
     icon: 'memory',
     match: /freemem/,
@@ -33,7 +83,7 @@ export default {
 
         Array.each(values, function(val, index){
           // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-          let transform = { timestamp: val.timestamp, value: Math.round((val.value * 100) / watcher.totalmem) }
+          let transform = { timestamp: val.timestamp, value: 100 - (Math.round((val.value * 100) / watcher.totalmem)) }
           transformed.push(transform)
         })
 
@@ -135,8 +185,8 @@ export default {
       }
     },
   }),
-  // "mounts_percentage": Object.merge(Object.clone(DefaultVueEasyPieChart),{
-  "mounts_percentage": Object.merge(Object.clone(DefaultVueCanvasGauge),{
+  "mounts_percentage": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  // "mounts_percentage": Object.merge(Object.clone(DefaultVueCanvasGauge),{
     // name: 'mounts_percentage',
     match: /mounts/,
     // label: 'somelabel',
