@@ -71,12 +71,12 @@
 
 <script>
 
-import Dashboard from '../mixins/dashboard'
+import Dashboard from './mixins/dashboard'
 
 import { frameDebounce } from 'quasar'
 
 
-import dygraphWrapper from './dygraph.wrapper'
+import dygraphWrapper from './wrappers/dygraph'
 
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
@@ -85,13 +85,13 @@ import Dygraph from 'dygraphs'
 * https://stackoverflow.com/questions/33774592/dygraphs-live-trending-and-synchronization
 * zoom: true, range: false -> https://github.com/danvk/dygraphs/issues/612
 */
-import '../../libs/synchronizer' //modified version
+import '../libs/synchronizer' //modified version
 
 // import 'dygraphs/dist/dygraph.css'
 
-import DefaultChart from './js/default.dygraph.line'
-import static_charts from './js/os.static.charts'
-import dynamic_charts from './js/os.dynamic.charts'
+import DefaultChart from './charts/js/default.dygraph.line'
+import static_charts from './charts/js/os.static.charts'
+import dynamic_charts from './charts/js/os.dynamic.charts'
 // import net_stats from './js/net.dashboard'
 
 import { mapState } from 'vuex'

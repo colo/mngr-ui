@@ -46,15 +46,16 @@
 
 <script>
 
-import qKnobWrapper from './qknob.wrapper'
-import vueEasyPieChartWrapper from './vueEasyPieChart.wrapper'
+import qKnobWrapper from './wrappers/qknob'
+import vueEasyPieChartWrapper from './wrappers/vueEasyPieChart'
+import vueCanvasGaugeWrapper from './wrappers/vueCanvasGauge'
 
-import Dashboard from '../mixins/dashboard'
+import Dashboard from './mixins/dashboard'
 
 import { frameDebounce } from 'quasar'
 
 // import static_charts from './js/os.summary'
-import dynamic_charts from './js/os.summary'
+import dynamic_charts from './charts/js/os.summary'
 
 import { mapState } from 'vuex'
 
@@ -66,7 +67,8 @@ export default {
 
   components: {
     qKnobWrapper,
-    vueEasyPieChartWrapper
+    vueEasyPieChartWrapper,
+    vueCanvasGaugeWrapper
     // IEcharts
     // VueCharts
   },
@@ -87,7 +89,7 @@ export default {
 
   // static_charts: static_charts,
   dynamic_charts: dynamic_charts,
-  dynamic_whitelist: /freemem|cpus/,
+  dynamic_whitelist: /mounts|freemem|cpus/,
   // dynamic_blacklist: /minute|totalmem/, //don't add charts automatically for this os[key]
 
   has_no_data: {},

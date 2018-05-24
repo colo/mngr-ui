@@ -1,9 +1,11 @@
 import DefaultQKnob from './default.qknob.js'
 import DefaultVueEasyPieChart from './default.vueEasyPieChart.js'
+import DefaultVueCanvasGauge from './default.vueCanvasGauge.js'
 
 export default {
   // "freemem": Object.merge(Object.clone(DefaultQKnob),{
-  "freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  // "freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  "freemem": Object.merge(Object.clone(DefaultVueCanvasGauge),{
     // name : 'summary.freemem',
     icon: 'memory',
     match: /freemem/,
@@ -42,8 +44,38 @@ export default {
     },
   }),
   // "cpus": Object.merge(Object.clone(DefaultQKnob),{
-  "cpus": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  // "cpus": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  "cpus": Object.merge(Object.clone(DefaultVueCanvasGauge),{
     // name: 'summary.cpus',
+    options: {
+      // width: 300,
+      height: 200,
+      minValue: 0,
+      startAngle: 90,
+      ticksAngle: 180,
+      valueBox: false,
+      maxValue: 100,
+      majorTicks: [ "0", "20", "40", "60", "80", "100"],
+      minorTicks: 2,
+      strokeTicks: true,
+      highlights: [
+        {
+          "from": 80,
+          "to": 100,
+          "color": "rgba(200, 50, 50, .75)"
+        }
+      ],
+      colorPlate: "#fff",
+      borderShadowWidth: 0,
+      borders: false,
+      needleType: "arrow",
+      needleWidth: 2,
+      needleCircleSize: 7,
+      needleCircleOuter: true,
+      needleCircleInner: false,
+      animationDuration: 1500,
+      animationRule: "linear"
+    },
     icon: 'flash_on',
     match: /cpus/,
     labeling: 'CPU Usage',
@@ -103,35 +135,43 @@ export default {
       }
     },
   }),
+  // "mounts_percentage": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  "mounts_percentage": Object.merge(Object.clone(DefaultVueCanvasGauge),{
+    // name: 'mounts_percentage',
+    match: /mounts/,
+    // label: 'somelabel',
+    labeling: function(stat){
+      // console.log('mounts_percentage', stat)
+      // let name = ''
+      // if(stat[0].value.mount_point == '/'){
+      //   name = '_root'
+      // }
+      // else{
+      //   name = stat[0].value.mount_point.replace('/', '_')
+      // }
 
-  // "cpu": {
-  //   // // component: 'q-knob',
-  //   // // icon: 'flash_on',
-  //   // // "class": "chart-with-legend-right dygraph-with-legend-right",
-  //   // // "style": "height:120px;",
-  //   // "interval": 0,
-  //   // "options": {
-  //   //   // min: 0,
-  //   //   // max: 100,
-  //   //   size: 120,
-  //   //   // color: "red",
-  //   //   // 'bar-color': '#000000'
-  //   //   // 'lineCap': 'butt'
-  //   // }
-  //   component: 'q-knob',
-  //   // icon: 'memory',
-  //   // "class": "chart-with-legend-right dygraph-with-legend-right",
-  //   // "style": "width:100%; height:126px;",
-  //   // "style": "font-size: 1.5rem",
-  //   // "style": "height:120px;",
-  //   "interval": 0,
-  //   "options": {
-  //     min: 0,
-  //     max: 100,
-  //     color: "primary",
-  //     size: "100px",
-  //     // "track-color": "yellow-3",
-  //     // "line-width": "5px"
-  //   }
-  // },
+      return 'os.mounts['+stat[0].value.mount_point+']'
+    },
+    watch: {
+      // merge: true,
+      filters: [{
+        type: /ext.*/
+      }],
+      value: 'percentage',
+
+    },
+    // init: function (vm, chart, type){
+    //   if(type == 'chart'
+    //     && vm.$store.state.hosts[vm.host]
+    //     && vm.$store.state.hosts[vm.host].os
+    //     && vm.$store.state.hosts[vm.host].os.mounts
+    //   ){
+    //     if(vm.$store.state.hosts[vm.host])
+    //     chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
+    //     console.log('valueRange', chart)
+    //   }
+    //
+    // },
+
+  }),
 }

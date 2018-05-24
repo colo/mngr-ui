@@ -24,7 +24,8 @@
     "tls": "0.0.1",
     "vue-easy-pie-chart": "^1.0.3",
     "vue-i18n": "^7.3.3",
-    "vue-observe-visibility": "^0.3.1"
+    "vue-observe-visibility": "^0.3.1",
+    "vue2-canvas-gauges": "0.0.0"
   },
   "devDependencies": {
     "babel-plugin-component": "^1.1.0",

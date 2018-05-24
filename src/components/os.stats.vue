@@ -27,8 +27,8 @@
 import { mapState } from 'vuex'
 import Vue from 'vue'
 
-import osDashboard from './charts/os.dashboard'
-import osSummary from './charts/os.summary'
+import osDashboard from './os.dashboard'
+import osSummary from './os.summary'
 
 // import hostStats from '../store/stats'
 let hostStats = {
