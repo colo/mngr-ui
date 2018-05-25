@@ -1,5 +1,6 @@
 import DefaultDygraphLine from './default.dygraph.line'
 import DefaultNetDygraphLine from './default.net.dygraph.line'
+import DefaultFrappeCharts from './default.frappeCharts'
 
 export default {
   "networkInterfaces": Object.merge(Object.clone(DefaultNetDygraphLine), {
@@ -315,6 +316,68 @@ export default {
     },
     "options": {
       labels: ['Time', 'Mbytes'],
+    }
+  }),
+  "loadavg": Object.merge(Object.clone(DefaultFrappeCharts),{
+    // name: 'os.freemem',
+    match: /loadavg/,
+    watch: {
+      merge: true,
+      value: undefined,
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      // transform: function(values){
+      //   // console.log('transform: ', values)
+      //   let transformed = []
+      //
+      //   Array.each(values, function(val, index){
+      //     let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+      //     transformed.push(transform)
+      //   })
+      //
+      //   // console.log('transform: ', transformed)
+      //
+      //   return transformed
+      // }
+    },
+    // init: function (vm, chart, type){
+    //   // console.log('chart', chart)
+    //   if(type == 'frappe'
+    //     && vm.$store.state.hosts[vm.host]
+    //     && vm.$store.state.hosts[vm.host].loadavg
+    //   ){
+    //     // if(vm.$store.state.hosts[vm.host])
+    //     chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
+    //     // console.log('valueRange', chart.options.valueRange)
+    //   }
+    //
+    // },
+    "options": {
+      data: {
+        labels: [
+        ],
+
+        datasets: [
+          {
+            name: '1 min avg', chartType: 'line',
+            values: [0]
+          },
+          {
+            name: '5 min avg', chartType: 'line',
+            values: [0]
+          },
+          {
+            name: '15 min avg', chartType: 'line',
+            values: [0]
+          }
+        ],
+
+        // yMarkers: [{ label: "Marker", value: 70,
+        //   options: { labelPos: 'left' }}],
+        // yRegions: [{ label: "Region", start: -10, end: 50,
+        //   options: { labelPos: 'right' }}]
+      },
     }
   }),
 }

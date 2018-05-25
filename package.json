@@ -18,6 +18,7 @@
     "dygraphs": "^2.1.0",
     "element-ui": "^2.3.6",
     "epoch-charting": "^0.8.4",
+    "frappe-charts": "^1.1.0",
     "node-app-couchdb-client": "git+https://github.com/colo/node-app-couchdb-client.git",
     "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
     "node-cron": "^1.2.1",
