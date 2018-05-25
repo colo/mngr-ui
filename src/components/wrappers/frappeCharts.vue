@@ -132,7 +132,7 @@ export default {
 
     _create_frappe (){
       let options = Object.clone(this.options.options)
-      console.log('frappe options', options)
+      // console.log('frappe options', options)
       // if(options.labelsDiv)
       //   options.labelsDiv = this.id+'-'+options.labelsDiv
 
@@ -155,9 +155,9 @@ export default {
         datasets: []
       }
 
-      const skip = 15
+      // const skip = 15
       Array.each(this.stat.data, function(column, index){
-        if(index == 0 || (index % skip == 0)){
+        // if(index == 0 || (index % skip == 0)){
 
           data.labels.push(new Date(column[0]).toLocaleTimeString())
 
@@ -170,12 +170,12 @@ export default {
                   values: []
                 }
 
-              data.datasets[value_index -1].values.push(parseFloat(value.toFixed(1)))
+              data.datasets[value_index -1].values.push(parseFloat((value.toFixed ) ? value.toFixed(2) : value))
             }
 
           }.bind(this))
 
-        }
+        // }
 
       }.bind(this))
 

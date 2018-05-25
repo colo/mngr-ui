@@ -101,7 +101,7 @@ export default {
     //   }
     // },
     process_dynamic_chart (chart, name, stat){
-      // //////console.log('process_dynamic_chart',  name, chart)
+      // console.log('process_dynamic_chart',  name, chart)
       // let watcher = {value: ''}
 
       if(Array.isArray(stat[0].value)){//like 'cpus'
@@ -124,6 +124,7 @@ export default {
           // }
 
           if(chart.watch.merge != true || index == 0){//merge creates only once instance
+            // console.log('process_dynamic_chart',  name, arr_chart.pre_process)
 
             /**
             * @moved chart.pre_process
