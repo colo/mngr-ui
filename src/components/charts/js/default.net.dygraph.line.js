@@ -2,12 +2,12 @@ import DefaultDygraphLine from './default.dygraph.line'
 
 export default Object.merge(Object.clone(DefaultDygraphLine), {
   options: {
-    labels: ['Time', 'Kbps Out', 'Kbps In'],
+    labels: ['Time', 'Out', 'In'],
     series: {
-      'Kbps Out': {
+      'Out': {
          color: 'red',
       },
-      'Kbps In': {
+      'In': {
          color: 'blue',
       }
 

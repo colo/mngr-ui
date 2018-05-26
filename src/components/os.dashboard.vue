@@ -323,14 +323,15 @@ export default {
     /**
     * @override chart [mixin]
     **/
-    create_watcher(name, watcher){
+    create_watcher(name, chart){
+      let watcher = chart.watch || {}
       let watch_name = name
       if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
         watch_name = watch_name.substring(0, watch_name.indexOf('_'))
 
       watch_name = watch_name.replace(/os\./, '', 'g')
 
-      this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, name, watcher)
+      this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, name, chart)
     },
     /**
     * @override chart [mixin]

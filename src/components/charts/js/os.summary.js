@@ -25,7 +25,8 @@ export default {
   //     /**
   //     * @trasnform: diff between each value against its prev one
   //     */
-  //     transform: function(values, vm, watcher){
+  //     transform: function(values, vm, chart){
+  //        let watcher = chart.watch || {}
   //       // console.log('transform: ', values)
   //       let transformed = []
   //
@@ -77,7 +78,8 @@ export default {
       /**
       * @trasnform: diff between each value against its prev one
       */
-      transform: function(values, vm, watcher){
+      transform: function(values, vm, chart){
+        let watcher = chart.watch || {}
         // console.log('transform: ', values)
         let transformed = []
 
@@ -87,7 +89,7 @@ export default {
           transformed.push(transform)
         })
 
-        // console.log('transform: ', transformed)
+        // console.log('freemem transform: ', transformed)
 
         return transformed
       }

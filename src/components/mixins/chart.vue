@@ -266,16 +266,17 @@ export default {
         chart.init(this, chart, 'chart')
 
       // this.create_watcher('os.'+name, chart.watch)
-      this.create_watcher(name, chart.watch)
+      this.create_watcher(name, chart)
 
     },
     /**
     * creates watchers for charts
     **/
-    create_watcher(name, watcher){
-      this._create_watcher('', name, watcher)
+    create_watcher(name, chart){
+      this._create_watcher('', name, chart)
     },
-    _create_watcher(path, name, watcher){
+    _create_watcher(path, name, chart){
+      let watcher = chart.watch || {}
       path = path || ''
 
       watcher = watcher || {}
@@ -303,7 +304,7 @@ export default {
       if(found_watcher == false){
 
         let generic_data_watcher = function(current){
-          this.generic_data_watcher(current, watcher, name)
+          this.generic_data_watcher(current, chart, name)
         }
 
         //console.log('gonna watch...', name, path)
@@ -313,14 +314,15 @@ export default {
       }
     },
 
-    generic_data_watcher (current, watcher, name){
+    generic_data_watcher (current, chart, name){
+      let watcher = chart.watch || {}
       // //console.log('generic_data_watcher', this.host+'_'+name, current)
       //console.log('generic_data_watcher', this.host+'_'+name)
 
 
       ////////////////console.log('type_value', name, val.current)
       if(watcher.managed == true){
-        watcher.transform(current, this, watcher)
+        watcher.transform(current, this, chart)
       }
       else{
         let type_value = null
@@ -341,7 +343,7 @@ export default {
 
           if(Array.isArray(type_value)){//multiple values, ex: loadavg
             if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this, watcher)
+              current = watcher.transform(current, this, chart)
             }
 
             data = this._current_array_to_data(current, watcher)
@@ -357,7 +359,7 @@ export default {
             // else{//blockdevices.sdX
 
             if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this, watcher)
+              current = watcher.transform(current, this, chart)
             }
 
             if(!Array.isArray(current))
@@ -369,7 +371,7 @@ export default {
           else{//single value, ex: uptime
             ////////////////console.log('generic_data_watcher Num', name, type_value)
             if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this, watcher)
+              current = watcher.transform(current, this, chart)
             }
 
             data = this._current_number_to_data (current, watcher)
@@ -467,6 +469,9 @@ export default {
       return data
     },
     _current_array_to_data (current, watcher){
+      watcher = watcher || {value: ''}
+      watcher.value = watcher.value || ''
+
       let data = []
       Array.each(current, function(item){
         let tmp_data = []

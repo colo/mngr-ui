@@ -8,7 +8,7 @@ export default {
     skip: 30,//some charts like frappe need to skip values for render performance (dygraph does this automatically)
   },
   pre_process: function(chart, name, stat){
-    // console.log('pre_process frappe-charts-wrapper', chart, name, stat)
+
 
     if(!chart.options
       || !chart.options.data
@@ -78,14 +78,15 @@ export default {
 
       }
       /**
-      * dynamic, like 'blockdevices', that is an Object and we wanna watch a specific value
+      * dynamic, like 'blockdevices' or 'networkInterfaces', that is an Object and we wanna watch a specific value
       * stat[N].value.stats[in_flight|io_ticks...]
       */
       else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
+        // console.log('pre_process frappe-charts-wrapper', chart, name, stat)
 
         //if no "watch.value" property, everything should be manage on "trasnform" function
-        if(chart.watch && chart.watch.managed != true
-          // && chart.watch.value
+        if(chart.watch
+          && chart.watch.managed != true
         ){
 
           Array.each(stat, function(d, d_index){
@@ -124,6 +125,41 @@ export default {
 
 
         }
+        // else if (chart.watch.managed == true) {//networkInterfaces, managed charts only add labels
+        //   Array.each(stat, function(d, d_index){
+        //     if(
+        //       !chart.watch.skip
+        //       || (
+        //         d_index == 0
+        //         || (d_index % chart.watch.skip == 0)
+        //         || d_index == d.length - 1
+        //       )
+        //     ){
+        //       chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
+        //
+        //       // let counter = 0
+        //       // Object.each(d.value[chart.watch.value], function(tmp, tmp_key){
+        //       //   // console.log('TMP val', tmp)
+        //       //
+        //       //   if(d_index == 0){
+        //       //     chart.options.data.datasets.push({
+        //       //       name: tmp_key,
+        //       //       chartType: chart.type,
+        //       //       values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
+        //       //     })
+        //       //   }
+        //       //   else{
+        //       //     chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
+        //       //   }
+        //       //
+        //       //   counter++
+        //       //   // chart.options.labels.push(tmp_key)
+        //       // })
+        //
+        //
+        //     }
+        //   })
+        // }
 
       }
       //simple, like 'loadavg', that has 3 columns

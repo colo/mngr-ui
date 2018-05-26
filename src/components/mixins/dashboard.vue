@@ -25,7 +25,7 @@ export default {
     },
     _add_chart (name, chart){
       let data = [[]]
-      if(chart.options && chart.options.labels)
+      if(chart.options && chart.options.labels)//dygraph code, should be would
         Array.each(chart.options.labels, function(label, index){
           if(index == 0){
             data[0].push(Date.now())
