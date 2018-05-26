@@ -320,45 +320,45 @@ export default {
       labels: ['Time', 'Mbytes'],
     }
   }),
-  // "loadavg": Object.merge(Object.clone(DefaultFrappeCharts),{
-  //   // name: 'os.freemem',
-  //   match: /loadavg/,
-  //   // type: 'line',
-  //   watch: {
-  //     merge: true,
-  //     value: undefined,
-  //     /**
-  //     * @trasnform: diff between each value against its prev one
-  //     */
-  //     transform: function(values, vm, chart){
-  //       let watcher = chart.watch || {}
-  //       // console.log('transform: ', values)
-  //       let transformed = []
-  //
-  //       // const skip = 30
-  //       Array.each(values, function(val, index){
-  //         if(
-  //           ! watcher.skip
-  //           || (
-  //             index == 0
-  //             || (index % watcher.skip == 0)
-  //             || index == values.length - 1
-  //           )
-  //         ){
-  //           // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-  //           // transformed.push(transform)
-  //           transformed.push(val)
-  //         }
-  //
-  //       })
-  //
-  //       // console.log('transform: ', transformed)
-  //
-  //       return transformed
-  //     }
-  //   },
-  //
-  // }),
+  "loadavg": Object.merge(Object.clone(DefaultFrappeCharts),{
+    // name: 'os.freemem',
+    match: /loadavg/,
+    // type: 'line',
+    watch: {
+      merge: true,
+      value: undefined,
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values, vm, chart){
+        let watcher = chart.watch || {}
+        // console.log('transform: ', values)
+        let transformed = []
+
+        // const skip = 30
+        Array.each(values, function(val, index){
+          if(
+            ! watcher.skip
+            || (
+              index == 0
+              || (index % watcher.skip == 0)
+              || index == values.length - 1
+            )
+          ){
+            // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+            // transformed.push(transform)
+            transformed.push(val)
+          }
+
+        })
+
+        // console.log('transform: ', transformed)
+
+        return transformed
+      }
+    },
+
+  }),
   // "uptime": Object.merge(Object.clone(DefaultFrappeCharts),{
   //   // name: 'os.freemem',
   //   "style": "width:100%; height:250px;",
