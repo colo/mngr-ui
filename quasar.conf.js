@@ -1,5 +1,7 @@
 // Configuration for your app
 
+const CopyWebpackPlugin = require('copy-webpack-plugin')//amchart3 assets
+
 module.exports = function (ctx) {
   return {
     // app plugins (/src/plugins)
@@ -9,7 +11,8 @@ module.exports = function (ctx) {
       // 'atui',
       'element-ui',
       'vue-observe-visibility',
-      'AddressbarColor'
+      'AddressbarColor',
+      'amcharts3'
     ],
     css: [
       'app.styl'
@@ -43,7 +46,10 @@ module.exports = function (ctx) {
           net: 'empty',
           tls: 'empty',
           //'node-express-authorization': 'empty'
-        }
+        },
+        cfg.plugins.push(
+          new CopyWebpackPlugin([{ from: 'node_modules/amcharts3/amcharts/images', to: 'dist/amcharts/images' },])
+        )
       }
     },
     devServer: {

@@ -78,6 +78,7 @@ import { frameDebounce } from 'quasar'
 
 import dygraphWrapper from './wrappers/dygraph'
 import frappeChartsWrapper from './wrappers/frappeCharts'
+import amcharts3Wrapper from './wrappers/amcharts3'
 
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
@@ -106,7 +107,8 @@ export default {
   // uptime_chart: null,
   components: {
     dygraphWrapper,
-    frappeChartsWrapper
+    frappeChartsWrapper,
+    amcharts3Wrapper
     // IEcharts
     // VueCharts
   },
