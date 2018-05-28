@@ -12,7 +12,8 @@ module.exports = function (ctx) {
       'element-ui',
       'vue-observe-visibility',
       'AddressbarColor',
-      'amcharts3'
+      'amcharts3',
+      'vueEcharts3'
     ],
     css: [
       'app.styl'

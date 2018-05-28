@@ -140,41 +140,7 @@ export default {
 
 
         }
-        // else if (chart.watch.managed == true) {//networkInterfaces, managed charts only add labels
-        //   Array.each(stat, function(d, d_index){
-        //     if(
-        //       !chart.watch.skip
-        //       || (
-        //         d_index == 0
-        //         || (d_index % chart.watch.skip == 0)
-        //         || d_index == d.length - 1
-        //       )
-        //     ){
-        //       chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
-        //
-        //       // let counter = 0
-        //       // Object.each(d.value[chart.watch.value], function(tmp, tmp_key){
-        //       //   // console.log('TMP val', tmp)
-        //       //
-        //       //   if(d_index == 0){
-        //       //     chart.options.data.datasets.push({
-        //       //       name: tmp_key,
-        //       //       chartType: chart.type,
-        //       //       values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
-        //       //     })
-        //       //   }
-        //       //   else{
-        //       //     chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
-        //       //   }
-        //       //
-        //       //   counter++
-        //       //   // chart.options.labels.push(tmp_key)
-        //       // })
-        //
-        //
-        //     }
-        //   })
-        // }
+        
 
       }
       //simple, like 'loadavg', that has 3 columns
