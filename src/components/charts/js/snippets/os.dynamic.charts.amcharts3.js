@@ -6,6 +6,57 @@ import DefaultAMCharts3Line from './default.amcharts3.line'
 import DefaultNetAMCharts3Line from './default.net.amcharts3.line'
 
 export default {
+  "loadavg_minute": Object.merge(Object.clone(DefaultAMCharts3Line),{
+    name: 'os.minute.loadavg',
+    match: /minute\.loadavg.*/,
+    watch: {
+      skip: 0,
+      exclude: /samples/,
+
+    },
+    // "options": {
+    //   fillGraph: false,
+    // }
+  }),
+  "uptime_minute": Object.merge(Object.clone(DefaultAMCharts3Line),{
+    name: 'os.minute.uptime',
+    match: /minute\.uptime.*/,
+    watch: {
+      skip: 0,
+      exclude: /samples/,
+
+    },
+    // "options": {
+    //   fillGraph: false,
+    // }
+  }),
+  "freemem_minute": Object.merge(Object.clone(DefaultAMCharts3Line),{
+    name: 'os.minute.freemem',
+    match: /minute\.freemem.*/,
+    watch: {
+      skip: 0,
+      exclude: /samples/,
+
+      // transform: function(values){
+      //   // console.log('transform: ', values)
+      //   let transformed = []
+      //
+      //   Array.each(values, function(val, index){
+      //     let transform = { timestamp: val.timestamp, value: {} }
+      //     Object.each(val.value, function(stat, name){
+      //       transform.value[name] = Math.floor(stat / 1024 / 1024)
+      //     })
+      //     transformed.push(transform)
+      //   })
+      //
+      //   // console.log('transform: ', transformed)
+      //
+      //   return transformed
+      // }
+
+    },
+
+  }),
   "networkInterfaces": Object.merge(Object.clone(DefaultNetAMCharts3Line), {
     match: /networkInterfaces/,
     watch: {
@@ -252,4 +303,58 @@ export default {
     }
 
   }),
+  "cpus_times": Object.merge(Object.clone(DefaultAMCharts3Line),{
+    name: 'os.cpus_times',
+    match: /cpus/,
+    watch: {
+      merge: true,
+      value: 'times',
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values, vm, chart){
+        let watcher = chart.watch || {}
+
+        let transformed = []
+        let prev = null
+        Array.each(values, function(val, index){
+          if(
+            ! watcher.skip
+            || (
+              index == 0
+              || (index % watcher.skip == 0)
+              || index == values.length - 1
+            )
+          ){
+
+            let transform = {timestamp: val.timestamp, value: { times: {} } }
+            if(index == 0){
+              Object.each(val.value.times, function(stat, key){
+                  transform.value.times[key] = 0
+              })
+            }
+            else{
+              Object.each(val.value.times, function(stat, key){
+                if(key == 'idle'){//represent idle on the negative sideof axes
+                  stat = 0 - stat
+                  let value = ((stat + prev.value.times[key]) < 0) ? stat + prev.value.times[key] : 0
+                  transform.value.times[key] = value
+                }
+                else{
+                  let value = ((stat - prev.value.times[key]) > 0) ? stat - prev.value.times[key] : 0
+                  transform.value.times[key] = value
+                }
+              })
+            }
+            prev = val
+            transformed.push(transform)
+          }
+        })
+        return transformed
+
+      }
+    }
+
+  }),
+
 }

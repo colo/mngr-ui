@@ -36,6 +36,8 @@ export default {
         && chart.watch && chart.watch.value
         && stat[0].value[0][chart.watch.value]
       ){
+
+        let counter = 0
         Array.each(stat, function(d, d_index){
           if(
             !chart.watch.skip
@@ -45,61 +47,6 @@ export default {
               || d_index == d.length - 1
             )
           ){
-            chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
-
-            let counter = 0
-            Object.each(d.value[0][chart.watch.value], function(tmp, tmp_key){
-              // console.log('TMP val', tmp)
-
-              if(d_index == 0){
-                chart.options.data.datasets.push({
-                  name: tmp_key,
-                  chartType: chart.type,
-                  values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
-                })
-              }
-              else{
-                chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
-              }
-
-              counter++
-              // chart.options.labels.push(tmp_key)
-            })
-
-
-          }
-        })
-
-        // // console.log('Array.isArray(stat[0].value)', stat[0].value)
-        // Object.each(stat[0].value[0][chart.watch.value], function(tmp, tmp_key){
-        //   chart.options.labels.push(tmp_key)
-        // })
-        //
-        // chart.options.labels.unshift('Time')
-
-      }
-      /**
-      * dynamic, like 'blockdevices' or 'networkInterfaces', that is an Object and we wanna watch a specific value
-      * stat[N].value.stats[in_flight|io_ticks...]
-      */
-      else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
-        // console.log('pre_process frappe-charts-wrapper', chart, name, stat)
-
-        //if no "watch.value" property, everything should be manage on "trasnform" function
-        if(chart.watch
-          && chart.watch.managed != true
-        ){
-
-          let counter = 0
-          Array.each(stat, function(d, d_index){
-            if(
-              !chart.watch.skip
-              || (
-                d_index == 0
-                || (d_index % chart.watch.skip == 0)
-                || d_index == d.length - 1
-              )
-            ){
 
               if(!chart.options.dataProvider[counter])
                 chart.options.dataProvider[counter] = {}
@@ -109,7 +56,7 @@ export default {
               chart.axis[0] = 'timestamp'
 
               let internal_counter = 0
-              Object.each(d.value[chart.watch.value], function(tmp, tmp_key){
+              Object.each(d.value[0][chart.watch.value], function(tmp, tmp_key){
                 let v_graph = {}
                 if(chart.options.graphs[internal_counter]){
                   v_graph = chart.options.graphs[internal_counter]
@@ -128,6 +75,82 @@ export default {
 
 
                 internal_counter++
+              })
+
+              counter++
+
+          }
+        })
+
+
+      }
+      /**
+      * dynamic, like 'blockdevices' or 'networkInterfaces', that is an Object and we wanna watch a specific value
+      * stat[N].value.stats[in_flight|io_ticks...]
+      */
+      else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
+        // console.log('pre_process frappe-charts-wrapper', chart, name, stat)
+
+        //if no "watch.value" property, everything should be manage on "trasnform" function
+        if(
+          chart.watch && chart.watch.managed != true
+          || !chart.watch
+        ){
+
+          let counter = 0
+          Array.each(stat, function(d, d_index){
+            if(
+              !chart.watch.skip
+              || (
+                d_index == 0
+                || (d_index % chart.watch.skip == 0)
+                || d_index == d.length - 1
+              )
+            ){
+
+              let obj = {}
+              if(chart.watch.value){
+                obj = d.value[chart.watch.value]
+              }
+              else{
+                obj = d.value
+              }
+
+              if(!chart.options.dataProvider[counter])
+                chart.options.dataProvider[counter] = {}
+
+              chart.options.dataProvider[counter] = {timestamp: d.timestamp}
+
+              chart.axis[0] = 'timestamp'
+
+              let internal_counter = 0
+              Object.each(obj, function(tmp, tmp_key){
+                if(
+                  !chart.watch
+                  || !chart.watch.exclude
+                  || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
+                ){
+
+                  let v_graph = {}
+                  if(chart.options.graphs[internal_counter]){
+                    v_graph = chart.options.graphs[internal_counter]
+                  }
+                  else{
+                    v_graph = Object.clone(graph)
+                  }
+                  v_graph.id = tmp_key
+                  v_graph.valueField = tmp_key
+                  v_graph.title = tmp_key
+                  chart.options.graphs[internal_counter] = v_graph
+
+                  chart.options.dataProvider[counter][tmp_key] = tmp
+                  chart.axis[internal_counter + 1] = tmp_key
+
+
+
+                  internal_counter++
+
+                }
               })
 
               counter++

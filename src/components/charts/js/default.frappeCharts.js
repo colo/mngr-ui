@@ -23,8 +23,8 @@ export default {
       if(!chart.options.data.labels)
         chart.options.data.labels = []
 
-        if(!chart.options.data.datasets)
-          chart.options.data.datasets = []
+      if(!chart.options.data.datasets)
+        chart.options.data.datasets = []
 
 
       /**
@@ -85,8 +85,9 @@ export default {
         // console.log('pre_process frappe-charts-wrapper', chart, name, stat)
 
         //if no "watch.value" property, everything should be manage on "trasnform" function
-        if(chart.watch
-          && chart.watch.managed != true
+        if(
+          chart.watch && chart.watch.managed != true
+          || !chart.watch
         ){
 
           Array.each(stat, function(d, d_index){
@@ -98,25 +99,39 @@ export default {
                 || d_index == d.length - 1
               )
             ){
+              let obj = {}
+              if(chart.watch.value){
+                obj = d.value[chart.watch.value]
+              }
+              else{
+                obj = d.value
+              }
+
               chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
 
               let counter = 0
-              Object.each(d.value[chart.watch.value], function(tmp, tmp_key){
-                // console.log('TMP val', tmp)
+              Object.each(obj, function(tmp, tmp_key){
+                if(
+                  !chart.watch
+                  || !chart.watch.exclude
+                  || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
+                ){
 
-                if(d_index == 0){
-                  chart.options.data.datasets.push({
-                    name: tmp_key,
-                    chartType: chart.type,
-                    values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
-                  })
-                }
-                else{
-                  chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
-                }
+                  if(d_index == 0){
+                  // if(chart.options.data.datasets.length == 0){
+                    chart.options.data.datasets.push({
+                      name: tmp_key,
+                      chartType: chart.type,
+                      values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
+                    })
+                  }
+                  else{
+                    chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
+                  }
 
-                counter++
-                // chart.options.labels.push(tmp_key)
+                  counter++
+                  // chart.options.labels.push(tmp_key)
+                }
               })
 
 

@@ -154,6 +154,7 @@ export default {
         if(register == true){
           Object.each(keys, function(data, key){
 
+            console.log('recived doc via Event os.historical', 'hosts/'+host+'/'+path+'/data', key, data)
 
             this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
 

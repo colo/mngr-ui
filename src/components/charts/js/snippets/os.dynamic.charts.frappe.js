@@ -4,7 +4,79 @@ import DefaultFrappeCharts from './default.frappeCharts'
 import DefaultNetFrappeCharts from './default.net.frappeCharts'
 
 export default {
+  "loadavg_minute": Object.merge(Object.clone(DefaultFrappeCharts),{
+    name: 'os.minute.loadavg',
+    match: /minute\.loadavg.*/,
+    type: 'bar',
+    options: {
+      type: 'bar',
+      lineOptions: {
+        // hideLine: 1,
+        regionFill: 0
+      },
+    },
+    watch: {
+      skip: 0,
+      exclude: /samples/,
 
+    },
+    // "options": {
+    //   fillGraph: false,
+    // }
+  }),
+  "uptime_minute": Object.merge(Object.clone(DefaultFrappeCharts),{
+    name: 'os.minute.uptime',
+    match: /minute\.uptime.*/,
+    type: 'line',
+    options: {
+      type: 'line',
+      lineOptions: {
+        // hideLine: 1,
+        regionFill: 0
+      },
+    },
+    watch: {
+      skip: 0,
+      exclude: /samples/,
+
+    },
+
+  }),
+  "freemem_minute": Object.merge(Object.clone(DefaultFrappeCharts),{
+    name: 'os.minute.freemem',
+    match: /minute\.freemem.*/,
+    type: 'bar',
+    options: {
+      type: 'bar',
+      lineOptions: {
+        // hideLine: 1,
+        regionFill: 0
+      },
+    },
+    watch: {
+      skip: 0,
+      exclude: /samples/,
+
+      transform: function(values){
+        console.log('transform: ', values)
+        let transformed = []
+
+        Array.each(values, function(val, index){
+          let transform = { timestamp: val.timestamp, value: {} }
+          Object.each(val.value, function(stat, name){
+            transform.value[name] = Math.floor(stat / 1024 / 1024)
+          })
+          transformed.push(transform)
+        })
+
+        // console.log('transform: ', transformed)
+
+        return transformed
+      }
+
+    },
+
+  }),
   "loadavg": Object.merge(Object.clone(DefaultFrappeCharts),{
     // name: 'os.freemem',
     match: /loadavg/,

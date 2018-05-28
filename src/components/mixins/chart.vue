@@ -342,6 +342,15 @@ export default {
           let data = []
 
           if(Array.isArray(type_value)){//multiple values, ex: loadavg
+            if(watcher.exclude){
+              Array.each(current, function(data){
+                Object.each(data.value, function(value, key){
+                  if(watcher.exclude.test(key) == true)
+                    delete data.value[key]
+                })
+              })
+            }
+
             if(typeOf(watcher.transform) == 'function'){
               current = watcher.transform(current, this, chart)
             }
@@ -357,6 +366,15 @@ export default {
             }
 
             // else{//blockdevices.sdX
+            if(watcher.exclude){
+              Array.each(current, function(data){
+                Object.each(data.value, function(value, key){
+                  if(watcher.exclude.test(key) == true)
+                    delete data.value[key]
+                })
+              })
+            }
+
 
             if(typeOf(watcher.transform) == 'function'){
               current = watcher.transform(current, this, chart)

@@ -10,6 +10,7 @@ export default {
     // },
     pre_process: function(chart, name, stat){
 
+
       if(!chart.options || !chart.options.labels){
         if(!chart.options)
           chart.options = {}
@@ -39,17 +40,46 @@ export default {
         else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
 
           //if no "watch.value" property, everything should be manage on "trasnform" function
-          if(chart.watch && chart.watch.managed != true
+          if(
+            chart.watch && chart.watch.managed != true
+            || !chart.watch
+
             // && chart.watch.value
           ){
-            Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
-              // //console.log('labeling...', tmp)
-              chart.options.labels.push(tmp_key)
+            let obj = {}
+            if(chart.watch.value){
+              obj = stat[0].value[chart.watch.value]
+            }
+            else{
+              obj = stat[0].value
+            }
+            Object.each(obj, function(tmp, tmp_key){
+              if(
+                !chart.watch
+                || !chart.watch.exclude
+                || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
+              )
+                chart.options.labels.push(tmp_key)
             })
 
             chart.options.labels.unshift('Time')
           }
-
+          // else if (
+          //   ! chart.watch
+          //   || !chart.watch.value
+          // ) {//like minute.loadavg|cpus|etc...
+          // // else{
+          //
+          //   console.log('pre_process ', chart, name, stat)
+          //
+          //   Object.each(stat[0].value, function(tmp, tmp_key){
+          //     if(!chart.watch || chart.watch.exclude.test(tmp_key) == false)
+          //       chart.options.labels.push(tmp_key)
+          //   })
+          //
+          //   chart.options.labels.unshift('Time')
+          //
+          // }
         }
         //simple, like 'loadavg', that has 3 columns
         else if(Array.isArray(stat[0].value)){
