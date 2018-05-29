@@ -80,6 +80,7 @@ import dygraphWrapper from './wrappers/dygraph'
 import frappeChartsWrapper from './wrappers/frappeCharts'
 import amcharts3Wrapper from './wrappers/amcharts3'
 import vueEcharts3Wrapper from './wrappers/vueEcharts3'
+import highchartsVueWrapper from './wrappers/highchartsVue'
 
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
@@ -110,7 +111,8 @@ export default {
     dygraphWrapper,
     frappeChartsWrapper,
     amcharts3Wrapper,
-    vueEcharts3Wrapper
+    vueEcharts3Wrapper,
+    highchartsVueWrapper
     // IEcharts
     // VueCharts
   },

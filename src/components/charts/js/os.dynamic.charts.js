@@ -5,6 +5,7 @@ import DefaultNetFrappeCharts from './default.net.frappeCharts'
 import DefaultAMCharts3Line from './default.amcharts3.line'
 import DefaultNetAMCharts3Line from './default.net.amcharts3.line'
 import DefaultVueEcharts3Line from './default.vueEcharts3.line'
+import DefaultHighchartsVueLine from './default.highchartsVue.line'
 
 export default {
   "networkInterfaces": Object.merge(Object.clone(DefaultNetDygraphLine), {
@@ -446,7 +447,7 @@ export default {
   //     fillGraph: false,
   //   }
   // }),
-  "uptime": Object.merge(Object.clone(DefaultVueEcharts3Line),{
+  "uptime": Object.merge(Object.clone(DefaultHighchartsVueLine),{
     name: 'os.uptime',
     match: /^uptime$/,
     watch: {

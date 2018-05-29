@@ -8,7 +8,7 @@ export default {
     skip: 30,//some charts like frappe need to skip values for render performance (dygraph does this automatically)
   },
   pre_process: function(chart, name, stat){
-    console.log('vue-echarts3-wrapper', chart, name, stat)
+    // console.log('vue-echarts3-wrapper', chart, name, stat)
 
 
     if(!chart.options

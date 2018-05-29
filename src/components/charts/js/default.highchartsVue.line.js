@@ -1,30 +1,33 @@
 export default {
-  component: 'frappe-charts-wrapper',
+  component: 'highcharts-vue-wrapper',
   "style": "width:100%; height:200px;",
-  type: 'bar',
-  // "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
+  type: 'line',
+  "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
   "interval": 0,
   watch: {
-    skip: 30,//some charts like frappe need to skip values for render performance (dygraph does this automatically)
+    skip: 60,//some charts like frappe need to skip values for render performance (dygraph does this automatically)
   },
   pre_process: function(chart, name, stat){
 
 
     if(!chart.options
-      || !chart.options.data
-      || !chart.options.data.labels
+      || !chart.options.xAxis
+      || !chart.options.xAxis.categories
+      || chart.options.xAxis.categories.length == 0
     ){
       if(!chart.options)
         chart.options = {}
 
-      if(!chart.options.data)
-        chart.options.data = {}
+      if(!chart.options.xAxis)
+        chart.options.xAxis = {}
 
-      if(!chart.options.data.labels)
-        chart.options.data.labels = []
+      if(!chart.options.xAxis.categories)
+        chart.options.xAxis.categories = []
 
-      if(!chart.options.data.datasets)
-        chart.options.data.datasets = []
+      if(!chart.options.series)
+        chart.options.series = []
+
+
 
 
       /**
@@ -162,7 +165,7 @@ export default {
                 chart.options.data.datasets.push({
                   name: name+'_'+v_index,
                   chartType: chart.type,
-                  values: [parseFloat( (v.toFixed ) ? v.toFixed(2) : v )]
+                  values: [parseFloat( v.toFixed(2) ) ]
                 })
               }
               else{
@@ -175,6 +178,8 @@ export default {
       }
       //simple, like 'uptime', that has one simple Numeric value
       else if(!isNaN(stat[0].value)){//
+        console.log('highcharts-vue-wrapper', chart, name, stat)
+
         Array.each(stat, function(d, d_index){
           if(
             !chart.watch.skip
@@ -184,18 +189,35 @@ export default {
               || d_index == d.length - 1
             )
           ){
-            chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
 
-              if(d_index == 0){
-                chart.options.data.datasets.push({
-                  name: name,
-                  chartType: chart.type,
-                  values: [ parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value ) ]
-                })
-              }
-              else{
-                chart.options.data.datasets[0].values.push( parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value ))
-              }
+
+            if(d_index == 0){
+              chart.options.series.push({
+                name: name,
+                data: [[
+                  d.timestamp,
+                  parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                ]]
+              })
+            }
+            else{
+              chart.options.series[0].data.push([
+                d.timestamp,
+                parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+              ])
+            }
+
+            // chart.options.xAxis.categories.push(d.timestamp)
+            //
+            // if(d_index == 0){
+            //   chart.options.series.push({
+            //     name: name,
+            //     data: [parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )]
+            //   })
+            // }
+            // else{
+            //   chart.options.series[0].data.push( parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value ))
+            // }
 
           }
         })
@@ -213,63 +235,65 @@ export default {
     return chart
   },
   "options": {
-    // data: {
-    //   labels: [
-    //     // "12am-3am", "3am-6am", "6am-9am", "9am-12pm",
-    //     // "12pm-3pm", "3pm-6pm", "6pm-9pm", "9pm-12am"
-    //   ],
-    //
-    //   datasets: [
-    //     // {
-    //     //   name: "Some Data", chartType: 'bar',
-    //     //   values: [25, 40, 30, 35, 8, 52, 17, -4]
-    //     // },
-    //     // {
-    //     //   name: "Another Set", chartType: 'bar',
-    //     //   values: [25, 50, -10, 15, 18, 32, 27, 14]
-    //     // },
-    //     // {
-    //     //   name: "Yet Another", chartType: 'line',
-    //     //   values: [15, 20, -3, -15, 58, 12, -17, 37]
-    //     // }
-    //   ],
-    //
-    //   // yMarkers: [{ label: "Marker", value: 70,
-    //   //   options: { labelPos: 'left' }}],
-    //   // yRegions: [{ label: "Region", start: -10, end: 50,
-    //   //   options: { labelPos: 'right' }}]
-    // },
-    // valuesOverPoints: 1,
-    lineOptions: {
-      // hideLine: 1,
-      regionFill: 1
+    time: {
+        useUTC: false
     },
 
-    // isNavigable: 1,
+    title: {
+      // text: 'Solar Employment Growth by Sector, 2010-2016'
+    },
 
-    // axisOptions: {
-    //   yAxisMode: 'span',   // Axis lines, default
-    //   xAxisMode: 'tick',   // No axis lines, only short ticks
-    //   xIsSeries: 1         // Allow skipping x values for space
-    //                         // default: 0
-    // },
+    subtitle: {
+      // text: 'Source: thesolarfoundation.com'
+    },
 
-    // title: "My Awesome Chart",
-    type: 'axis-mixed', // or 'bar', 'line', 'pie', 'percentage'
-    // height: 400,
-    // colors: ['purple', '#ffa3ef', 'light-blue'],
-    //
-    // tooltipOptions: {
-    //   formatTooltipX: d => (d + '').toUpperCase(),
-    //   formatTooltipY: d => d + ' pts',
-    // }
-    // title: "",
-    // type: "axis-mixed",
-    // data: {
-    //   labels: [],
-    //   datasets: [],
-    // },
-    // height: 120,
+    xAxis: {
+      type: 'datetime',
+      labels: {
+        format: '{value:%k-%M-%S}'
+      },
+      // categories: [
+      //   // 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      // ]
+    },
+    yAxis: {
+      title: {
+        // text: 'Number of Employees'
+      }
+    },
+    legend: {
+      layout: 'vertical',
+      align: 'right',
+      verticalAlign: 'middle'
+    },
+
+    plotOptions: {
+      series: {
+        label: {
+          connectorAllowed: false
+        },
+        // pointStart: 2010
+      }
+    },
+
+    series: [
+
+    ],
+
+    responsive: {
+      rules: [{
+        condition: {
+           maxWidth: 500
+        },
+        chartOptions: {
+          legend: {
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom'
+          }
+        }
+      }]
+    }
   },
   // init: function (vue){
   // },
