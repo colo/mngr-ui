@@ -483,9 +483,17 @@ export default {
         return transformed
       }
     },
+    options: {
+      yAxis: {
+        title: {
+          text: 'Seconds'
+        }
+      },
+    },
 
   }),
-  "loadavg": Object.merge(Object.clone(DefaultVueEcharts3Line),{
+  // "loadavg": Object.merge(Object.clone(DefaultVueEcharts3Line),{
+  "loadavg": Object.merge(Object.clone(DefaultHighchartsVueLine),{
     // name: 'os.freemem',
     match: /^loadavg$/,
     // type: 'line',
@@ -522,74 +530,75 @@ export default {
         return transformed
       }
     },
-    "options": {
-      "initOpts": {
-        "renderer": "canvas"
-      },
-      // "lazyUpdate": true,
-      "option": {
-        "animation": false,
-        legend: {
-          data:[]
-        },
-        toolbox: {
-          feature: {
-            saveAsImage: {}
-          }
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true
-        },
-        "title": {
-        //     "text": ""
-        },
-        tooltip : {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
-            label: {
-              backgroundColor: '#6a7985'
-            }
-          }
-        },
-        "xAxis": {
-            "type": "category",
-            boundaryGap : false,
-            "splitLine": {
-                "show": false
-            },
-            "data": []
-        },
-        "yAxis": {
-            "type": "value",
-            "splitLine": {
-                "show": false
-            }
-        },
-        "series": [
-          {
-            "type": "line",
-            "showSymbol": true,
-            "hoverAnimation": false,
-            "data": [],
-            areaStyle: {normal: {}},
-            // label: {
-            //   normal: {
-            //     show: true,
-            //     position: 'top'
-            //   }
-            // },
-            smooth: true
-          }
-        ]
-
-  		}
-    },
+    // "options": {
+    //   "initOpts": {
+    //     "renderer": "canvas"
+    //   },
+    //   // "lazyUpdate": true,
+    //   "option": {
+    //     "animation": false,
+    //     legend: {
+    //       data:[]
+    //     },
+    //     toolbox: {
+    //       feature: {
+    //         saveAsImage: {}
+    //       }
+    //     },
+    //     grid: {
+    //       left: '3%',
+    //       right: '4%',
+    //       bottom: '3%',
+    //       containLabel: true
+    //     },
+    //     "title": {
+    //     //     "text": ""
+    //     },
+    //     tooltip : {
+    //       trigger: 'axis',
+    //       axisPointer: {
+    //         type: 'cross',
+    //         label: {
+    //           backgroundColor: '#6a7985'
+    //         }
+    //       }
+    //     },
+    //     "xAxis": {
+    //         "type": "category",
+    //         boundaryGap : false,
+    //         "splitLine": {
+    //             "show": false
+    //         },
+    //         "data": []
+    //     },
+    //     "yAxis": {
+    //         "type": "value",
+    //         "splitLine": {
+    //             "show": false
+    //         }
+    //     },
+    //     "series": [
+    //       {
+    //         "type": "line",
+    //         "showSymbol": true,
+    //         "hoverAnimation": false,
+    //         "data": [],
+    //         areaStyle: {normal: {}},
+    //         // label: {
+    //         //   normal: {
+    //         //     show: true,
+    //         //     position: 'top'
+    //         //   }
+    //         // },
+    //         smooth: true
+    //       }
+    //     ]
+    //
+  	// 	}
+    // },
   }),
-  "blkdev_stats": Object.merge(Object.clone(DefaultVueEcharts3Line),{
+  // "blkdev_stats": Object.merge(Object.clone(DefaultVueEcharts3Line),{
+  "blkdev_stats": Object.merge(Object.clone(DefaultHighchartsVueLine),{
     match: /blockdevices\..*/,
     watch: {
       skip: 0,
@@ -633,75 +642,76 @@ export default {
         return transformed
       }
     },
-    "options": {
-      "initOpts": {
-        "renderer": "canvas"
-      },
-      // "lazyUpdate": true,
-      "option": {
-        "animation": false,
-        legend: {
-          data:[]
-        },
-        toolbox: {
-          feature: {
-            saveAsImage: {}
-          }
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true
-        },
-        "title": {
-        //     "text": ""
-        },
-        tooltip : {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
-            label: {
-              backgroundColor: '#6a7985'
-            }
-          }
-        },
-        "xAxis": {
-            "type": "category",
-            boundaryGap : false,
-            "splitLine": {
-                "show": false
-            },
-            "data": []
-        },
-        "yAxis": {
-            "type": "value",
-            "splitLine": {
-                "show": false
-            }
-        },
-        "series": [
-          {
-            "type": "line",
-            "showSymbol": true,
-            "hoverAnimation": false,
-            "data": [],
-            // areaStyle: {normal: {}},
-            // label: {
-            //   normal: {
-            //     show: true,
-            //     position: 'top'
-            //   }
-            // },
-            // smooth: true
-          }
-        ]
-
-  		}
-    }
+    // "options": {
+    //   "initOpts": {
+    //     "renderer": "canvas"
+    //   },
+    //   // "lazyUpdate": true,
+    //   "option": {
+    //     "animation": false,
+    //     legend: {
+    //       data:[]
+    //     },
+    //     toolbox: {
+    //       feature: {
+    //         saveAsImage: {}
+    //       }
+    //     },
+    //     grid: {
+    //       left: '3%',
+    //       right: '4%',
+    //       bottom: '3%',
+    //       containLabel: true
+    //     },
+    //     "title": {
+    //     //     "text": ""
+    //     },
+    //     tooltip : {
+    //       trigger: 'axis',
+    //       axisPointer: {
+    //         type: 'cross',
+    //         label: {
+    //           backgroundColor: '#6a7985'
+    //         }
+    //       }
+    //     },
+    //     "xAxis": {
+    //         "type": "category",
+    //         boundaryGap : false,
+    //         "splitLine": {
+    //             "show": false
+    //         },
+    //         "data": []
+    //     },
+    //     "yAxis": {
+    //         "type": "value",
+    //         "splitLine": {
+    //             "show": false
+    //         }
+    //     },
+    //     "series": [
+    //       {
+    //         "type": "line",
+    //         "showSymbol": true,
+    //         "hoverAnimation": false,
+    //         "data": [],
+    //         // areaStyle: {normal: {}},
+    //         // label: {
+    //         //   normal: {
+    //         //     show: true,
+    //         //     position: 'top'
+    //         //   }
+    //         // },
+    //         // smooth: true
+    //       }
+    //     ]
+    //
+  	// 	}
+    // }
 
   }),
-  "cpus_times": Object.merge(Object.clone(DefaultVueEcharts3Line),{
+  // "cpus_times": Object.merge(Object.clone(DefaultVueEcharts3Line),{
+  "cpus_times": Object.merge(Object.clone(DefaultHighchartsVueLine),{
     name: 'os.cpus_times',
     match: /cpus/,
     watch: {
@@ -753,71 +763,71 @@ export default {
         return transformed
       }
     },
-    "options": {
-      "initOpts": {
-        "renderer": "canvas"
-      },
-      // "lazyUpdate": true,
-      "option": {
-        "animation": false,
-        legend: {
-          data:[]
-        },
-        toolbox: {
-          feature: {
-            saveAsImage: {}
-          }
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true
-        },
-        "title": {
-        //     "text": ""
-        },
-        tooltip : {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
-            label: {
-              backgroundColor: '#6a7985'
-            }
-          }
-        },
-        "xAxis": {
-            "type": "category",
-            boundaryGap : false,
-            "splitLine": {
-                "show": false
-            },
-            "data": []
-        },
-        "yAxis": {
-            "type": "value",
-            "splitLine": {
-                "show": false
-            }
-        },
-        "series": [
-          {
-            "type": "line",
-            "showSymbol": true,
-            "hoverAnimation": false,
-            "data": [],
-            // areaStyle: {normal: {}},
-            // label: {
-            //   normal: {
-            //     show: true,
-            //     position: 'top'
-            //   }
-            // },
-            // smooth: true
-          }
-        ]
-
-  		}
-    }
+    // "options": {
+    //   "initOpts": {
+    //     "renderer": "canvas"
+    //   },
+    //   // "lazyUpdate": true,
+    //   "option": {
+    //     "animation": false,
+    //     legend: {
+    //       data:[]
+    //     },
+    //     toolbox: {
+    //       feature: {
+    //         saveAsImage: {}
+    //       }
+    //     },
+    //     grid: {
+    //       left: '3%',
+    //       right: '4%',
+    //       bottom: '3%',
+    //       containLabel: true
+    //     },
+    //     "title": {
+    //     //     "text": ""
+    //     },
+    //     tooltip : {
+    //       trigger: 'axis',
+    //       axisPointer: {
+    //         type: 'cross',
+    //         label: {
+    //           backgroundColor: '#6a7985'
+    //         }
+    //       }
+    //     },
+    //     "xAxis": {
+    //         "type": "category",
+    //         boundaryGap : false,
+    //         "splitLine": {
+    //             "show": false
+    //         },
+    //         "data": []
+    //     },
+    //     "yAxis": {
+    //         "type": "value",
+    //         "splitLine": {
+    //             "show": false
+    //         }
+    //     },
+    //     "series": [
+    //       {
+    //         "type": "line",
+    //         "showSymbol": true,
+    //         "hoverAnimation": false,
+    //         "data": [],
+    //         // areaStyle: {normal: {}},
+    //         // label: {
+    //         //   normal: {
+    //         //     show: true,
+    //         //     position: 'top'
+    //         //   }
+    //         // },
+    //         // smooth: true
+    //       }
+    //     ]
+    //
+  	// 	}
+    // }
   }),
 }

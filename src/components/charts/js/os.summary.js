@@ -4,6 +4,7 @@ import DefaultVueCanvasGauge from './default.vueCanvasGauge.js'
 import DefaultVueTrend from './default.vueTrend.js'
 import DefaultVueBars from './default.vueBars.js'
 import DefaultVueOdometer from './default.vueOdometer.js'
+import DefaultHighchartsVueGauge from './default.highchartsVue.gauge.js'
 
 export default {
   "uptime_seconds": Object.merge(Object.clone(DefaultVueOdometer),{
@@ -53,48 +54,48 @@ export default {
       value: 0,//watch only the load[0]
     },
   }),
-  "freemem": Object.merge(Object.clone(DefaultQKnob),{
-  // "freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
-  // "freemem": Object.merge(Object.clone(DefaultVueCanvasGauge),{
-  // "freemem": Object.merge(Object.clone(DefaultVueTrend),{
-    // name : 'summary.freemem',
-    icon: 'memory',
-    match: /freemem/,
-    labeling: 'Free Mem',
-    init: function (vm, chart, type){
-      if(type == 'chart'
-        && vm.$store.state.hosts[vm.host]
-        && vm.$store.state.hosts[vm.host].os
-      ){
-        // if(vm.$store.state.hosts[vm.host])
-        chart.watch.totalmem = vm.$store.state.hosts[vm.host].os.totalmem[0].value
-        // console.log('valueRange', chart.options.valueRange)
-      }
-
-    },
-    watch: {
-      // merge: true,
-      value: undefined,
-      /**
-      * @trasnform: diff between each value against its prev one
-      */
-      transform: function(values, vm, chart){
-        let watcher = chart.watch || {}
-        // console.log('transform: ', values)
-        let transformed = []
-
-        Array.each(values, function(val, index){
-          // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-          let transform = { timestamp: val.timestamp, value: 100 - (Math.round((val.value * 100) / watcher.totalmem)) }
-          transformed.push(transform)
-        })
-
-        // console.log('freemem transform: ', transformed)
-
-        return transformed
-      }
-    },
-  }),
+  // "freemem": Object.merge(Object.clone(DefaultQKnob),{
+  // // "freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  // // "freemem": Object.merge(Object.clone(DefaultVueCanvasGauge),{
+  // // "freemem": Object.merge(Object.clone(DefaultVueTrend),{
+  //   // name : 'summary.freemem',
+  //   icon: 'memory',
+  //   match: /freemem/,
+  //   labeling: 'Free Mem',
+  //   init: function (vm, chart, type){
+  //     if(type == 'chart'
+  //       && vm.$store.state.hosts[vm.host]
+  //       && vm.$store.state.hosts[vm.host].os
+  //     ){
+  //       // if(vm.$store.state.hosts[vm.host])
+  //       chart.watch.totalmem = vm.$store.state.hosts[vm.host].os.totalmem[0].value
+  //       // console.log('valueRange', chart.options.valueRange)
+  //     }
+  //
+  //   },
+  //   watch: {
+  //     // merge: true,
+  //     value: undefined,
+  //     /**
+  //     * @trasnform: diff between each value against its prev one
+  //     */
+  //     transform: function(values, vm, chart){
+  //       let watcher = chart.watch || {}
+  //       // console.log('transform: ', values)
+  //       let transformed = []
+  //
+  //       Array.each(values, function(val, index){
+  //         // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+  //         let transform = { timestamp: val.timestamp, value: 100 - (Math.round((val.value * 100) / watcher.totalmem)) }
+  //         transformed.push(transform)
+  //       })
+  //
+  //       // console.log('freemem transform: ', transformed)
+  //
+  //       return transformed
+  //     }
+  //   },
+  // }),
   // "cpus": Object.merge(Object.clone(DefaultQKnob),{
   // "cpus": Object.merge(Object.clone(DefaultVueEasyPieChart),{
   "cpus": Object.merge(Object.clone(DefaultVueCanvasGauge),{
@@ -225,5 +226,50 @@ export default {
     //
     // },
 
+  }),
+  "freemem": Object.merge(Object.clone(DefaultHighchartsVueGauge),{
+  // "freemem": Object.merge(Object.clone(DefaultVueEasyPieChart),{
+  // "freemem": Object.merge(Object.clone(DefaultVueCanvasGauge),{
+  // "freemem": Object.merge(Object.clone(DefaultVueTrend),{
+    // name : 'summary.freemem',
+    icon: 'memory',
+    match: /freemem/,
+    labeling: 'Free Mem',
+    init: function (vm, chart, type){
+      if(type == 'chart'
+        && vm.$store.state.hosts[vm.host]
+        && vm.$store.state.hosts[vm.host].os
+      ){
+        // if(vm.$store.state.hosts[vm.host])
+        chart.watch.totalmem = vm.$store.state.hosts[vm.host].os.totalmem[0].value
+        // console.log('valueRange', chart.options.valueRange)
+      }
+
+    },
+    watch: {
+      // merge: true,
+      value: undefined,
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values, vm, chart){
+        let watcher = chart.watch || {}
+        // console.log('transform: ', values)
+        let transformed = []
+
+        // Array.each(values, function(val, index){
+          // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+          let transform = {
+            timestamp: values.getLast().timestamp,
+            value: 100 - (Math.round((values.getLast().value * 100) / watcher.totalmem))
+          }
+          transformed.push(transform)
+        // })
+
+        console.log('freemem transform: ', transformed)
+
+        return transformed
+      }
+    },
   }),
 }

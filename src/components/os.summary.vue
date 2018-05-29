@@ -52,6 +52,7 @@ import vueCanvasGaugeWrapper from './wrappers/vueCanvasGauge'
 import vueTrendWrapper from './wrappers/vueTrend'
 import vueBarsWrapper from './wrappers/vueBars'
 import vueOdometerWrapper from './wrappers/vueOdometer'
+import highchartsVueWrapper from './wrappers/highchartsVue'
 
 import Dashboard from './mixins/dashboard'
 
@@ -74,7 +75,8 @@ export default {
     vueCanvasGaugeWrapper,
     vueTrendWrapper,
     vueBarsWrapper,
-    vueOdometerWrapper
+    vueOdometerWrapper,
+    highchartsVueWrapper
     // IEcharts
     // VueCharts
   },

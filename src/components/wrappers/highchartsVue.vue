@@ -1,11 +1,12 @@
 <template>
-  <div
-    :id="id+'-container'"
-    class="netdata-container-with-legend"
-    v-bind:class="container_class_helper"
-    :style="options.style"
-  >
-    <!--  -->
+
+    <div v-if="options.class"
+      :id="id+'-container'"
+      class="netdata-container-with-legend"
+      :style="options.style"
+      v-bind:class="container_class_helper"
+    >
+    <!--   -->
     <highcharts
       :ref="id"
       :id="id"
@@ -19,7 +20,16 @@
     :id="id+'-netdata-chart-legend'"
     >
     </div> -->
-  </div>
+    </div>
+
+    <highcharts v-else
+      :ref="id"
+      :id="id"
+      :options="options.options"
+    >
+    </highcharts>
+
+
 </template>
 
 
@@ -161,7 +171,8 @@ export default {
       // // const skip = 15
       // this.$refs[this.id].option.xAxis.data = []
 
-      console.log('updating....',this.stat.data)
+      //
+      // console.log('updating....',this.options.options.series)
 
       Array.each(this.stat.data, function(column, index){
         // if(
@@ -177,33 +188,41 @@ export default {
           // chart.options.option.legend.data.push(name)
           // data.labels.push(new Date(column[0]).toLocaleTimeString())
           //
-          Array.each(column, function(value, value_index){
-            if(value_index != 0){
-              // if(!this.$refs[this.id].options.series[value_index -1]){
-              //   this.$refs[this.id].options.series[value_index -1] = {
-              //     name: this.id,
-              //     data: []
-              //   }
-              // }
-              // else
-              if (index == 0){
-                let serie = this.options.options.series[value_index -1]
-                serie.data = []
-                this.$set(this.options.options.series[value_index -1], serie)
+          if(column.length == 1){//gauge type
+            this.options.options.series[0].data.push(column[0])
+            this.options.options.series[0].data.shift()
+          }
+          else{
+            Array.each(column, function(value, value_index){
+              if(value_index != 0){
+                // if(!this.$refs[this.id].options.series[value_index -1]){
+                //   this.$refs[this.id].options.series[value_index -1] = {
+                //     name: this.id,
+                //     data: []
+                //   }
+                // }
+                // else
+                if (index == 0){
+                  // let serie = this.options.options.series[value_index -1]
+                  // serie.data = []
+                  this.$set(this.options.options.series[value_index -1], 'data', [])
+
+                }
+
+                this.options.options.series[value_index -1].data.push([
+                  new Date(column[0]).getTime(),//timestamp
+                  value
+                ])
               }
 
-              this.options.options.series[value_index -1].data.push([
-                column[0],//timestamp
-                value
-              ])
-            }
-
-          }.bind(this))
+            }.bind(this))
+          }
 
         // }
 
       }.bind(this))
 
+      // console.log('updated....',this.options.options.series)
       // Array.each(series, function(serie, index){
       //   this.$refs[this.id].options.series[index].update({ data: serie.data })
       // }.bind(this))

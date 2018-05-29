@@ -1,11 +1,11 @@
 export default {
   component: 'highcharts-vue-wrapper',
   "style": "width:100%; height:200px;",
-  type: 'line',
+  // type: 'line',
   "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
   "interval": 0,
   watch: {
-    skip: 60,//some charts like frappe need to skip values for render performance (dygraph does this automatically)
+    skip: 30,//some charts like frappe need to skip values for render performance (dygraph does this automatically)
   },
   pre_process: function(chart, name, stat){
 
@@ -38,6 +38,8 @@ export default {
         && chart.watch && chart.watch.value
         && stat[0].value[0][chart.watch.value]
       ){
+        console.log('highcharts-vue-wrapper', chart, name, stat)
+
         Array.each(stat, function(d, d_index){
           if(
             !chart.watch.skip
@@ -47,22 +49,40 @@ export default {
               || d_index == d.length - 1
             )
           ){
-            chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
+            // chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
 
             let counter = 0
             Object.each(d.value[0][chart.watch.value], function(tmp, tmp_key){
               // console.log('TMP val', tmp)
 
               if(d_index == 0){
-                chart.options.data.datasets.push({
+                chart.options.series.push({
                   name: tmp_key,
-                  chartType: chart.type,
-                  values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
+                  data: [[
+                    d.timestamp,
+                    // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                     parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp )
+                  ]]
                 })
               }
               else{
-                chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
+                chart.options.series[counter].data.push([
+                  d.timestamp,
+                  // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                   parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp )
+                ])
               }
+
+              // if(d_index == 0){
+              //   chart.options.data.datasets.push({
+              //     name: tmp_key,
+              //     chartType: chart.type,
+              //     values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
+              //   })
+              // }
+              // else{
+              //   chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
+              // }
 
               counter++
               // chart.options.labels.push(tmp_key)
@@ -72,12 +92,7 @@ export default {
           }
         })
 
-        // // console.log('Array.isArray(stat[0].value)', stat[0].value)
-        // Object.each(stat[0].value[0][chart.watch.value], function(tmp, tmp_key){
-        //   chart.options.labels.push(tmp_key)
-        // })
-        //
-        // chart.options.labels.unshift('Time')
+
 
       }
       /**
@@ -85,7 +100,7 @@ export default {
       * stat[N].value.stats[in_flight|io_ticks...]
       */
       else if(isNaN(stat[0].value) && !Array.isArray(stat[0].value)){//an Object
-        // console.log('pre_process frappe-charts-wrapper', chart, name, stat)
+        console.log('highcharts-vue-wrapper', chart, name, stat)
 
         //if no "watch.value" property, everything should be manage on "trasnform" function
         if(
@@ -110,7 +125,7 @@ export default {
                 obj = d.value
               }
 
-              chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
+              // chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
 
               let counter = 0
               Object.each(obj, function(tmp, tmp_key){
@@ -121,16 +136,24 @@ export default {
                 ){
 
                   if(d_index == 0){
-                  // if(chart.options.data.datasets.length == 0){
-                    chart.options.data.datasets.push({
+                    chart.options.series.push({
                       name: tmp_key,
-                      chartType: chart.type,
-                      values: [parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ) ]
+                      data: [[
+                        d.timestamp,
+                        // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                         parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp )
+                      ]]
                     })
                   }
                   else{
-                    chart.options.data.datasets[counter].values.push( parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp ))
+                    chart.options.series[counter].data.push([
+                      d.timestamp,
+                      // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                       parseFloat( (tmp.toFixed ) ? tmp.toFixed(2) : tmp )
+                    ])
                   }
+
+
 
                   counter++
                   // chart.options.labels.push(tmp_key)
@@ -149,6 +172,7 @@ export default {
       //simple, like 'loadavg', that has 3 columns
       else if(Array.isArray(stat[0].value)){
 
+
         Array.each(stat, function(d, d_index){
           if(
             !chart.watch.skip
@@ -158,19 +182,27 @@ export default {
               || d_index == d.length - 1
             )
           ){
-            chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
+            // chart.options.data.labels.push(new Date(d.timestamp).toLocaleTimeString())
 
             Array.each(d.value, function(v, v_index){
               if(d_index == 0){
-                chart.options.data.datasets.push({
+                chart.options.series.push({
                   name: name+'_'+v_index,
-                  chartType: chart.type,
-                  values: [parseFloat( v.toFixed(2) ) ]
+                  data: [[
+                    d.timestamp,
+                    // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                    d.value
+                  ]]
                 })
               }
               else{
-                chart.options.data.datasets[v_index].values.push( parseFloat( (v.toFixed ) ? v.toFixed(2) : v ))
+                chart.options.series[v_index].data.push([
+                  d.timestamp,
+                  // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                  v
+                ])
               }
+
             })
           }
         })
@@ -178,7 +210,7 @@ export default {
       }
       //simple, like 'uptime', that has one simple Numeric value
       else if(!isNaN(stat[0].value)){//
-        console.log('highcharts-vue-wrapper', chart, name, stat)
+
 
         Array.each(stat, function(d, d_index){
           if(
@@ -196,28 +228,19 @@ export default {
                 name: name,
                 data: [[
                   d.timestamp,
-                  parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                  // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                  d.value
                 ]]
               })
             }
             else{
               chart.options.series[0].data.push([
                 d.timestamp,
-                parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                // parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )
+                d.value
               ])
             }
 
-            // chart.options.xAxis.categories.push(d.timestamp)
-            //
-            // if(d_index == 0){
-            //   chart.options.series.push({
-            //     name: name,
-            //     data: [parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value )]
-            //   })
-            // }
-            // else{
-            //   chart.options.series[0].data.push( parseFloat( (d.value.toFixed ) ? d.value.toFixed(2) : d.value ))
-            // }
 
           }
         })
@@ -235,13 +258,19 @@ export default {
     return chart
   },
   "options": {
+    type: 'spline',
+    marginRight: 10,
+    chart: {
+      zoomType: 'x'
+    },
     time: {
         useUTC: false
     },
 
-    title: {
-      // text: 'Solar Employment Growth by Sector, 2010-2016'
-    },
+    // title: {
+    //   // text: 'Solar Employment Growth by Sector, 2010-2016'
+    // },
+    title: undefined,
 
     subtitle: {
       // text: 'Source: thesolarfoundation.com'
@@ -249,51 +278,89 @@ export default {
 
     xAxis: {
       type: 'datetime',
+      minTickInterval: 30 * 1000,
       labels: {
-        format: '{value:%k-%M-%S}'
+        format: '{value:%k:%M:%S}',
       },
+      gridLineWidth: 1,
+      tickPixelInterval: 150
       // categories: [
       //   // 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
       // ]
     },
-    yAxis: {
-      title: {
-        // text: 'Number of Employees'
-      }
-    },
+
+
+    yAxis: [{ // left y axis
+        title: {
+            text: null
+        },
+        labels: {
+            align: 'left',
+            x: 3,
+            y: 16,
+            format: '{value:.,0f}'
+        },
+        showFirstLabel: false
+    }, { // right y axis
+        linkedTo: 0,
+        gridLineWidth: 0,
+        opposite: true,
+        title: {
+            text: null
+        },
+        labels: {
+            align: 'right',
+            x: -3,
+            y: 16,
+            format: '{value:.,0f}'
+        },
+        showFirstLabel: false
+    }],
+
     legend: {
       layout: 'vertical',
       align: 'right',
-      verticalAlign: 'middle'
-    },
-
-    plotOptions: {
-      series: {
-        label: {
-          connectorAllowed: false
-        },
-        // pointStart: 2010
+      verticalAlign: 'middle',
+      labelFormatter: function() {
+        var lastVal = this.yData[this.yData.length - 1];
+        return '<span style="color:' + this.color + '">' + this.name + ': </span> <b>' + lastVal + '</b> </n>';
       }
     },
+
+
+    tooltip: {
+        shared: true,
+        crosshairs: true
+    },
+
+
+    // plotOptions: {
+    //   series: {
+    //     label: {
+    //       connectorAllowed: false
+    //     },
+    //     // pointStart: 2010
+    //   }
+    // },
 
     series: [
 
     ],
 
-    responsive: {
-      rules: [{
-        condition: {
-           maxWidth: 500
-        },
-        chartOptions: {
-          legend: {
-            layout: 'horizontal',
-            align: 'center',
-            verticalAlign: 'bottom'
-          }
-        }
-      }]
-    }
+    // responsive: {
+    //   rules: [{
+    //     condition: {
+    //        maxWidth: 500
+    //     },
+    //     chartOptions: {
+    //       legend: {
+    //         layout: 'horizontal',
+    //         align: 'center',
+    //         verticalAlign: 'bottom'
+    //       }
+    //     }
+    //   }]
+    // }
   },
   // init: function (vue){
   // },
