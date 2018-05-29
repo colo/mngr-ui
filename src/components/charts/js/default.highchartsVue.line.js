@@ -1,3 +1,11 @@
+import * as Highcharts from 'highcharts'
+
+/**
+* boost
+* https://www.highcharts.com/docs/advanced-chart-features/boost-module
+**/
+require('highcharts/modules/boost')(Highcharts)
+
 export default {
   component: 'highcharts-vue-wrapper',
   "style": "width:100%; height:200px;",
@@ -333,15 +341,23 @@ export default {
         crosshairs: true
     },
 
+    //boost module
+    boost: {
+      enabled: false,
+      seriesThreshold: 1,
+      useAlpha: false,
+      allowForce: true
+    },
 
-    // plotOptions: {
-    //   series: {
+    plotOptions: {
+      series: {
+        boostThreshold: 1//boost module
     //     label: {
     //       connectorAllowed: false
     //     },
     //     // pointStart: 2010
-    //   }
-    // },
+      }
+    },
 
     series: [
 

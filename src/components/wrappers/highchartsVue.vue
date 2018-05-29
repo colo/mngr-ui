@@ -35,7 +35,10 @@
 
 <script>
 
-// import highcharts from 'highcharts-vue'
+/**
+* highcharts sync
+* https://www.highcharts.com/blog/snippets/synchronisation-of-multiple-charts/
+**/
 
 export default {
   name: 'highcharts-vue-wrapper',
@@ -188,9 +191,15 @@ export default {
           // chart.options.option.legend.data.push(name)
           // data.labels.push(new Date(column[0]).toLocaleTimeString())
           //
+
+          // if(column[0]== 0){
+          //   console.log('zeroooo')
+          // }
+
           if(column.length == 1){//gauge type
-            this.options.options.series[0].data.push(column[0])
-            this.options.options.series[0].data.shift()
+            this.$set(this.options.options.series[0].data, 0, column[0])
+            // this.options.options.series[0].data.push(column[0])
+            // this.options.options.series[0].data.shift()
           }
           else{
             Array.each(column, function(value, value_index){
