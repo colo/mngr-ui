@@ -42,6 +42,7 @@
             :freezed="freezed"
           />
           </component>
+          <!-- class="netdata-container" -->
 
           <!-- <dygraph-vue
            v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"

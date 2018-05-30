@@ -28,7 +28,7 @@ export default {
   //     */
   //     transform: function(values, vm, chart){
   //        let watcher = chart.watch || {}
-  //       // console.log('transform: ', values)
+  //       // //console.log('transform: ', values)
   //       let transformed = []
   //
   //       Array.each(values, function(val, index){
@@ -37,7 +37,7 @@ export default {
   //         transformed.push(transform)
   //       })
   //
-  //       // // console.log('transform: ', transformed)
+  //       // // //console.log('transform: ', transformed)
   //
   //       return transformed
   //     }
@@ -69,7 +69,7 @@ export default {
   //     ){
   //       // if(vm.$store.state.hosts[vm.host])
   //       chart.watch.totalmem = vm.$store.state.hosts[vm.host].os.totalmem[0].value
-  //       // console.log('valueRange', chart.options.valueRange)
+  //       // //console.log('valueRange', chart.options.valueRange)
   //     }
   //
   //   },
@@ -81,7 +81,7 @@ export default {
   //     */
   //     transform: function(values, vm, chart){
   //       let watcher = chart.watch || {}
-  //       // console.log('transform: ', values)
+  //       // //console.log('transform: ', values)
   //       let transformed = []
   //
   //       Array.each(values, function(val, index){
@@ -90,7 +90,7 @@ export default {
   //         transformed.push(transform)
   //       })
   //
-  //       // console.log('freemem transform: ', transformed)
+  //       // //console.log('freemem transform: ', transformed)
   //
   //       return transformed
   //     }
@@ -133,14 +133,14 @@ export default {
     match: /cpus/,
     labeling: 'CPU Usage',
     init: function (vm, chart, type){
-      console.log('init cpu_simple')
+      //console.log('init cpu_simple')
       // if(type == 'chart'
       //   && vm.$store.state.hosts[vm.host]
       //   && vm.$store.state.hosts[vm.host].os
       // ){
       //   // if(vm.$store.state.hosts[vm.host])
       //   chart.watch.totalmem = vm.$store.state.hosts[vm.host].os.totalmem[0].value
-      //   // console.log('valueRange', chart.options.valueRange)
+      //   // //console.log('valueRange', chart.options.valueRange)
       // }
 
     },
@@ -151,7 +151,7 @@ export default {
       * @trasnform: diff between each value against its prev one
       */
       transform: function(values){
-        // console.log('transform: ', values)
+        // //console.log('transform: ', values)
         let transformed = []
         let prev = {idle: 0, total: 0, timestamp: 0 }
         Array.each(values, function(val, index){
@@ -171,12 +171,12 @@ export default {
           let diff_total = current.total - prev.total;
           let diff_idle = current.idle - prev.idle;
 
-          // console.log('transform: ', current, prev)
+          // //console.log('transform: ', current, prev)
 
           //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
           let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / 10
 
-          // console.log('transform: ', diff_time)
+          // //console.log('transform: ', diff_time)
 
           transform.value.times.usage = (percentage > 100) ? 100 : parseFloat(percentage.toFixed(1))
 
@@ -194,7 +194,7 @@ export default {
     match: /mounts/,
     // label: 'somelabel',
     labeling: function(stat){
-      // console.log('mounts_percentage', stat)
+      // //console.log('mounts_percentage', stat)
       // let name = ''
       // if(stat[0].value.mount_point == '/'){
       //   name = '_root'
@@ -221,7 +221,7 @@ export default {
     //   ){
     //     if(vm.$store.state.hosts[vm.host])
     //     chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
-    //     console.log('valueRange', chart)
+    //     //console.log('valueRange', chart)
     //   }
     //
     // },
@@ -242,7 +242,7 @@ export default {
       ){
         // if(vm.$store.state.hosts[vm.host])
         chart.watch.totalmem = vm.$store.state.hosts[vm.host].os.totalmem[0].value
-        // console.log('valueRange', chart.options.valueRange)
+        // //console.log('valueRange', chart.options.valueRange)
       }
 
     },
@@ -254,7 +254,7 @@ export default {
       */
       transform: function(values, vm, chart){
         let watcher = chart.watch || {}
-        // console.log('transform: ', values)
+        // //console.log('transform: ', values)
         let transformed = []
 
         // Array.each(values, function(val, index){
@@ -266,7 +266,7 @@ export default {
           transformed.push(transform)
         // })
 
-        console.log('freemem transform: ', transformed)
+        //console.log('freemem transform: ', transformed)
 
         return transformed
       }

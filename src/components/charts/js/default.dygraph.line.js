@@ -1,3 +1,5 @@
+import Dygraph from 'dygraphs'
+
 export default {
     component: 'dygraph-wrapper',
     "style": "width:100%; height:126px;",
@@ -110,22 +112,7 @@ export default {
     },
     "options": {
       axisLabelFontSize: 12,
-      /**
-      * netdata options
-      */
-      xRangePad: 0,
-      yRangePad: 10,
-      pixelRatio: 1,
-      drawGapEdgePoints: true,
-      stepPlot: false,
-      gridLinePattern: null,
-      gridLineWidth: 1.0,
-      maxNumberWidth: 8,
-      sigFigs: null,
-      digitsAfterDecimal: 2,
-      /**
-      * netdata options
-      */
+
       highlightCallback: function(event, x, points, row, seriesName){
         window.EventBus.$emit('highlightCallback', [event, x, points, row, seriesName])
       },
@@ -142,6 +129,52 @@ export default {
       includeZero: true,
       fillGraph: true,
       showRoller: false,
+
+      /**
+      * netdata options
+      */
+      rightGap: 5,
+      xRangePad: 0,
+      yRangePad: 10,
+      pixelRatio: 1,
+      drawGapEdgePoints: true,
+      stepPlot: false,
+      gridLinePattern: null,
+      gridLineWidth: 1.0,
+      maxNumberWidth: 8,
+      sigFigs: null,
+      digitsAfterDecimal: 2,
+      // labelsDivStyles: { 'fontSize':'1px' },
+      // labelsDivWidth: self.data('dygraph-labelsdivwidth') || state.chartWidth() - 70,
+      labelsSeparateLines: true,
+      labelsShowZeroValues: true,
+      axes: {
+          x: {
+              pixelsPerLabel: 50,
+              ticker: Dygraph.dateTicker,
+              // axisLabelFormatter: function (d, gran) {
+              //     return NETDATA.zeropad(d.getHours()) + ":" + NETDATA.zeropad(d.getMinutes()) + ":" + NETDATA.zeropad(d.getSeconds());
+              // },
+              valueFormatter: function (ms) {
+                  var d = new Date(ms);
+                  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+                  // return NETDATA.zeropad(d.getHours()) + ":" + NETDATA.zeropad(d.getMinutes()) + ":" + NETDATA.zeropad(d.getSeconds());
+              }
+          },
+          y: {
+              pixelsPerLabel: 15,
+              valueFormatter: function (x) {
+                  // we format legends with the state object
+                  // no need to do anything here
+                  // return (Math.round(x*100) / 100).toLocaleString();
+                  // return state.legendFormatValue(x);
+                  return x;
+              }
+          }
+      },
+      /**
+      * netdata options
+      */
 
 
     }
