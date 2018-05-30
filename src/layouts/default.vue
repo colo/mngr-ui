@@ -251,7 +251,7 @@
     <q-page-container>
       <router-view :EventBus="EventBus"/>
       <q-btn
-        v-back-to-top.animate="{offset: 500, duration: 200}"
+        v-back-to-top.animate="{offset: 500, duration: 100}"
         round
         color="primary"
         class="fixed-bottom-right animate-pop justify-center"
@@ -315,15 +315,15 @@ export default {
               picker.$emit('pick', [start, null]);
             }
           },
-          // {
-          //   text: 'Last hour',
-          //   onClick(picker) {
-          //     const end = new Date();
-          //     const start = new Date();
-          //     start.setTime(start.getTime() - 3600 * 1000);
-          //     picker.$emit('pick', [start, end]);
-          //   }
-          // },
+          {
+            text: 'Last hour',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000);
+              picker.$emit('pick', [start, end]);
+            }
+          },
           // {
           //   text: 'Last 24Hs',
           //   onClick(picker) {

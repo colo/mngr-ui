@@ -111,7 +111,7 @@ export default {
       return chart
     },
     "options": {
-      axisLabelFontSize: 12,
+      axisLabelFontSize: 11,
 
       highlightCallback: function(event, x, points, row, seriesName){
         window.EventBus.$emit('highlightCallback', [event, x, points, row, seriesName])
@@ -151,10 +151,10 @@ export default {
       axes: {
           x: {
               pixelsPerLabel: 50,
-              ticker: Dygraph.dateTicker,
-              // axisLabelFormatter: function (d, gran) {
-              //     return NETDATA.zeropad(d.getHours()) + ":" + NETDATA.zeropad(d.getMinutes()) + ":" + NETDATA.zeropad(d.getSeconds());
-              // },
+              // ticker: Dygraph.dateTicker,
+      //         // axisLabelFormatter: function (d, gran) {
+      //         //     return NETDATA.zeropad(d.getHours()) + ":" + NETDATA.zeropad(d.getMinutes()) + ":" + NETDATA.zeropad(d.getSeconds());
+      //         // },
               valueFormatter: function (ms) {
                   var d = new Date(ms);
                   return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
@@ -163,13 +163,13 @@ export default {
           },
           y: {
               pixelsPerLabel: 15,
-              valueFormatter: function (x) {
-                  // we format legends with the state object
-                  // no need to do anything here
-                  // return (Math.round(x*100) / 100).toLocaleString();
-                  // return state.legendFormatValue(x);
-                  return x;
-              }
+      //         valueFormatter: function (x) {
+      //             // we format legends with the state object
+      //             // no need to do anything here
+      //             // return (Math.round(x*100) / 100).toLocaleString();
+      //             // return state.legendFormatValue(x);
+      //             return x;
+              // }
           }
       },
       /**

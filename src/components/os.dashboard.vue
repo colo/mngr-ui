@@ -596,7 +596,7 @@ export default {
     display: block;
     width: 140px; /* --legend-width */
     height: calc(100% - 15px); /* 10px for the resize handler and 5px for the top margin */
-    font-size: 10px;
+    font-size: 11px;/* colo: 10 -> 11 */
     margin-top: 5px;
     text-align: left;
     /* width and height is calculated (depends on the appearance of the legend) */
@@ -777,8 +777,14 @@ export default {
     overflow-x: hidden;
 }
 
+.dygraph-legend {
+    color: #6c7075;
+    font-size: 11px;
+}
+
 .dygraph-axis-label {
     color: #6c7075;
+    font-size: 11px;
 }
 
 .dygraph-label-rotate-left {
