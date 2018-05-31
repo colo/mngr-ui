@@ -329,11 +329,74 @@ export default {
     name: 'os.minute.loadavg',
     match: /minute\.loadavg.*/,
     watch: {
-      exclude: /samples/,
+      // exclude: /samples/,
+      exclude: /range|mode/,
 
+      /**
+      * returns  a bigger array (values.length * samples.length) and add each property
+      */
+      transform: function(values){
+        // console.log('loadavg_minute transform: ', values)
+
+
+        let transformed = []
+
+        Array.each(values, function(val, index){
+          // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+          // transformed.push(transform)
+
+          let last_sample = null
+          let counter = 0
+          Object.each(val.value.samples, function(sample, timestamp){
+            let transform = {timestamp: timestamp * 1, value: {samples: sample}}
+
+            if(counter == Object.getLength(val.value.samples) -1)
+              last_sample = sample
+
+            Object.each(val.value, function(data, property){
+              if(property != 'samples')
+                transform.value[property] = data
+            })
+
+            transformed.push(transform)
+            counter++
+          })
+
+          let timestamp = val.timestamp
+          let transform = {timestamp: timestamp * 1, value: {}}
+
+          Object.each(val.value, function(data, property){
+            if(property != 'samples'){
+              transform.value[property] = data
+            }
+            else{
+              transform.value['samples'] = last_sample
+            }
+          })
+          transformed.push(transform)
+        })
+
+        // console.log('transformed: ', transformed)
+        //
+        return transformed
+        // return values
+      }
     },
     "options": {
       fillGraph: false,
+      strokeWidth: 1.5,
+      series: {
+        'mean': {
+          color: 'red',
+          strokeWidth: 2,
+        },
+        'samples': {
+            fillGraph: true,
+            // pointSize: 1,
+            color: 'grey',
+            strokeWidth: 1
+        }
+      }
     }
   }),
   "uptime_minute": Object.merge(Object.clone(DefaultDygraphLine),{
@@ -351,28 +414,92 @@ export default {
     name: 'os.minute.freemem',
     match: /minute\.freemem.*/,
     watch: {
-      exclude: /samples/,
+      // exclude: /samples/,
+      exclude: /range|mode/,
 
+      // transform: function(values){
+      //   // ////console.log('transform: ', values)
+      //   let transformed = []
+      //
+      //   Array.each(values, function(val, index){
+      //     let transform = { timestamp: val.timestamp, value: {} }
+      //     Object.each(val.value, function(stat, name){
+      //       transform.value[name] = Math.floor(stat / 1024 / 1024)
+      //     })
+      //     transformed.push(transform)
+      //   })
+      //
+      //   // ////console.log('transform: ', transformed)
+      //
+      //   return transformed
+      // }
+
+      /**
+      * returns  a bigger array (values.length * samples.length) and add each property
+      */
       transform: function(values){
-        // ////console.log('transform: ', values)
+        // console.log('loadavg_minute transform: ', values)
+
+
         let transformed = []
 
         Array.each(values, function(val, index){
-          let transform = { timestamp: val.timestamp, value: {} }
-          Object.each(val.value, function(stat, name){
-            transform.value[name] = Math.floor(stat / 1024 / 1024)
+          // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+          // transformed.push(transform)
+
+          let last_sample = null
+          let counter = 0
+          Object.each(val.value.samples, function(sample, timestamp){
+            let transform = {timestamp: timestamp * 1, value: {samples: (( sample / 1024) / 1024 )}}
+
+            if(counter == Object.getLength(val.value.samples) -1)
+              last_sample = sample
+
+            Object.each(val.value, function(data, property){
+              if(property != 'samples')
+                transform.value[property] = (( data / 1024) / 1024 )
+            })
+
+            transformed.push(transform)
+            counter++
+          })
+
+          let timestamp = val.timestamp
+          let transform = {timestamp: timestamp * 1, value: {}}
+
+          Object.each(val.value, function(data, property){
+            if(property != 'samples'){
+              transform.value[property] = (( data / 1024) / 1024 )
+            }
+            else{
+              transform.value['samples'] = ((last_sample / 1024) / 1024 )
+            }
           })
           transformed.push(transform)
         })
 
-        // ////console.log('transform: ', transformed)
-
+        // console.log('transformed: ', transformed)
+        //
         return transformed
+        // return values
       }
 
     },
     "options": {
       fillGraph: false,
+      strokeWidth: 1.5,
+      series: {
+        'mean': {
+          color: 'red',
+          strokeWidth: 2,
+        },
+        'samples': {
+            fillGraph: true,
+            // pointSize: 1,
+            color: 'grey',
+            strokeWidth: 1
+        }
+      }
     }
   }),
 
