@@ -14,3 +14,21 @@
     >Go back</q-btn>
   </div>
 </template>
+
+
+<script>
+
+export default {
+  // name: 'App',
+  created: function(){
+
+    this.$q.loading.hide()
+
+  },
+
+}
+
+</script>
+
+<style>
+</style>
