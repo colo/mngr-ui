@@ -269,9 +269,11 @@ export default {
           // ////console.log('transform: ', current, prev)
 
           //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
-          let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / 10
+          let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
 
-          // ////console.log('transform: ', diff_time)
+          if(percentage > 100){
+            console.log('cpu transform: ', diff_time, diff_total, diff_idle)
+          }
 
           transform.value.times.usage = (percentage > 100) ? 100 : percentage
 
