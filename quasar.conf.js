@@ -82,6 +82,7 @@ module.exports = function (ctx) {
         'QCollapsible',
         'QSpinnerGears',
         'QKnob',
+        'QTree'
         // 'QBtnDropdown'
         // 'QPageSticky'
       ],

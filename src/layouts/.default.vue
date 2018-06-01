@@ -8,7 +8,7 @@
       <!-- color="primary" -->
       <!-- :glossy="$q.theme === 'mat'"
       :inverted="$q.theme === 'ios'" -->
-        <!-- <q-btn
+        <q-btn
           flat
           outline
           no-ripple
@@ -16,7 +16,7 @@
           aria-label="Menu"
         >
           <q-icon name="menu" />
-        </q-btn> -->
+        </q-btn>
 
         <q-toolbar-title class="gt-sm">
           <!-- Quasar App -->
@@ -109,26 +109,17 @@
             </el-dropdown-menu>
           </el-dropdown>
 
-          <!-- <q-btn
-            flat
-            outline
-            no-ripple
-            @click="rightDrawerOpen = !rightDrawerOpen"
-            aria-label="Menu"
-          >
-            <q-icon name="menu" />
-          </q-btn> -->
 
         </q-card-main>
       </q-card>
 
     </q-layout-header>
 
-    <q-layout-drawer
+    <!-- <q-layout-drawer
        v-model="rightDrawerOpen"
        side="right"
     >
-      <!-- <q-list
+      <q-list
         no-border
         link
         inset-delimiter
@@ -165,15 +156,96 @@
           <q-item-side icon="rss feed" />
           <q-item-main label="Twitter" sublabel="@quasarframework" />
         </q-item>
-      </q-list> -->
-      <q-tree
-        :nodes="menu"
-        node-key="id"
-        default-expand-all
-      />
+      </q-list>
+    </q-layout-drawer> -->
+
+    <q-layout-drawer
+       v-model="leftDrawerOpen"
+       :overlay="true"
+    >
+          <!-- :content-class="$q.theme === 'mat' ? 'bg-grey-2' : null" -->
+      <q-list
+        no-border
+        link
+        inset-delimiter
+      >
+        <!-- <q-list-header>Essential Links</q-list-header> -->
+        <q-item>
+          <!-- <at-select
+            v-model="currentHost"
+            filterable
+            size="large"
+            style="width: 100%"
+            :multiple="false"
+            :disabled="hosts.length <= 1"
+            >
+
+            <template v-for="(host) in hosts">
+              <at-option
+              :value="host"
+              :key="'selectHosts_'+host"
+              >
+              {{host}}
+              </at-option>
+            </template>
+          </at-select> -->
+
+          <!-- <q-select
+            style="width: 100%"
+            v-model="currentHost"
+            color="primary"
+            frame-color="primary"
+            class="no-margin"
+            inverted
+            :disable="hosts.length <= 1"
+            :options="hosts"
+          /> -->
+
+          <!-- <el-select
+            v-model="currentHost"
+            placeholder="Select"
+            style="width: 100%"
+            size="small"
+            :disabled="hosts.length <= 1"
+            filterable
+            >
+            <el-option
+              v-for="host in hosts"
+              :key="host.value"
+              :label="host.label"
+              :value="host.value">
+            </el-option>
+          </el-select> -->
+        </q-item>
+
+
+
+
+        <!-- filter -->
+
+
+        <!-- <q-item @click.native="openURL('http://quasar-framework.org')">
+          <q-item-side icon="school" />
+          <q-item-main label="Docs" sublabel="quasar-framework.org" />
+        </q-item>
+        <q-item @click.native="openURL('https://github.com/quasarframework/')">
+          <q-item-side icon="code" />
+          <q-item-main label="GitHub" sublabel="github.com/quasarframework" />
+        </q-item>
+        <q-item @click.native="openURL('https://discord.gg/5TDhbDg')">
+          <q-item-side icon="chat" />
+          <q-item-main label="Discord Chat Channel" sublabel="https://discord.gg/5TDhbDg" />
+        </q-item>
+        <q-item @click.native="openURL('http://forum.quasar-framework.org')">
+          <q-item-side icon="record_voice_over" />
+          <q-item-main label="Forum" sublabel="forum.quasar-framework.org" />
+        </q-item>
+        <q-item @click.native="openURL('https://twitter.com/quasarframework')">
+          <q-item-side icon="rss feed" />
+          <q-item-main label="Twitter" sublabel="@quasarframework" />
+        </q-item> -->
+      </q-list>
     </q-layout-drawer>
-
-
 
 
     <q-page-container>
@@ -221,7 +293,6 @@ export default {
   },
   data () {
     return {
-
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
       DateRangeOptions: {
@@ -284,7 +355,13 @@ export default {
         ]
       },
       dateRange: ''
-
+      // selectedHost: 'colo',
+      // selectHosts: [
+      //   {
+      //     label: 'localhost',
+      //     value: '127.0.0.0.1'
+      //   }
+      // ]
     }
   },
   // created (){
@@ -328,7 +405,6 @@ export default {
       }
     },
     mapState({
-      menu: state => state.app.stats_tree_menu,
       charts_state: function(state){
         let value = 'running'
         if(state.app.suspend == true){

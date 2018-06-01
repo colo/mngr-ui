@@ -114,8 +114,7 @@ export default {
     amcharts3Wrapper,
     vueEcharts3Wrapper,
     highchartsVueWrapper
-    // IEcharts
-    // VueCharts
+
   },
   props: {
     EventBus: {
