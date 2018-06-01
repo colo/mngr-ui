@@ -263,6 +263,11 @@ export default {
   }),
   "blkdev_stats": Object.merge(Object.clone(DefaultAMCharts3Line),{
     match: /blockdevices\..*/,
+    labeling: function(chart, name, stat){
+      // console.log('blkdev_stats', chart, name, stat)
+
+      return 'os.'+name
+    },
     watch: {
       value: 'stats',
       /**

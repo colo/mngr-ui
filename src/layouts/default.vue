@@ -168,7 +168,7 @@
       </q-list> -->
       <q-tree
         :nodes="menu"
-        node-key="id"
+        node-key="label"
         default-expand-all
       />
     </q-layout-drawer>
@@ -328,7 +328,7 @@ export default {
       }
     },
     mapState({
-      menu: state => state.app.stats_tree_menu,
+      menu: state => state.app.charts_tree_menu,
       charts_state: function(state){
         let value = 'running'
         if(state.app.suspend == true){

@@ -152,6 +152,11 @@ export default {
   }),
   "blkdev_stats": Object.merge(Object.clone(DefaultVueEcharts3Line),{
     match: /blockdevices\..*/,
+    labeling: function(chart, name, stat){
+      // console.log('blkdev_stats', chart, name, stat)
+
+      return 'os.'+name
+    },
     watch: {
       skip: 0,
       value: 'stats',

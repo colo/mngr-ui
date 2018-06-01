@@ -113,7 +113,7 @@ export default {
           let arr_chart = Object.clone(chart)
           // watcher = chart.watch
 
-          arr_chart.label = this.process_chart_label(chart, stat) || name
+          arr_chart.label = this.process_chart_label(chart, name, stat) || name
           let chart_name = this.process_chart_name(chart, stat) || name
 
           if(chart.watch.merge != true){
@@ -214,7 +214,7 @@ export default {
           // }
           chart = chart.pre_process(chart, name, stat)
 
-          chart.label = this.process_chart_label(chart, stat) || name
+          chart.label = this.process_chart_label(chart, name, stat) || name
           let chart_name = this.process_chart_name(chart, stat) || name
 
           this.process_chart(chart, chart_name)
@@ -228,7 +228,7 @@ export default {
         // // chart = Object.merge(Object.clone(chart), chart)
         // // watcher = chart.watch
         //
-        chart.label = this.process_chart_label(chart, stat) || name
+        chart.label = this.process_chart_label(chart, name, stat) || name
         let chart_name = this.process_chart_name(chart, stat) || name
         //
         // if(!chart.options || !chart.options.labels){
@@ -413,10 +413,10 @@ export default {
     /**
     * chart attributes
     **/
-    process_chart_label (chart, stat) {
+    process_chart_label (chart, name, stat) {
       if(chart.labeling && typeOf(chart.labeling) == 'function'){
 
-        return chart.labeling(stat)
+        return chart.labeling(chart, name, stat)
       }
       else if(chart.label){
         return chart.label

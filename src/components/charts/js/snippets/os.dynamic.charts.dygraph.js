@@ -103,18 +103,11 @@ export default {
     // name: 'mounts_percentage',
     match: /mounts/,
     // label: 'somelabel',
-    labeling: function(stat){
-      // console.log('mounts_percentage', stat)
-      // let name = ''
-      // if(stat[0].value.mount_point == '/'){
-      //   name = '_root'
-      // }
-      // else{
-      //   name = stat[0].value.mount_point.replace('/', '_')
-      // }
+    labeling: function(chart, name, stat){
 
       return 'os.mounts['+stat[0].value.mount_point+']'
     },
+
     watch: {
       // merge: true,
       filters: [{
@@ -150,6 +143,11 @@ export default {
   }),
   "blkdev_stats": Object.merge(Object.clone(DefaultDygraphLine),{
     match: /blockdevices\..*/,
+    labeling: function(chart, name, stat){
+      // console.log('blkdev_stats', chart, name, stat)
+
+      return 'os.'+name
+    },
     watch: {
       value: 'stats',
       /**

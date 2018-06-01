@@ -14,6 +14,7 @@
       header-class="text-primary bg-white"
       :key="name"
       :name="name"
+      :ref="host+'_'+name+'-collapsible'"
       v-if="hide[name] != true"
      >
 
@@ -100,6 +101,7 @@ import dynamic_charts from './charts/js/os.dynamic.charts'
 // import net_stats from './js/net.dashboard'
 
 import { mapState } from 'vuex'
+// import { mapMutations } from 'vuex'
 
 export default {
   mixins: [Dashboard],
@@ -161,6 +163,7 @@ export default {
   ),
   updated: function(){
     this.$store.commit('app/reset', false)
+    this._update_charts_menu()
   },
   created (){
 
@@ -198,7 +201,90 @@ export default {
 
 
   },
+
   methods: {
+    _update_charts_menu (){
+      let menu = Array.clone(this.$store.state.app.charts_tree_menu)
+        // console.log('os.dashboard.vue _update_charts_menu', this.$refs)
+      Object.each(this.$refs, function(ref, key){
+        if(
+          /-collapsible/.test(key)
+          && ref[0]
+          && ref[0].label
+        ){
+          let menu_entry = {}
+
+          menu_entry = this._parse_menu_key(ref[0].label, key)
+
+          // console.log('os.dashboard.vue _update_charts_menu entry', key, ref, menu_entry)
+
+          menu = this._merge_menu(menu, menu_entry)
+        }
+      }.bind(this))
+
+
+
+      console.log('os.dashboard.vue _update_charts_menu', menu)
+
+      this.$store.commit('app/charts_tree_menu', menu)
+
+    },
+    _merge_menu(menu, menu_entry){
+      menu = Array.clone(menu)
+      let found = false
+      if(menu.length > 0){
+        Array.each(menu, function(child, index){
+          if(child.label == menu_entry.label){
+           found = true
+           let children = []
+           Array.each(menu_entry.children, function(sub){
+             children = Array.combine(children, this._merge_menu(child.children, sub))
+           }.bind(this))
+
+           child = Object.merge(child, menu_entry)
+           child.children = children
+           menu[index] = child
+         }
+
+        }.bind(this))
+      }
+      // console.log('found', found)
+
+      if(menu.length == 0 || found == false){
+        menu.push(menu_entry)
+      }
+
+      return menu
+    },
+    _parse_menu_key (label, link){
+      let menu = {label: null, children: []}
+      if(label.indexOf('.') > -1 || label.indexOf('[') > -1){
+        let sub = ''
+        if(label.indexOf('[') > -1 && label.indexOf('.') == -1){
+          menu.label = label.substring(0, label.indexOf('['))
+          sub = label.substring(label.indexOf('[')+1, label.indexOf(']'))
+        }
+        else{
+          menu.label = label.substring(0, label.indexOf('.'))
+          sub = label.substring(label.indexOf('.')+1, label.length)
+        }
+
+        menu.children.push(this._parse_menu_key(sub, link))
+      }
+      else{
+        menu.label = label
+      }
+
+      // console.log('os.dashboard.vue _parse_menu_key', link, label, menu)
+      return menu
+    },
+    // _create_menu_entry(label, children){
+    //   let menu = {label: label, children: []}
+    //   Array.each(children, function(child){
+    //     menu.children.push(this._create_menu_entry())
+    //   }.bind(this))
+    //   return menu
+    // },
     /**
     * initlize all charts, dynamics & static
     */

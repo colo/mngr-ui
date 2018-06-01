@@ -35,3 +35,7 @@
    // console.log('range mutation', payload)
    state.range = [payload.start, payload.end]
  }
+
+ export const charts_tree_menu = (state, menu) => {
+   state.charts_tree_menu = menu
+ }

@@ -15,6 +15,6 @@ export default function() {
       Date.now() - 300 * 1000,
       null
     ],
-    stats_tree_menu: []
+    charts_tree_menu: []
   }
 }
