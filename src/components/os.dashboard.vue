@@ -229,6 +229,55 @@ export default {
       this.$store.commit('app/charts_tree_menu', menu)
 
     },
+    _parse_menu_key (label, link, icon){
+
+
+      if(!icon){
+        Object.each(this.$store.state.app.icons, function(rgexp, name){
+            if(rgexp.test(label))
+              icon = name
+        })
+      }
+
+      let menu = {label: null, icon: icon, children: []}
+
+
+      if(label.indexOf('.') > -1 || label.indexOf('[') > -1){
+        let sub = ''
+        if(label.indexOf('[') > -1 && label.indexOf('.') == -1){
+          menu.label = label.substring(0, label.indexOf('['))
+          sub = label.substring(label.indexOf('[')+1, label.indexOf(']'))
+        }
+        else{
+          menu.label = label.substring(0, label.indexOf('.'))
+          sub = label.substring(label.indexOf('.')+1, label.length)
+        }
+
+        if(this.charts[label] && this.charts[label].icon){
+          icon = this.charts[label].icon
+        }
+
+        menu.children.push(this._parse_menu_key(sub, link, icon))
+
+        console.log('os.dashboard.vue _parse_menu_key', menu.children)
+
+        // if(menu.children.length == 0){//no children, means last leaf
+          // menu.id = link
+        // }
+        // else{
+          menu.id = menu.label
+        // }
+
+      }
+      else{
+        menu.label = label
+        menu.id = link
+      }
+
+
+
+      return menu
+    },
     _merge_menu(menu, menu_entry){
       menu = Array.clone(menu)
       let found = false
@@ -256,28 +305,7 @@ export default {
 
       return menu
     },
-    _parse_menu_key (label, link){
-      let menu = {label: null, children: []}
-      if(label.indexOf('.') > -1 || label.indexOf('[') > -1){
-        let sub = ''
-        if(label.indexOf('[') > -1 && label.indexOf('.') == -1){
-          menu.label = label.substring(0, label.indexOf('['))
-          sub = label.substring(label.indexOf('[')+1, label.indexOf(']'))
-        }
-        else{
-          menu.label = label.substring(0, label.indexOf('.'))
-          sub = label.substring(label.indexOf('.')+1, label.length)
-        }
 
-        menu.children.push(this._parse_menu_key(sub, link))
-      }
-      else{
-        menu.label = label
-      }
-
-      // console.log('os.dashboard.vue _parse_menu_key', link, label, menu)
-      return menu
-    },
     // _create_menu_entry(label, children){
     //   let menu = {label: label, children: []}
     //   Array.each(children, function(child){

@@ -15,6 +15,9 @@ export default function() {
       Date.now() - 300 * 1000,
       null
     ],
-    charts_tree_menu: []
+    charts_tree_menu: [],
+    icons: {
+      'flash_on': /cpus.*/
+    },
   }
 }

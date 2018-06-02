@@ -127,7 +127,9 @@
     <q-layout-drawer
        v-model="rightDrawerOpen"
        side="right"
+       :content-style="{width: '220px', padding: '10px'}"
     >
+    <!-- :content-class="['bg-grey-3', 'q-pa-sm']" -->
       <!-- <q-list
         no-border
         link
@@ -168,9 +170,10 @@
       </q-list> -->
       <q-tree
         :nodes="menu"
-        node-key="label"
-        default-expand-all
+        node-key="id"
+        :expanded.sync="menu_props_expanded"
       />
+      <!-- default-expand-all -->
     </q-layout-drawer>
 
 
@@ -221,7 +224,7 @@ export default {
   },
   data () {
     return {
-
+      // menu_props_expanded: [],
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
       DateRangeOptions: {
@@ -300,6 +303,28 @@ export default {
   },
   computed: Object.merge(
     {
+      menu_props_expanded: {
+        get () {
+          let expand = function(menu){
+            let expanded = []
+            if(Array.isArray(menu)){
+              Array.each(menu, function(sub){
+                expanded.push(sub.id)
+                expanded = Array.combine(expand(sub.children), expanded)
+              })
+            }
+            return expanded
+          }
+
+          let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
+          console.log('menu_props_expanded get', expanded_menu)
+
+          return expanded_menu
+        },
+        set (value){
+          console.log('menu_props_expanded set', value)
+        }
+      },
       currentHost: {
         get () {
           let host = this.$store.state.hosts.current

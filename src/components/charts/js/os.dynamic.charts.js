@@ -285,6 +285,7 @@ export default {
 
   }),
   "freemem": Object.merge(Object.clone(DefaultDygraphLine),{
+    icon: 'memory',
     name: 'os.freemem',
     match: /freemem/,
     watch: {
