@@ -82,9 +82,9 @@ module.exports = function (ctx) {
         'QCollapsible',
         'QSpinnerGears',
         'QKnob',
-        'QTree'
+        // 'QTree',
         // 'QBtnDropdown'
-        // 'QPageSticky'
+        'QPageSticky'
       ],
       directives: [
         // 'Ripple',

@@ -109,26 +109,29 @@
             </el-dropdown-menu>
           </el-dropdown>
 
-          <!-- <q-btn
+          <q-btn
             flat
             outline
             no-ripple
-            @click="rightDrawerOpen = !rightDrawerOpen"
             aria-label="Menu"
+            @click="isCollapse = !isCollapse"
           >
+            <!-- @click="rightDrawerOpen = !rightDrawerOpen" -->
             <q-icon name="menu" />
-          </q-btn> -->
+          </q-btn>
 
         </q-card-main>
       </q-card>
 
     </q-layout-header>
 
-    <q-layout-drawer
-       v-model="rightDrawerOpen"
-       side="right"
-       :content-style="{width: '220px', padding: '10px'}"
-    >
+    <!-- <q-layout-drawer
+     side="right"
+     :content-style="{width: '40px', padding: '10px'}"
+    > -->
+    <!-- v-model="rightDrawerOpen" -->
+    <!-- :content-style="{width: '220px', padding: '10px'}" -->
+
     <!-- :content-class="['bg-grey-3', 'q-pa-sm']" -->
       <!-- <q-list
         no-border
@@ -168,13 +171,14 @@
           <q-item-main label="Twitter" sublabel="@quasarframework" />
         </q-item>
       </q-list> -->
-      <q-tree
+
+      <!-- default-expand-all -->
+      <!-- accordion -->
+      <!-- <q-tree
         :nodes="menu"
         node-key="id"
         :expanded.sync="menu_props_expanded"
       >
-      <!-- default-expand-all -->
-      <!-- accordion -->
       <div slot="header-anchor" slot-scope="prop" class="row items-center">
         <q-icon v-if="prop.node.icon" :name="prop.node.icon" class="q-tree-arrow q-mr-xs transition-generic" />
         <a :href="'#'+prop.node.id">
@@ -186,13 +190,10 @@
         <q-icon v-if="prop.node.icon" :name="prop.node.icon" class="q-tree-arrow q-mr-xs transition-generic" />
         <div class="text-primary">{{ prop.node.label }}</div>
       </div>
-      </q-tree>
-    </q-layout-drawer>
+      </q-tree> -->
+    <!-- </q-layout-drawer> -->
 
-
-
-
-    <q-page-container>
+    <q-page-container style="width:90%">
       <router-view :EventBus="EventBus"/>
       <q-btn
         v-back-to-top.animate="{offset: 500, duration: 100}"
@@ -207,9 +208,8 @@
       </q-btn>
     </q-page-container>
 
-
-    <!-- <q-page-sticky position="top-right" :offset="[18, 18]">
-      <at-select v-model="selectedHost"
+    <q-page-sticky position="top-right" :offset="[0, 0]">
+      <!-- <at-select v-model="selectedHost"
         filterable
         size="normal"
         style="width: 240px"
@@ -217,8 +217,46 @@
         :key="host.value"
         >
         <at-option value="host.value">{{host.label}}</at-option>
-      </at-select>
-    </q-page-sticky> -->
+      </at-select> -->
+      <el-menu
+        default-active="2"
+        class="el-menu-vertical-demo"
+        :collapse="isCollapse"
+      >
+        <el-submenu index="1">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span slot="title">Navigator One</span>
+          </template>
+          <el-menu-item-group>
+            <span slot="title">Group One</span>
+            <el-menu-item index="1-1">item one</el-menu-item>
+            <el-menu-item index="1-2">item two</el-menu-item>
+          </el-menu-item-group>
+          <el-menu-item-group title="Group Two">
+            <el-menu-item index="1-3">item three</el-menu-item>
+          </el-menu-item-group>
+          <el-submenu index="1-4">
+            <span slot="title">item four</span>
+            <el-menu-item index="1-4-1">item one</el-menu-item>
+          </el-submenu>
+        </el-submenu>
+        <el-menu-item index="2">
+          <i class="el-icon-menu"></i>
+          <span slot="title">Navigator Two</span>
+        </el-menu-item>
+        <el-menu-item index="3" disabled>
+          <i class="el-icon-document"></i>
+          <span slot="title">Navigator Three</span>
+        </el-menu-item>
+        <el-menu-item index="4">
+          <i class="el-icon-setting"></i>
+          <span slot="title">Navigator Four</span>
+        </el-menu-item>
+      </el-menu>
+    </q-page-sticky>
+
+
 
   </q-layout>
 </template>
@@ -237,6 +275,7 @@ export default {
   },
   data () {
     return {
+      isCollapse: true,
       menu_props_expanded: [],
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
@@ -442,4 +481,8 @@ export default {
 </script>
 
 <style>
+  .el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 200px;
+    min-height: 400px;
+  }
 </style>

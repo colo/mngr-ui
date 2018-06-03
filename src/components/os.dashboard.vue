@@ -7,7 +7,8 @@
 
        <q-collapsible
         :no-ripple="true"
-        :opened="(hide[name] != true) ? true : false"
+        :opened="true"
+        v-if="hide[name] != true"
         :icon="chart.icon"
         :label="beautifyLabel(chart.label || name)"
         :separator="true"
@@ -16,6 +17,7 @@
         :name="name"
         :ref="host+'_'+name+'-collapsible'"
        >
+       <!-- :opened="(hide[name] != true) ? true : false" -->
        <!-- :opened="true" -->
        <!-- v-if="hide[name] != true" -->
 
