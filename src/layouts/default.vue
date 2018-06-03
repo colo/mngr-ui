@@ -172,8 +172,21 @@
         :nodes="menu"
         node-key="id"
         :expanded.sync="menu_props_expanded"
-      />
+      >
       <!-- default-expand-all -->
+      <!-- accordion -->
+      <div slot="header-anchor" slot-scope="prop" class="row items-center">
+        <q-icon v-if="prop.node.icon" :name="prop.node.icon" class="q-tree-arrow q-mr-xs transition-generic" />
+        <a :href="'#'+prop.node.id">
+          <div class="text-primary">{{ prop.node.label }}</div>
+        </a>
+      </div>
+
+      <div slot="header-generic" slot-scope="prop" class="row items-center">
+        <q-icon v-if="prop.node.icon" :name="prop.node.icon" class="q-tree-arrow q-mr-xs transition-generic" />
+        <div class="text-primary">{{ prop.node.label }}</div>
+      </div>
+      </q-tree>
     </q-layout-drawer>
 
 
@@ -224,7 +237,7 @@ export default {
   },
   data () {
     return {
-      // menu_props_expanded: [],
+      menu_props_expanded: [],
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
       DateRangeOptions: {
@@ -301,30 +314,48 @@ export default {
     // }
 
   },
+  watch: {
+    '$store.state.app.charts_tree_menu': function(val){
+      let expand = function(menu){
+        let expanded = []
+        if(Array.isArray(menu)){
+          Array.each(menu, function(sub){
+            expanded.push(sub.id)
+            expanded = Array.combine(expand(sub.children), expanded)
+          })
+        }
+        return expanded
+      }
+
+      // let expanded_menu = expand(val)
+      // console.log('menu_props_expanded get', expanded_menu)
+      this.$set(this, 'menu_props_expanded', expand(val))
+    }
+  },
   computed: Object.merge(
     {
-      menu_props_expanded: {
-        get () {
-          let expand = function(menu){
-            let expanded = []
-            if(Array.isArray(menu)){
-              Array.each(menu, function(sub){
-                expanded.push(sub.id)
-                expanded = Array.combine(expand(sub.children), expanded)
-              })
-            }
-            return expanded
-          }
-
-          let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
-          console.log('menu_props_expanded get', expanded_menu)
-
-          return expanded_menu
-        },
-        set (value){
-          console.log('menu_props_expanded set', value)
-        }
-      },
+      // menu_props_expanded: {
+      //   get () {
+      //     let expand = function(menu){
+      //       let expanded = []
+      //       if(Array.isArray(menu)){
+      //         Array.each(menu, function(sub){
+      //           expanded.push(sub.id)
+      //           expanded = Array.combine(expand(sub.children), expanded)
+      //         })
+      //       }
+      //       return expanded
+      //     }
+      //
+      //     let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
+      //     // console.log('menu_props_expanded get', expanded_menu)
+      //
+      //     return expanded_menu
+      //   },
+      //   set (value){
+      //     console.log('menu_props_expanded set', value)
+      //   }
+      // },
       currentHost: {
         get () {
           let host = this.$store.state.hosts.current

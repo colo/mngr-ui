@@ -2,7 +2,7 @@ import Dygraph from 'dygraphs'
 
 export default {
     component: 'dygraph-wrapper',
-    "style": "width:100%; height:126px;",
+    "style": "width:100%; height:180px;",
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
     // init: function (vue){
@@ -135,7 +135,7 @@ export default {
       */
       rightGap: 5,
       xRangePad: 0,
-      yRangePad: 10,
+      yRangePad: 0,
       pixelRatio: 1,
       drawGapEdgePoints: true,
       stepPlot: false,
@@ -172,6 +172,15 @@ export default {
               // }
           }
       },
+      axisLineColor: '#CCCCCC',
+      strokeBorderColor: '#FFFFFF',
+      gridLineColor: '#DDDDDD',
+      colors: [
+        '#3366CC', '#DC3912',   '#109618', '#FF9900',   '#990099', '#DD4477',
+        '#3B3EAC', '#66AA00',   '#0099C6', '#B82E2E',   '#AAAA11', '#5574A6',
+        '#994499', '#22AA99',   '#6633CC', '#E67300',   '#316395', '#8B0707',
+        '#329262', '#3B3EAC'
+      ],
       /**
       * netdata options
       */

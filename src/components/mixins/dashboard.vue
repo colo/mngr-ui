@@ -38,6 +38,15 @@ export default {
         })
 
       //console.log('adding chart...', name)
+      if(!chart.icon){
+        Object.each(this.$store.state.app.icons, function(rgexp, icon){
+            if(rgexp.test(name))
+              chart.icon = icon
+        })
+
+        if(!chart.icon)
+          chart.icon = this.$store.state.app.default_chart_icon
+      }
 
       this.$set(this.charts, name, chart)
       this.$set(this.stats, name, {lastupdate: 0, 'data': data })

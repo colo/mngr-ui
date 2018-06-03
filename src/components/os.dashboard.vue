@@ -1,69 +1,72 @@
 <template>
 
     <div>
-
+      <template v-for="(chart, name) in charts">
+        <a :name="host+'_'+name"></a>
       <!-- OS stats -->
 
-     <q-collapsible
-      v-for="(chart, name) in charts"
-      :no-ripple="true"
-      :opened="true"
-      icon="info"
-      :label="beautifyLabel(chart.label || name)"
-      :separator="true"
-      header-class="text-primary bg-white"
-      :key="name"
-      :name="name"
-      :ref="host+'_'+name+'-collapsible'"
-      v-if="hide[name] != true"
-     >
+       <q-collapsible
+        :no-ripple="true"
+        :opened="(hide[name] != true) ? true : false"
+        :icon="chart.icon"
+        :label="beautifyLabel(chart.label || name)"
+        :separator="true"
+        header-class="text-primary bg-white"
+        :key="name"
+        :name="name"
+        :ref="host+'_'+name+'-collapsible'"
+       >
+       <!-- :opened="true" -->
+       <!-- v-if="hide[name] != true" -->
 
-      <el-card shadow="hover"
-        v-observe-visibility="visibilityChanged"
-        :id="host+'_'+name+'-card'"
-      >
-      <!-- {{name}} -->
-       <!-- <at-card :bordered="false"> -->
-         <!-- <div
-          :id="name"
-          :style="chart.style"
+
+        <el-card shadow="hover"
           v-observe-visibility="visibilityChanged"
-          >
-        </div> -->
+          :id="host+'_'+name+'-card'"
+        >
+        <!-- {{name}} -->
+         <!-- <at-card :bordered="false"> -->
+           <!-- <div
+            :id="name"
+            :style="chart.style"
+            v-observe-visibility="visibilityChanged"
+            >
+          </div> -->
 
-          <component
-            :is="chart.component"
-            v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
-            :visible="visibles[host+'_'+name]"
-            :ref="host+'_'+name"
-            :id="host+'_'+name"
-            :options="chart"
-            :stat="stats[name]"
-            :EventBus="EventBus"
-            :freezed="freezed"
-          />
-          </component>
-          <!-- class="netdata-container" -->
+            <component
+              :is="chart.component"
+              v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
+              :visible="visibles[host+'_'+name]"
+              :ref="host+'_'+name"
+              :id="host+'_'+name"
+              :options="chart"
+              :stat="stats[name]"
+              :EventBus="EventBus"
+              :freezed="freezed"
+            />
+            </component>
+            <!-- class="netdata-container" -->
 
-          <!-- <dygraph-vue
-           v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
-           :visible="visibles[host+'_'+name]"
-           :ref="host+'_'+name"
-           :id="host+'_'+name"
-           :options="chart"
-           :stat="stats[name]"
-           :EventBus="EventBus"
-           :freezed="freezed"
-           >
-          </dygraph-vue> -->
+            <!-- <dygraph-vue
+             v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
+             :visible="visibles[host+'_'+name]"
+             :ref="host+'_'+name"
+             :id="host+'_'+name"
+             :options="chart"
+             :stat="stats[name]"
+             :EventBus="EventBus"
+             :freezed="freezed"
+             >
+            </dygraph-vue> -->
 
-       <!-- </at-card> -->
-     </el-card>
+         <!-- </at-card> -->
+       </el-card>
 
 
 
-     </q-collapsible>
+       </q-collapsible>
 
+     </template>
 
 
    </div>
@@ -161,7 +164,12 @@ export default {
       freezed: state => state.app.freeze,
     })
   ),
-  updated: function(){
+  // watch: {
+  //   '$refs': function(val){
+  //     console.log('$refs watched', val )
+  //   }
+  // },
+  updated (){
     this.$store.commit('app/reset', false)
     this._update_charts_menu()
   },
@@ -203,7 +211,8 @@ export default {
   },
 
   methods: {
-    _update_charts_menu (){
+    _update_charts_menu : frameDebounce(function() {//performance reasons
+
       let menu = Array.clone(this.$store.state.app.charts_tree_menu)
         // console.log('os.dashboard.vue _update_charts_menu', this.$refs)
       Object.each(this.$refs, function(ref, key){
@@ -214,11 +223,12 @@ export default {
         ){
           let menu_entry = {}
 
-          menu_entry = this._parse_menu_key(ref[0].label, key)
+          menu_entry = this._parse_menu_key(ref[0].label, key.replace('-collapsible', ''))
 
           // console.log('os.dashboard.vue _update_charts_menu entry', key, ref, menu_entry)
 
           menu = this._merge_menu(menu, menu_entry)
+
         }
       }.bind(this))
 
@@ -226,9 +236,14 @@ export default {
 
       console.log('os.dashboard.vue _update_charts_menu', menu)
 
+      Object.each(this.$store.state.app.icons, function(rgexp, name){
+          if(rgexp.test('os'))
+            menu[0].icon = name
+      })
+
       this.$store.commit('app/charts_tree_menu', menu)
 
-    },
+    }),
     _parse_menu_key (label, link, icon){
 
 
@@ -237,9 +252,12 @@ export default {
             if(rgexp.test(label))
               icon = name
         })
+
+        if(!icon)
+          icon = this.$store.state.app.default_chart_icon
       }
 
-      let menu = {label: null, icon: icon, children: []}
+      let menu = {label: null, icon: icon, children: [], header: 'generic'}
 
 
       if(label.indexOf('.') > -1 || label.indexOf('[') > -1){
@@ -272,6 +290,8 @@ export default {
       else{
         menu.label = label
         menu.id = link
+        menu.header = 'anchor'
+        // menu.icon = ''
       }
 
 
@@ -479,7 +499,7 @@ export default {
         if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
           this.$set(this.hide, name, true)
 
-        //console.log('has_data ', name, has_data, this.stats)
+        // console.log('this.hide', name, this.hide[name])
 
         this.$set(this.stats[name], 'data', data)
 

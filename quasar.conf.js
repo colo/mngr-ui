@@ -21,10 +21,10 @@ module.exports = function (ctx) {
     ],
     extras: [
       ctx.theme.mat ? 'roboto-font' : null,
-      'material-icons'
-      // 'ionicons',
-      // 'mdi',
-      // 'fontawesome'
+      'material-icons',
+      'ionicons',
+      'mdi',
+      'fontawesome'
     ],
     supportIE: true,
     vendor: {
@@ -95,7 +95,8 @@ module.exports = function (ctx) {
       plugins: [
         'Notify',
         'Loading'
-      ]
+      ],
+      iconSet: 'mdi'
     },
     // animations: 'all' --- includes all animations
     animations: [

@@ -16,8 +16,15 @@ export default function() {
       null
     ],
     charts_tree_menu: [],
+    default_chart_icon: 'mdi-pulse',
     icons: {
-      'flash_on': /cpus.*/
+      'mdi-chart-line': /^os$/,
+      'mdi-flash': /cpus.*/,
+      'fa-microchip': /^.*mem.*$/,
+      'mdi-clock': /minute.*/,
+      'mdi-harddisk': /blockdevices.*|mounts.*/,
+      'mdi-network': /networkInterfaces.*/
+      // 'mdi-pulse': /.*/
     },
   }
 }
