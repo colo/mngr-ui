@@ -219,40 +219,86 @@
         <at-option value="host.value">{{host.label}}</at-option>
       </at-select> -->
       <el-menu
-        default-active="2"
         class="el-menu-vertical-demo"
         :collapse="isCollapse"
+        v-for="(submenu, index) in menu"
+        :default-openeds="menu_props_expanded"
       >
-        <el-submenu index="1">
+        <!-- default-active="1" -->
+        <el-submenu :index="submenu.id" :key="submenu.id">
+
           <template slot="title">
-            <i class="el-icon-location"></i>
-            <span slot="title">Navigator One</span>
+            <q-icon color="primary" size="14pt" :name="submenu.icon"></q-icon>
+            <span slot="title">{{submenu.label}}</span>
           </template>
-          <el-menu-item-group>
-            <span slot="title">Group One</span>
-            <el-menu-item index="1-1">item one</el-menu-item>
-            <el-menu-item index="1-2">item two</el-menu-item>
-          </el-menu-item-group>
-          <el-menu-item-group title="Group Two">
-            <el-menu-item index="1-3">item three</el-menu-item>
-          </el-menu-item-group>
-          <el-submenu index="1-4">
-            <span slot="title">item four</span>
-            <el-menu-item index="1-4-1">item one</el-menu-item>
-          </el-submenu>
+
+
+          <!-- 2nd level -->
+
+          <template v-if="submenu.children.length > 0" v-for="(child, child_index) in submenu.children">
+          <!-- <span slot="title">Group One</span> -->
+            <el-submenu
+            v-if="child.children.length > 0"
+            :index="child.id"
+            :key="child.id">
+              <template slot="title">
+                <q-icon color="primary" size="14pt" :name="child.icon"></q-icon>
+                <span slot="title">{{child.label}}</span>
+              </template>
+
+              <!-- 3rd level -->
+              <template v-for="(sub_child, sub_child_index) in child.children">
+              <!-- <span slot="title">Group One</span> -->
+                <el-submenu
+                v-if="sub_child.children.length > 0"
+                :index="sub_child.id"
+                :key="sub_child.id">
+                  <template slot="title">
+                    <q-icon color="primary" size="14pt" :name="sub_child.icon"></q-icon>
+                    <span slot="title">{{sub_child.label}}</span>
+                  </template>
+
+                  <!-- 4th level -->
+                  <el-menu-item v-for="(last, last_index) in sub_child.children"
+                  :index="last.id"
+                  :key="last.id">
+                    <q-icon size="14pt" :name="last.icon"></q-icon>
+
+                      {{last.label}}
+
+                  </el-menu-item>
+
+                  <!-- /4th level -->
+                </el-submenu>
+
+                <el-menu-item
+                v-else
+                :index="sub_child.id"
+                :key="sub_child.id">
+                  <q-icon size="14pt" :name="sub_child.icon"></q-icon>
+
+                    {{sub_child.label}}
+
+                </el-menu-item>
+              </template>
+              <!-- /3rd level -->
+
+            </el-submenu>
+
+            <el-menu-item
+            v-else
+            :index="child.id"
+            :key="child.id"
+            @click="$router.push('#'+child.id)"
+            >
+              <q-icon size="14pt" :name="child.icon"></q-icon>
+              {{child.label}}
+            </el-menu-item>
+          </template>
+
+          <!-- /2nd level -->
         </el-submenu>
-        <el-menu-item index="2">
-          <i class="el-icon-menu"></i>
-          <span slot="title">Navigator Two</span>
-        </el-menu-item>
-        <el-menu-item index="3" disabled>
-          <i class="el-icon-document"></i>
-          <span slot="title">Navigator Three</span>
-        </el-menu-item>
-        <el-menu-item index="4">
-          <i class="el-icon-setting"></i>
-          <span slot="title">Navigator Four</span>
-        </el-menu-item>
+
       </el-menu>
     </q-page-sticky>
 
@@ -353,24 +399,24 @@ export default {
     // }
 
   },
-  watch: {
-    '$store.state.app.charts_tree_menu': function(val){
-      let expand = function(menu){
-        let expanded = []
-        if(Array.isArray(menu)){
-          Array.each(menu, function(sub){
-            expanded.push(sub.id)
-            expanded = Array.combine(expand(sub.children), expanded)
-          })
-        }
-        return expanded
-      }
-
-      // let expanded_menu = expand(val)
-      // console.log('menu_props_expanded get', expanded_menu)
-      this.$set(this, 'menu_props_expanded', expand(val))
-    }
-  },
+  // watch: {
+  //   '$store.state.app.charts_tree_menu': function(val){
+  //     let expand = function(menu){
+  //       let expanded = []
+  //       if(Array.isArray(menu)){
+  //         Array.each(menu, function(sub){
+  //           expanded.push(sub.id)
+  //           expanded = Array.combine(expand(sub.children), expanded)
+  //         })
+  //       }
+  //       return expanded
+  //     }
+  //
+  //     // let expanded_menu = expand(val)
+  //     // console.log('menu_props_expanded get', expanded_menu)
+  //     this.$set(this, 'menu_props_expanded', expand(val))
+  //   }
+  // },
   computed: Object.merge(
     {
       // menu_props_expanded: {
@@ -482,7 +528,11 @@ export default {
 
 <style>
   .el-menu-vertical-demo:not(.el-menu--collapse) {
-    width: 200px;
+    width: 300px;
     min-height: 400px;
   }
+  /* a.el-menu-vertical-demo {
+    color:red;
+    text-decoration: none;
+  } */
 </style>
