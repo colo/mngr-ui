@@ -221,14 +221,15 @@
       <el-menu
         class="el-menu-vertical-demo"
         :collapse="isCollapse"
-        v-for="(submenu, index) in menu"
         :default-openeds="menu_props_expanded"
+        :collapse-transition="false"
+        :unique-opened="true"
       >
         <!-- default-active="1" -->
-        <el-submenu :index="submenu.id" :key="submenu.id">
+        <el-submenu :index="'#'+submenu.id" :key="submenu.id" v-for="(submenu, index) in menu">
 
           <template slot="title">
-            <q-icon color="primary" size="14pt" :name="submenu.icon"></q-icon>
+            <q-icon color="primary" size="12pt" :name="submenu.icon"></q-icon>
             <span slot="title">{{submenu.label}}</span>
           </template>
 
@@ -239,10 +240,12 @@
           <!-- <span slot="title">Group One</span> -->
             <el-submenu
             v-if="child.children.length > 0"
-            :index="child.id"
-            :key="child.id">
+            :index="'#'+child.id"
+            :key="child.id"
+            style="padding-left: 10px;"
+            >
               <template slot="title">
-                <q-icon color="primary" size="14pt" :name="child.icon"></q-icon>
+                <q-icon color="primary" size="12pt" :name="child.icon"></q-icon>
                 <span slot="title">{{child.label}}</span>
               </template>
 
@@ -251,21 +254,24 @@
               <!-- <span slot="title">Group One</span> -->
                 <el-submenu
                 v-if="sub_child.children.length > 0"
-                :index="sub_child.id"
-                :key="sub_child.id">
+                :index="'#'+sub_child.id"
+                :key="sub_child.id"
+                style="padding-left: 10px;"
+                >
                   <template slot="title">
-                    <q-icon color="primary" size="14pt" :name="sub_child.icon"></q-icon>
+                    <q-icon color="primary" size="12pt" :name="sub_child.icon"></q-icon>
                     <span slot="title">{{sub_child.label}}</span>
                   </template>
 
                   <!-- 4th level -->
                   <el-menu-item v-for="(last, last_index) in sub_child.children"
                   :index="last.id"
-                  :key="last.id">
-                    <q-icon size="14pt" :name="last.icon"></q-icon>
-
-                      {{last.label}}
-
+                  :key="last.id"
+                  @click.native="scrollTo('#'+last.id)"
+                  style="padding-left: 10px;"
+                  >
+                    <!-- <q-icon size="12pt" :name="last.icon"></q-icon> -->
+                    {{last.label}}
                   </el-menu-item>
 
                   <!-- /4th level -->
@@ -273,11 +279,13 @@
 
                 <el-menu-item
                 v-else
-                :index="sub_child.id"
-                :key="sub_child.id">
-                  <q-icon size="14pt" :name="sub_child.icon"></q-icon>
-
-                    {{sub_child.label}}
+                :index="'#'+sub_child.id"
+                :key="sub_child.id"
+                @click.native="scrollTo('#'+sub_child.id)"
+                style="padding-left: 10px;"
+                >
+                  <!-- <q-icon size="12pt" :name="sub_child.icon"></q-icon> -->
+                  {{sub_child.label}}
 
                 </el-menu-item>
               </template>
@@ -289,9 +297,12 @@
             v-else
             :index="child.id"
             :key="child.id"
-            @click="$router.push('#'+child.id)"
+            @click.native="scrollTo('#'+child.id)"
+            style="padding-left: 10px;"
             >
-              <q-icon size="14pt" :name="child.icon"></q-icon>
+
+            <!-- @click="$router.push('#'+child.id)" -->
+              <!-- <q-icon size="12pt" :name="child.icon"></q-icon> -->
               {{child.label}}
             </el-menu-item>
           </template>
@@ -321,8 +332,8 @@ export default {
   },
   data () {
     return {
-      isCollapse: true,
-      menu_props_expanded: [],
+      isCollapse: false,
+      // menu_props_expanded: [],
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
       DateRangeOptions: {
@@ -398,6 +409,10 @@ export default {
     //   this.currentHost = this.hosts[0]
     // }
 
+    // From testing, without a brief timeout, it won't work.
+    if (this.$route.hash) {
+      setTimeout(() => this.scrollTo(this.$route.hash), 1000)
+    }
   },
   // watch: {
   //   '$store.state.app.charts_tree_menu': function(val){
@@ -419,6 +434,28 @@ export default {
   // },
   computed: Object.merge(
     {
+      menu_props_expanded: {
+        get () {
+          let expand = function(menu){
+            let expanded = []
+            if(Array.isArray(menu)){
+              Array.each(menu, function(sub){
+                expanded.push(sub.id)
+                expanded = Array.combine(expand(sub.children), expanded)
+              })
+            }
+            return expanded
+          }
+
+          let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
+          // console.log('menu_props_expanded get', expanded_menu)
+
+          return expanded_menu
+        },
+        set (value){
+          console.log('menu_props_expanded set', value)
+        }
+      },
       // menu_props_expanded: {
       //   get () {
       //     let expand = function(menu){
@@ -426,14 +463,23 @@ export default {
       //       if(Array.isArray(menu)){
       //         Array.each(menu, function(sub){
       //           expanded.push(sub.id)
-      //           expanded = Array.combine(expand(sub.children), expanded)
+      //           /**
+      //           * recursive: expand all
+      //           **/
+      //           // expanded = Array.combine(expand(sub.children), expanded)
+      //
+      //           Array.each(sub.children, function(child){
+      //             // if(child.children.length == 0)
+      //               expanded.push(child.id)
+      //           })
+      //
       //         })
       //       }
       //       return expanded
       //     }
       //
       //     let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
-      //     // console.log('menu_props_expanded get', expanded_menu)
+      //     console.log('menu_props_expanded get', expanded_menu)
       //
       //     return expanded_menu
       //   },
@@ -499,6 +545,9 @@ export default {
     })
   ),
   methods: {
+    scrollTo: function (hashtag) {
+      setTimeout(() => { location.href = hashtag }, 1000)
+    },
     pause (bool) {
       this.$store.commit('app/pause', bool)
     },
@@ -528,9 +577,31 @@ export default {
 
 <style>
   .el-menu-vertical-demo:not(.el-menu--collapse) {
-    width: 300px;
-    min-height: 400px;
+    width: 200px;
+    /* min-height: 400px; */
   }
+  .el-submenu__title {
+    font-size: 13px;
+    height: 40px;
+    line-height: 40px;
+    /* padding-left: 20px; */
+  }
+  .el-submenu__title[style] {
+    padding-left: 0px !important;
+  }
+  .el-submenu .el-menu-item {
+    font-size: 11px;
+    height: 25px;
+    line-height: 25px;
+    /* padding-left: 20px; */
+  }
+  .el-menu--vertical .el-menu-item {
+    font-size: 11px;
+    height: 25px;
+    line-height: 25px;
+    /* padding-left: 20px; */
+  }
+
   /* a.el-menu-vertical-demo {
     color:red;
     text-decoration: none;

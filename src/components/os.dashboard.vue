@@ -2,7 +2,7 @@
 
     <div>
       <template v-for="(chart, name) in charts">
-        <a :name="host+'_'+name"></a>
+        <a :name="'#'+host+'_'+name"></a>
       <!-- OS stats -->
 
        <q-collapsible
@@ -168,7 +168,7 @@ export default {
   ),
   // watch: {
   //   '$refs': function(val){
-  //     console.log('$refs watched', val )
+  //     //console.log('$refs watched', val )
   //   }
   // },
   updated (){
@@ -180,13 +180,13 @@ export default {
     let self = this
     this.EventBus.$on('highlightCallback', function(params) {
       this.highlighted = true
-      ////////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
+      //////////////////////////////console.log('event OS.DASHBOARD highlightCallback', self.$refs)
       self.sync_charts()
 		})
 
     this.EventBus.$on('unhighlightCallback', event => {
       this.highlighted = false
-      //////////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
+      ////////////////////////////////console.log('event OS.DASHBOARD unhighlightCallback', event)
       self.unsync_charts()
 		})
   },
@@ -197,7 +197,7 @@ export default {
     //if "remounted" the $watch ain't gonna work if it's not changed
     if(this.$store.state.hosts[this.host] && this.$store.state.hosts[this.host].os){
       // this.$set(this.os, {})
-      //////////console.log('remounted', this._watchers)
+      ////////////console.log('remounted', this._watchers)
       this.initialize_all_charts(this.$store.state.hosts[this.host].os)
     }
 
@@ -216,7 +216,7 @@ export default {
     _update_charts_menu : frameDebounce(function() {//performance reasons
 
       let menu = Array.clone(this.$store.state.app.charts_tree_menu)
-        // console.log('os.dashboard.vue _update_charts_menu', this.$refs)
+        // //console.log('os.dashboard.vue _update_charts_menu', this.$refs)
       Object.each(this.$refs, function(ref, key){
         if(
           /-collapsible/.test(key)
@@ -227,7 +227,7 @@ export default {
 
           menu_entry = this._parse_menu_key(ref[0].label, key.replace('-collapsible', ''))
 
-          // console.log('os.dashboard.vue _update_charts_menu entry', key, ref, menu_entry)
+          // //console.log('os.dashboard.vue _update_charts_menu entry', key, ref, menu_entry)
 
           menu = this._merge_menu(menu, menu_entry)
 
@@ -236,7 +236,7 @@ export default {
 
 
 
-      console.log('os.dashboard.vue _update_charts_menu', menu)
+      //console.log('os.dashboard.vue _update_charts_menu', menu)
 
       Object.each(this.$store.state.app.icons, function(rgexp, name){
           if(rgexp.test('os'))
@@ -279,7 +279,7 @@ export default {
 
         menu.children.push(this._parse_menu_key(sub, link, icon))
 
-        console.log('os.dashboard.vue _parse_menu_key', menu.children)
+        //console.log('os.dashboard.vue _parse_menu_key', menu.children)
 
         // if(menu.children.length == 0){//no children, means last leaf
           // menu.id = link
@@ -319,7 +319,7 @@ export default {
 
         }.bind(this))
       }
-      // console.log('found', found)
+      // //console.log('found', found)
 
       if(menu.length == 0 || found == false){
         menu.push(menu_entry)
@@ -356,12 +356,12 @@ export default {
     * UI related
     **/
     visibilityChanged (isVisible, entry) {
-      // ////console.log('visibilityChanged', isVisible, entry.target.id)
+      // //////console.log('visibilityChanged', isVisible, entry.target.id)
       // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
       this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
 
       frameDebounce(function() {//performance reasons
-        // ////console.log('visibilityChanged frameDebounce')
+        // //////console.log('visibilityChanged frameDebounce')
         Object.each(this.$options.visibles, function(bool, visible){
           this.$set(this.visibles, visible, bool)
         }.bind(this))
@@ -374,15 +374,15 @@ export default {
         let gs = []
         // let sync = []
 
-        ////////////////////////////console.log(this.$refs, this.host)
+        //////////////////////////////console.log(this.$refs, this.host)
         Object.each(this.$refs, function(ref, name){
 
-          // //////////////////////////console.log('charts', name, ref)
+          // ////////////////////////////console.log('charts', name, ref)
 
           if(ref[0] && ref[0].chart instanceof Dygraph
             && (this.visibles[name] != false || this.freezed == true ))
           {
-            //////////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
+            ////////////////////////////console.log('charts', name, ref[0].chart, ref[0].chart instanceof Dygraph)
 
           // if(ref[0].chart instanceof Dygraph){
 
@@ -406,7 +406,7 @@ export default {
     },
     unsync_charts(){
       if(this.$options.sync){
-        // //console.log('detaching', this.$options.sync)
+        // ////console.log('detaching', this.$options.sync)
         this.$options.sync.detach()
         this.$options.sync = null
       }
@@ -479,8 +479,8 @@ export default {
     * @override chart [mixin]
     **/
     update_chart_stat (name, data){
-      // //console.log('update_chart_stat', name, data)
-      // //console.log('update_chart_stat', name)
+      // ////console.log('update_chart_stat', name, data)
+      // ////console.log('update_chart_stat', name)
 
       if(this.hide[name] != true){
 
@@ -501,7 +501,7 @@ export default {
         if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
           this.$set(this.hide, name, true)
 
-        // console.log('this.hide', name, this.hide[name])
+        // //console.log('this.hide', name, this.hide[name])
 
         this.$set(this.stats[name], 'data', data)
 
