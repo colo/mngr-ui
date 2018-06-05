@@ -8,7 +8,6 @@
        <q-collapsible
         :no-ripple="true"
         :opened="true"
-        v-if="hide[name] != true"
         :icon="chart.icon"
         :label="beautifyLabel(chart.label || name)"
         :separator="true"
@@ -17,6 +16,7 @@
         :name="name"
         :ref="host+'_'+name+'-collapsible'"
        >
+       <!-- v-if="hide[name] != true" -->
        <!-- :opened="(hide[name] != true) ? true : false" -->
        <!-- :opened="true" -->
        <!-- v-if="hide[name] != true" -->
@@ -26,7 +26,8 @@
           v-observe-visibility="visibilityChanged"
           :id="host+'_'+name+'-card'"
         >
-        <!-- {{name}} -->
+        <!-- {{hide[name]}}
+        {{name}} -->
          <!-- <at-card :bordered="false"> -->
            <!-- <div
             :id="name"
@@ -81,6 +82,7 @@
 import Dashboard from './mixins/dashboard'
 
 import { frameDebounce } from 'quasar'
+import { throttle } from 'quasar'
 
 
 import dygraphWrapper from './wrappers/dygraph'
@@ -166,14 +168,26 @@ export default {
       freezed: state => state.app.freeze,
     })
   ),
-  // watch: {
-  //   '$refs': function(val){
-  //     //console.log('$refs watched', val )
-  //   }
-  // },
+  watch: {
+    'charts': frameDebounce(function(val) {
+      console.log('charts watched', val )
+      this._update_charts_menu()
+
+    }),
+    'hide': frameDebounce(function(val) {
+      console.log('hide watched', val )
+      Object.each(val, function(value, collapsible){
+        if(value == true){
+          // console.log('hide watched', this.$refs[this.host+'_'+collapsible+'-collapsible'] )
+          this.$refs[this.host+'_'+collapsible+'-collapsible'][0].hide()
+        }
+      }.bind(this))
+
+    }),
+  },
   updated (){
-    this.$store.commit('app/reset', false)
-    this._update_charts_menu()
+    // this.$store.commit('app/reset', false)
+    // this._update_charts_menu()
   },
   created (){
 
@@ -213,7 +227,7 @@ export default {
   },
 
   methods: {
-    _update_charts_menu : frameDebounce(function() {//performance reasons
+    _update_charts_menu (){//performance reasons
 
       let menu = Array.clone(this.$store.state.app.charts_tree_menu)
         // //console.log('os.dashboard.vue _update_charts_menu', this.$refs)
@@ -239,13 +253,13 @@ export default {
       //console.log('os.dashboard.vue _update_charts_menu', menu)
 
       Object.each(this.$store.state.app.icons, function(rgexp, name){
-          if(rgexp.test('os'))
+          if(rgexp.test('os') && menu[0])
             menu[0].icon = name
       })
 
       this.$store.commit('app/charts_tree_menu', menu)
 
-    }),
+    },
     _parse_menu_key (label, link, icon){
 
 

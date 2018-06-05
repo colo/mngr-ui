@@ -193,7 +193,7 @@
       </q-tree> -->
     <!-- </q-layout-drawer> -->
 
-    <q-page-container style="width:90%">
+    <q-page-container style="width:85%">
       <router-view :EventBus="EventBus"/>
       <q-btn
         v-back-to-top.animate="{offset: 500, duration: 100}"
@@ -219,7 +219,7 @@
         <at-option value="host.value">{{host.label}}</at-option>
       </at-select> -->
       <el-menu
-        class="el-menu-vertical-demo"
+        class="el-menu-vertical"
         :collapse="isCollapse"
         :default-openeds="menu_props_expanded"
         :collapse-transition="false"
@@ -297,13 +297,14 @@
             v-else
             :index="child.id"
             :key="child.id"
-            @click.native="scrollTo('#'+child.id)"
             style="padding-left: 10px;"
             >
-
+            <!-- @click.native="scrollTo('#'+child.id)" -->
             <!-- @click="$router.push('#'+child.id)" -->
               <!-- <q-icon size="12pt" :name="child.icon"></q-icon> -->
-              {{child.label}}
+              <a :href="'#'+child.id">
+                {{child.label}}
+              </a>
             </el-menu-item>
           </template>
 
@@ -333,7 +334,7 @@ export default {
   data () {
     return {
       isCollapse: false,
-      // menu_props_expanded: [],
+      menu_props_expanded: ['os'],
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
       DateRangeOptions: {
@@ -410,9 +411,9 @@ export default {
     // }
 
     // From testing, without a brief timeout, it won't work.
-    if (this.$route.hash) {
-      setTimeout(() => this.scrollTo(this.$route.hash), 1000)
-    }
+    // if (this.$route.hash) {
+    //   setTimeout(() => this.scrollTo(this.$route.hash), 1000)
+    // }
   },
   // watch: {
   //   '$store.state.app.charts_tree_menu': function(val){
@@ -434,28 +435,28 @@ export default {
   // },
   computed: Object.merge(
     {
-      menu_props_expanded: {
-        get () {
-          let expand = function(menu){
-            let expanded = []
-            if(Array.isArray(menu)){
-              Array.each(menu, function(sub){
-                expanded.push(sub.id)
-                expanded = Array.combine(expand(sub.children), expanded)
-              })
-            }
-            return expanded
-          }
-
-          let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
-          // console.log('menu_props_expanded get', expanded_menu)
-
-          return expanded_menu
-        },
-        set (value){
-          console.log('menu_props_expanded set', value)
-        }
-      },
+      // menu_props_expanded: {
+      //   get () {
+      //     let expand = function(menu){
+      //       let expanded = []
+      //       if(Array.isArray(menu)){
+      //         Array.each(menu, function(sub){
+      //           expanded.push(sub.id)
+      //           expanded = Array.combine(expand(sub.children), expanded)
+      //         })
+      //       }
+      //       return expanded
+      //     }
+      //
+      //     let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
+      //     console.log('menu_props_expanded get', expanded_menu)
+      //
+      //     return expanded_menu
+      //   },
+      //   set (value){
+      //     console.log('menu_props_expanded set', value)
+      //   }
+      // },
       // menu_props_expanded: {
       //   get () {
       //     let expand = function(menu){
@@ -576,8 +577,11 @@ export default {
 </script>
 
 <style>
-  .el-menu-vertical-demo:not(.el-menu--collapse) {
-    width: 200px;
+  .el-menu-vertical:not(.el-menu--collapse) {
+    width: 160px;
+    height:100vh;
+    min-height:100vh;
+    /* height: 100%; */
     /* min-height: 400px; */
   }
   .el-submenu__title {
