@@ -13,9 +13,9 @@
         :separator="true"
         header-class="text-primary bg-white"
         :key="name"
-        :name="name"
         :ref="host+'_'+name+'-collapsible'"
        >
+       <!-- :name="name" -->
        <!-- v-if="hide[name] != true" -->
        <!-- :opened="(hide[name] != true) ? true : false" -->
        <!-- :opened="true" -->
