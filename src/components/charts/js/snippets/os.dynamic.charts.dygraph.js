@@ -12,9 +12,9 @@ export default {
       managed: true,
       transform: function(networkInterfaces, vm, chart){
         let watcher = chart.watch || {}
-        // console.log('networkInterfaces transform: ', networkInterfaces)
+        // ////console.log('networkInterfaces transform: ', networkInterfaces)
 
-        // //////////console.log('networkInterfaces', networkInterfaces)
+        // //////////////console.log('networkInterfaces', networkInterfaces)
 
         if(networkInterfaces.getLast() !== null){
 
@@ -35,9 +35,9 @@ export default {
             * to: messure->property (ex: bytes {transmited:.., recived: ... })
             **/
             Array.each(messures, function(messure){// "bytes" | "packets"
-              if(!vm.stats['os.networkInterfaces.'+iface+'.'+messure]){
+              if(!vm.stats[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
 
-                vm.add_chart('os.networkInterfaces.'+iface+'.'+messure, chart)
+                vm.add_chart(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, chart)
               }
 
 
@@ -74,7 +74,7 @@ export default {
                 }
                 else{
                   data = []
-                  ////////////console.log('stats.value[iface] undefined', iface)
+                  ////////////////console.log('stats.value[iface] undefined', iface)
                   /**
                   * should notify error??
                   **/
@@ -82,7 +82,7 @@ export default {
               })
 
               // vm.$set(vm.stats['os.networkInterfaces.'+iface+'.'+messure], 'data', data)
-              vm.update_chart_stat('os.networkInterfaces.'+iface+'.'+messure, data)
+              vm.update_chart_stat(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, data)
 
             })
 

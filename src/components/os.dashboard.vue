@@ -2,7 +2,7 @@
 
     <div>
       <template v-for="(chart, name) in charts">
-        <a :name="'#'+host+'_'+name"></a>
+        <a :name="'#'+name"></a>
       <!-- OS stats -->
 
        <q-collapsible
@@ -13,7 +13,7 @@
         :separator="true"
         header-class="text-primary bg-white"
         :key="name"
-        :ref="host+'_'+name+'-collapsible'"
+        :ref="name+'-collapsible'"
        >
        <!-- :name="name" -->
        <!-- v-if="hide[name] != true" -->
@@ -24,7 +24,7 @@
 
         <el-card shadow="hover"
           v-observe-visibility="visibilityChanged"
-          :id="host+'_'+name+'-card'"
+          :id="name+'-card'"
         >
         <!-- {{hide[name]}}
         {{name}} -->
@@ -38,10 +38,10 @@
 
             <component
               :is="chart.component"
-              v-if="visibles[host+'_'+name] && visibles[host+'_'+name] != false"
-              :visible="visibles[host+'_'+name]"
-              :ref="host+'_'+name"
-              :id="host+'_'+name"
+              v-if="visibles[name] && visibles[name] != false"
+              :visible="visibles[name]"
+              :ref="name"
+              :id="name"
               :options="chart"
               :stat="stats[name]"
               :EventBus="EventBus"
@@ -179,7 +179,7 @@ export default {
       Object.each(val, function(value, collapsible){
         if(value == true){
           // console.log('hide watched', this.$refs[this.host+'_'+collapsible+'-collapsible'] )
-          this.$refs[this.host+'_'+collapsible+'-collapsible'][0].hide()
+          this.$refs[collapsible+'-collapsible'][0].hide()
         }
       }.bind(this))
 
@@ -466,7 +466,7 @@ export default {
     process_chart (chart, name){
 
       if(name.indexOf('os.') < 0)
-        name = 'os.'+name
+        name = this.host+'_os.'+name
 
 
       if(!chart.watch || chart.watch.managed != true){
@@ -482,10 +482,19 @@ export default {
     create_watcher(name, chart){
       let watcher = chart.watch || {}
       let watch_name = name
-      if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
+      let replace_host = new RegExp(this.host+'_', 'g')
+      watch_name = watch_name.replace(replace_host, '')
+
+      if(watch_name.indexOf('_') > 0 ){//removes host_ & indixes, ex: cpu.0
         watch_name = watch_name.substring(0, watch_name.indexOf('_'))
+      }
+
+      // console.log('create_watcher ', watch_name, name)
+
 
       watch_name = watch_name.replace(/os\./, '', 'g')
+
+
 
       this._create_watcher('$store.state.hosts.'+this.host+'.os.'+watch_name, name, chart)
     },
@@ -521,11 +530,11 @@ export default {
 
         if(
           this.stats[name].lastupdate < Date.now() - this.charts[name].interval
-          && (this.$refs[this.host+'_'+name]
-            && this.$refs[this.host+'_'+name][0]
-            && this.$refs[this.host+'_'+name][0].chart != null
+          && (this.$refs[name]
+            && this.$refs[name][0]
+            && this.$refs[name][0].chart != null
           )
-          && ( this.visibles[this.host+'_'+name] != false || this.freezed == true )
+          && ( this.visibles[name] != false || this.freezed == true )
           && this.highlighted == false
           && this.paused == false
           && data.length > 0
@@ -536,7 +545,7 @@ export default {
           //   false
           // )
 
-          this.$refs[this.host+'_'+name][0].update()//default update
+          this.$refs[name][0].update()//default update
 
           this.stats[name].lastupdate = Date.now()
           // this.$forceUpdate()

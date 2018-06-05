@@ -304,16 +304,16 @@ export default {
               //   }
               // })
 
-              if(!vm.stats['os.networkInterfaces.'+iface+'.'+messure]){
+              if(!vm.stats[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
                 chart = Object.clone(DefaultNetFrappeCharts)
                 // chart.options.data.labels = []
 
                 console.log('networkInterfaces chart', chart, 'os.networkInterfaces.'+iface+'.'+messure)
 
-                vm.add_chart('os.networkInterfaces.'+iface+'.'+messure, chart)
+                vm.add_chart(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, chart)
               }
               else{
-                chart = vm.charts['os.networkInterfaces.'+iface+'.'+messure]
+                chart = vm.charts[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]
               }
 
 
@@ -392,7 +392,7 @@ export default {
               })
 
 
-              vm.update_chart_stat('os.networkInterfaces.'+iface+'.'+messure, data)
+              vm.update_chart_stat(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, data)
 
             })
 

@@ -416,7 +416,7 @@ export default {
     process_chart_label (chart, name, stat) {
       if(chart.labeling && typeOf(chart.labeling) == 'function'){
 
-        return chart.labeling(chart, name, stat)
+        return chart.labeling(this, chart, name, stat)
       }
       else if(chart.label){
         return chart.label
@@ -426,7 +426,7 @@ export default {
       }
     },
     process_chart_name (chart, stat){
-      if(chart.name && typeOf(chart.name) == 'function') return chart.name(stat)
+      if(chart.name && typeOf(chart.name) == 'function') return chart.name(this, chart, stat)
       else if(chart.name) return chart.name
     },
     /**

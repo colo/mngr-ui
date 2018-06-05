@@ -37,9 +37,9 @@ export default {
             * to: messure->property (ex: bytes {transmited:.., recived: ... })
             **/
             Array.each(messures, function(messure){// "bytes" | "packets"
-              if(!vm.stats['os.networkInterfaces.'+iface+'.'+messure]){
+              if(!vm.stats[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
 
-                vm.add_chart('os.networkInterfaces.'+iface+'.'+messure, chart)
+                vm.add_chart(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, chart)
               }
 
 
@@ -84,7 +84,7 @@ export default {
               })
 
               // vm.$set(vm.stats['os.networkInterfaces.'+iface+'.'+messure], 'data', data)
-              vm.update_chart_stat('os.networkInterfaces.'+iface+'.'+messure, data)
+              vm.update_chart_stat(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, data)
 
             })
 
@@ -105,9 +105,9 @@ export default {
     // name: 'mounts_percentage',
     match: /mounts/,
     // label: 'somelabel',
-    labeling: function(chart, name, stat){
+    labeling: function(vm, chart, name, stat){
 
-      return 'os.mounts['+stat[0].value.mount_point+']'
+      return vm.host+'_os.mounts['+stat[0].value.mount_point+']'
     },
     watch: {
       // merge: true,
@@ -144,10 +144,10 @@ export default {
   }),
   "blkdev_stats": Object.merge(Object.clone(DefaultDygraphLine),{
     match: /blockdevices\..*/,
-    labeling: function(chart, name, stat){
+    labeling: function(vm, chart, name, stat){
       // console.log('blkdev_stats', chart, name, stat)
 
-      return 'os.'+name
+      return vm.host+'_os.'+name
     },
     watch: {
       value: 'stats',
@@ -180,7 +180,10 @@ export default {
 
   }),
   "cpus_times": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'os.cpus_times',
+    // name: 'os.cpus_times',
+    name: function(vm, chart, sta){
+      return vm.host+'_os.cpus_times'
+    },
     match: /cpus/,
     watch: {
       merge: true,
@@ -221,7 +224,10 @@ export default {
 
   }),
   "cpus_simple": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'os.cpus_simple',
+    // name: 'os.cpus_simple',
+    name: function(vm, chart, sta){
+      return vm.host+'_os.cpus_simple'
+    },
     match: /cpus/,
     "options": {
       valueRange: [0, 100],
@@ -286,7 +292,10 @@ export default {
   }),
   "freemem": Object.merge(Object.clone(DefaultDygraphLine),{
     // icon: 'memory',
-    name: 'os.freemem',
+    // name: 'os.freemem',
+    name: function(vm, chart, sta){
+      return vm.host+'_os.freemem'
+    },
     match: /freemem/,
     watch: {
       // merge: true,
@@ -326,7 +335,10 @@ export default {
   }),
 
   "loadavg_minute": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'os.minute.loadavg',
+    // name: 'os.minute.loadavg',
+    name: function(vm, chart, sta){
+      return vm.host+'_os.minute.loadavg'
+    },
     match: /minute\.loadavg.*/,
     watch: {
       // exclude: /samples/,
@@ -400,7 +412,10 @@ export default {
     }
   }),
   "uptime_minute": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'os.minute.uptime',
+    // name: 'os.minute.uptime',
+    name: function(vm, chart, sta){
+      return vm.host+'_os.minute.uptime'
+    },
     match: /minute\.uptime.*/,
     watch: {
       exclude: /samples/,
@@ -411,7 +426,10 @@ export default {
     }
   }),
   "freemem_minute": Object.merge(Object.clone(DefaultDygraphLine),{
-    name: 'os.minute.freemem',
+    // name: 'os.minute.freemem',
+    name: function(vm, chart, sta){
+      return vm.host+'_os.minute.freemem'
+    },
     match: /minute\.freemem.*/,
     watch: {
       // exclude: /samples/,
