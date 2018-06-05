@@ -575,7 +575,7 @@ export default {
 
         this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
 
-        if(this.$options.has_no_data[name] > 10){//60 = a minute, once hidden, user should unhide it
+        if(this.$options.has_no_data[name] > 60){//60 = a minute, once hidden, user should unhide it
           // this.$set(this.hide, name, true)
           let hide = Object.clone(this.hide)
           hide[name] = true
