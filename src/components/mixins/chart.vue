@@ -287,37 +287,39 @@ export default {
       // if(watch_name.indexOf('_') > 0 )//removes indixes, ex: cpu.0
       //   watch_name = watch_name.substring(0, watch_name.indexOf('_'))
 
-      if(this.$options.unwatchers[name]){
-        this.$options.unwatchers[name]()
-        delete this.$options.unwatchers[name]
+      if(this.$options.unwatchers[path+name]){
+        this.$options.unwatchers[path+name]()
+        delete this.$options.unwatchers[path+name]
       }
 
-      let found_watcher = false
+      // let found_watcher = false
+      //
+      // if(Array.isArray(this._watchers)){
+      //   Array.each(this._watchers, function(watcher){
+      //     // console.log('watcher.expression', watcher.expression)
+      //     if(watcher.expression == path && watcher.user == true)//means user already added a watcher for this chart
+      //       found_watcher = true
+      //       // console.log('watcher.expression', watcher.expression)
+      //   })
+      // }
 
-      if(Array.isArray(this._watchers)){
-        Array.each(this._watchers, function(watcher){
-          if(watcher.expression == name && watcher.user == true)//means user already added a watcher for this chart
-            found_watcher = true
-        })
-      }
-
-      if(found_watcher == false){
+      // if(found_watcher == false){
 
         let generic_data_watcher = function(current){
           this.generic_data_watcher(current, chart, name)
         }
 
-        //console.log('gonna watch...', name, path)
+        // console.log('gonna watch...', name, path)
         // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
         this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
 
-      }
+      // }
     },
 
     generic_data_watcher (current, chart, name){
       let watcher = chart.watch || {}
       // //console.log('generic_data_watcher', this.host+'_'+name, current)
-      //console.log('generic_data_watcher', this.host+'_'+name)
+      // console.log('generic_data_watcher', name, Date.now())
 
 
       ////////////////console.log('type_value', name, val.current)
@@ -397,6 +399,7 @@ export default {
 
           }
 
+          // console.log('calling update_chart_stat', name, Date.now())
           this.update_chart_stat(name, data)
 
         // }

@@ -200,7 +200,7 @@
         round
         color="primary"
         class="fixed-bottom-right animate-pop justify-center"
-        style="margin: 0 15px 15px 0"
+        style="margin: 0 200px 15px 0"
         no-ripple
         flat
       >
@@ -267,11 +267,13 @@
                   <el-menu-item v-for="(last, last_index) in sub_child.children"
                   :index="last.id"
                   :key="last.id"
-                  @click.native="scrollTo('#'+last.id)"
                   style="padding-left: 10px;"
                   >
+                    <!-- @click.native="scrollTo('#'+last.id)" -->
                     <!-- <q-icon size="12pt" :name="last.icon"></q-icon> -->
-                    {{last.label}}
+                    <a :href="'#'+last.id">
+                      {{last.label}}
+                    </a>
                   </el-menu-item>
 
                   <!-- /4th level -->
@@ -281,12 +283,13 @@
                 v-else
                 :index="'#'+sub_child.id"
                 :key="sub_child.id"
-                @click.native="scrollTo('#'+sub_child.id)"
                 style="padding-left: 10px;"
                 >
+                  <!-- @click.native="scrollTo('#'+sub_child.id)" -->
                   <!-- <q-icon size="12pt" :name="sub_child.icon"></q-icon> -->
-                  {{sub_child.label}}
-
+                  <a :href="'#'+sub_child.id">
+                    {{sub_child.label}}
+                  </a>
                 </el-menu-item>
               </template>
               <!-- /3rd level -->
@@ -312,6 +315,8 @@
         </el-submenu>
 
       </el-menu>
+
+
     </q-page-sticky>
 
 
@@ -604,6 +609,19 @@ export default {
     height: 25px;
     line-height: 25px;
     /* padding-left: 20px; */
+  }
+  /* .el-menu-vertical a {
+    text-decoration: none !important;
+  } */
+  .el-menu-vertical a:link {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: inherit;
+  }
+  .el-menu-vertical a:visited {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: inherit;
   }
 
   /* a.el-menu-vertical-demo {

@@ -132,7 +132,7 @@ export default {
   },
   updated: function(){
     this.$store.commit('app/reset', false)
-    console.log('os.stats.vue updated', this.$store.state.app)
+    // console.log('os.stats.vue updated', this.$store.state.app)
   },
   created: function(){
     console.log('os.stats.vue created')
@@ -265,7 +265,8 @@ export default {
         Array.each(doc, function(item){
           Object.each(item.doc.data, function(value, key){
             let data = {value: value, timestamp: item.doc.metadata.timestamp}
-            keys[key].push(data)
+            if(keys[key])
+              keys[key].push(data)
           })
         }.bind(this))
       }

@@ -18,13 +18,13 @@ const Router = new VueRouter({
   mode: process.env.VUE_ROUTER_MODE,
   base: process.env.VUE_ROUTER_BASE,
   // scrollBehavior: () => ({ y: 0 }),
-  scrollBehavior: function(to, from, savedPosition) {
-      if (to.hash) {
-          return {selector: to.hash}
-      } else {
-          return { x: 0, y: 0 }
-      }
-  },
+  // scrollBehavior: function(to, from, savedPosition) {
+  //     if (to.hash) {
+  //         return {selector: to.hash}
+  //     } else {
+  //         return { x: 0, y: 0 }
+  //     }
+  // },
   routes
 })
 

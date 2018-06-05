@@ -2,7 +2,7 @@
 
     <div>
       <template v-for="(chart, name) in charts">
-        <a :name="'#'+name"></a>
+        <a :name="name"></a>
       <!-- OS stats -->
 
        <q-collapsible
@@ -14,7 +14,10 @@
         header-class="text-primary bg-white"
         :key="name"
         :ref="name+'-collapsible'"
+        @show="showCollapsible(name)"
+        @hide="hideCollapsible(name)"
        >
+       <!-- @hide="hideCollapsible(name)" -->
        <!-- :name="name" -->
        <!-- v-if="hide[name] != true" -->
        <!-- :opened="(hide[name] != true) ? true : false" -->
@@ -22,10 +25,11 @@
        <!-- v-if="hide[name] != true" -->
 
 
-        <el-card shadow="hover"
+        <el-card
           v-observe-visibility="visibilityChanged"
           :id="name+'-card'"
         >
+        <!-- shadow="hover" -->
         <!-- {{hide[name]}}
         {{name}} -->
          <!-- <at-card :bordered="false"> -->
@@ -37,8 +41,8 @@
           </div> -->
 
             <component
-              :is="chart.component"
               v-if="visibles[name] && visibles[name] != false"
+              :is="chart.component"
               :visible="visibles[name]"
               :ref="name"
               :id="name"
@@ -48,6 +52,22 @@
               :freezed="freezed"
             />
             </component>
+            <div
+              v-else
+              :id="name+'-container'"
+              class="netdata-container-with-legend"
+              :style="chart.options.style"
+            >
+              <div
+                :class="chart.options.class"
+              >
+              </div>
+             <div
+               class="netdata-chart-legend"
+             >
+             </div>
+            </div>
+
             <!-- class="netdata-container" -->
 
             <!-- <dygraph-vue
@@ -170,25 +190,40 @@ export default {
   ),
   watch: {
     'charts': frameDebounce(function(val) {
-      console.log('charts watched', val )
+      // console.log('charts watched', val )
       this._update_charts_menu()
 
     }),
-    'hide': frameDebounce(function(val) {
+    // 'visibles' (val){
+    //   console.log('visibles watched', val )
+    // },
+    // 'hide': frameDebounce(function(val) {
+    //   // console.log('hide watched', val )
+    //   Object.each(val, function(value, collapsible){
+    //     console.log('hide watched', collapsible, value )
+    //     if(value == true){
+    //
+    //       this.$refs[collapsible+'-collapsible'][0].hide()
+    //     }
+    //   }.bind(this))
+    //
+    // }),
+    'hide': function(val) {
       console.log('hide watched', val )
       Object.each(val, function(value, collapsible){
+        // console.log('hide watched', collapsible, value )
         if(value == true){
-          // console.log('hide watched', this.$refs[this.host+'_'+collapsible+'-collapsible'] )
+
           this.$refs[collapsible+'-collapsible'][0].hide()
         }
       }.bind(this))
 
-    }),
+    },
   },
-  updated (){
-    // this.$store.commit('app/reset', false)
-    // this._update_charts_menu()
-  },
+  // updated (){
+  //   // this.$store.commit('app/reset', false)
+  //   // this._update_charts_menu()
+  // },
   created (){
 
     let self = this
@@ -227,9 +262,22 @@ export default {
   },
 
   methods: {
+    showCollapsible (collapsible){
+      console.log('showCollapsible', collapsible)
+      this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 0
+      this.$set(this.hide, collapsible.replace('-collapsible', ''), false)
+
+    },
+    hideCollapsible (collapsible){
+      console.log('hideCollapsible', collapsible)
+      this.$options.has_no_data[collapsible.replace('-collapsible', '')] = 61
+      this.$set(this.hide, collapsible.replace('-collapsible', ''), true)
+    },
     _update_charts_menu (){//performance reasons
 
-      let menu = Array.clone(this.$store.state.app.charts_tree_menu)
+      // let menu = Array.clone(this.$store.state.app.charts_tree_menu)
+      let menu = []
+
         // //console.log('os.dashboard.vue _update_charts_menu', this.$refs)
       Object.each(this.$refs, function(ref, key){
         if(
@@ -239,7 +287,10 @@ export default {
         ){
           let menu_entry = {}
 
-          menu_entry = this._parse_menu_key(ref[0].label, key.replace('-collapsible', ''))
+          menu_entry = this._parse_menu_key(
+            ref[0].label.replace(this.host+'.', ''),//remove 'host.' from label
+            key.replace('-collapsible', '')//remove '-collapsible' from link
+          )
 
           // //console.log('os.dashboard.vue _update_charts_menu entry', key, ref, menu_entry)
 
@@ -372,15 +423,18 @@ export default {
     visibilityChanged (isVisible, entry) {
       // //////console.log('visibilityChanged', isVisible, entry.target.id)
       // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
-      this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
 
-      frameDebounce(function() {//performance reasons
-        // //////console.log('visibilityChanged frameDebounce')
-        Object.each(this.$options.visibles, function(bool, visible){
-          this.$set(this.visibles, visible, bool)
-        }.bind(this))
+      // this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
 
-      }.bind(this))()
+      // frameDebounce(function() {//performance reasons
+      //   // //////console.log('visibilityChanged frameDebounce')
+      //   Object.each(this.$options.visibles, function(bool, visible){
+      //     this.$set(this.visibles, visible, bool)
+      //   }.bind(this))
+      //
+      // }.bind(this))()
+
+      this.$set(this.visibles, entry.target.id.replace('-card',''), isVisible)
 
     },
     sync_charts(){
@@ -503,7 +557,7 @@ export default {
     **/
     update_chart_stat (name, data){
       // ////console.log('update_chart_stat', name, data)
-      // ////console.log('update_chart_stat', name)
+
 
       if(this.hide[name] != true){
 
@@ -511,7 +565,7 @@ export default {
         Array.each(data, function(columns){
            has_data = columns.some(function(column, index){
              if(index == 0) return false//timestamp column
-             return column > 0;
+             return column != 0;
           });
         })
 
@@ -521,10 +575,15 @@ export default {
 
         this.$options.has_no_data[name] = (has_data == true) ? 0 : this.$options.has_no_data[name] + 1
 
-        if(this.$options.has_no_data[name] > 10)//once hidden, user should unhide it
-          this.$set(this.hide, name, true)
+        if(this.$options.has_no_data[name] > 10){//60 = a minute, once hidden, user should unhide it
+          // this.$set(this.hide, name, true)
+          let hide = Object.clone(this.hide)
+          hide[name] = true
+          this.$set(this, 'hide', hide)//or won't work the watch.hide
+        }
 
-        // //console.log('this.hide', name, this.hide[name])
+        // if(this.hide[name] == true)
+        //   console.log('this.hide', name, this.hide[name])
 
         this.$set(this.stats[name], 'data', data)
 
@@ -544,6 +603,7 @@ export default {
           //   { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
           //   false
           // )
+          // console.log('update_chart_stat', name)
 
           this.$refs[name][0].update()//default update
 
