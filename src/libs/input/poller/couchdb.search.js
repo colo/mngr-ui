@@ -22,7 +22,7 @@ export default new Class({
       once: [
         {
 					search_hosts: function(req, next, app){
-            //console.log('search_hosts', next)
+            ////console.log('search_hosts', next)
 
 						// next(
             app.view({
@@ -43,7 +43,7 @@ export default new Class({
 				},
         {
 					search_paths: function(req, next, app){
-            //console.log('search_hosts', next)
+            ////console.log('search_hosts', next)
 
 						// next(
             app.view({
@@ -67,7 +67,7 @@ export default new Class({
 			periodical: [
         {
 					search_hosts: function(req, next, app){
-            //console.log('search_hosts', next)
+            ////console.log('search_hosts', next)
 
 						// next(
             app.view({
@@ -88,7 +88,7 @@ export default new Class({
 				},
         {
 					search_paths: function(req, next, app){
-            //console.log('search_hosts', next)
+            ////console.log('search_hosts', next)
 
 						// next(
             app.view({
@@ -140,10 +140,10 @@ export default new Class({
   },
 
   view: function(err, resp, view){
-		// console.log('search.view ', resp, view.options);
+		// //console.log('search.view ', resp, view.options);
 
 		if(err){
-			//////console.log('this.sort_by_path error %o', err);
+			////////console.log('this.sort_by_path error %o', err);
 
 		}
 		else{
@@ -169,12 +169,13 @@ export default new Class({
         data = { paths: paths }
       }
 
+      //console.log('search onPeriodicalDoc', data);
       this.fireEvent('onPeriodicalDoc', [{ data: data }, {type: 'periodical', input_type: this, app: null}]);
 		}
   },
   request: function(err, resp){
 		if(err){
-			//////console.log('this.info error %o', err);
+			////////console.log('this.info error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
 		}
 	},
@@ -189,7 +190,7 @@ export default new Class({
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
-		// // //////console.log('this.connect');
+		// // ////////console.log('this.connect');
     //
 		// try{
 		// 	//this.os.api.get({uri: 'hostname'});
@@ -205,11 +206,11 @@ export default new Class({
     //
 		// }
 		// catch(e){
-		// 	//////console.log(e);
+		// 	////////console.log(e);
 		// }
 	},
 	_first_connect: function(err, result, body, opts){
-		// // ////console.log('first_connect %o', result.uuid);
+		// // //////console.log('first_connect %o', result.uuid);
 		// this.options.id = 'hosts-'+result.uuid;//set ID
     //
     // // this.fireEvent('ON_RANGE', {})

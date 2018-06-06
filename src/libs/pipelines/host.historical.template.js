@@ -50,13 +50,13 @@ export default {
 			{
 				if( opts.type == 'range')
 				{
-				 	console.log('InputPollerCouchDBOSHistorical filter', doc)
+				 	//console.log('InputPollerCouchDBOSHistorical filter', doc)
 				}
 
 			 	next(doc)
 			}
       // if(doc != null && opts.type == 'periodical'){
-      //   // console.log('InputPollerCouchDBOSHistorical->filter periodical', doc)
+      //   // //console.log('InputPollerCouchDBOSHistorical->filter periodical', doc)
       //
       // //
   		// // 	let mem = {
@@ -122,8 +122,8 @@ export default {
       // //
       // }
       // else if(doc != null && doc[0]){//range
-      //   //console.log('InputPollerCouchDBOSHistorical->filter range', doc)
-      // //   // ////console.log('range doc', doc)
+      //   ////console.log('InputPollerCouchDBOSHistorical->filter range', doc)
+      // //   // //////console.log('range doc', doc)
       // //
       // //   let mem = {
       // //     type: 'mem',
@@ -205,9 +205,9 @@ export default {
 		function(doc){
       doc = JSON.decode(doc)
 
-      console.log('InputPollerCouchDBOSHistorical->output', doc)
+      //console.log('InputPollerCouchDBOSHistorical->output', doc)
       //
-      // // ////console.log(doc.host)
+      // // //////console.log(doc.host)
       // let type = doc.type
       EventBus.$emit('os.historical', doc)
 			// EventBus.$emit('os', doc)

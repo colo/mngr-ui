@@ -62,9 +62,10 @@ export default {
   ),
   watch: {
     '$store.state.app.suspend': function(bool){
-      //////console.log('$store.state.app.suspend', bool)
+      // //console.log('$store.state.app.suspend', bool)
       Array.each(this.hosts_pipelines, function(pipe){
         if(bool == false){
+          //console.log('$store.state.app.suspend ON_RESUME',pipe);
           pipe.fireEvent('onResume')
         }
         else{
@@ -74,17 +75,18 @@ export default {
       }.bind(this))
     },
     '$store.state.hosts.current': function(host){
-      //////console.log('$store.state.hosts.current range', host)
+      //console.log('$store.state.hosts.current', host)
+
       let range = Object.clone(this.$store.state.app.range)
 
       Array.each(this.hosts_pipelines, function(pipe){
 
-        //////console.log('pipe.inputs[0].options.id', pipe.inputs[0].options.id, 'input.os-'+host)
+        ////////console.log('pipe.inputs[0].options.id', pipe.inputs[0].options.id, 'input.os-'+host)
 
         // if(pipe.inputs[0].options.id == 'input.os-'+host){
         let search_host = new RegExp(host, 'g')
         if(search_host.test(pipe.inputs[0].options.id)){
-          // ////console.log('firing onResume...', pipe.inputs[0].options.id)
+          // //////console.log('firing onResume...', pipe.inputs[0].options.id)
 
 
           if(range[1] == null){
@@ -97,8 +99,10 @@ export default {
           //   pipe.fireEvent('onSuspend')
           // }
           // else{
-          if(this.$store.state.app.suspend != true)
+          if(this.$store.state.app.suspend != true){
+            //console.log('store.state.hosts.current ON_RESUME',pipe);
             pipe.fireEvent('onResume')
+          }
 
           // }
 
@@ -122,7 +126,7 @@ export default {
 
     },
     // '$store.state.app.paths': function(paths){
-    //   // //console.log('$store.state.app.paths', paths, this.$store.state.hosts.all)
+    //   // ////console.log('$store.state.app.paths', paths, this.$store.state.hosts.all)
     //   let hosts = this.$store.state.hosts.all
     //
     //   this.$store.commit('hosts/clear')
@@ -132,18 +136,18 @@ export default {
     //
     // },
     '$store.state.app.range' : function(range){
-      console.log('store.state.app.range', range)
+      //console.log('store.state.app.range', range)
 
       Array.each(this.hosts_pipelines, function(pipe){
 
         let search_host = new RegExp(this.currentHost, 'g')
         if(search_host.test(pipe.inputs[0].options.id)){
         // if(pipe.inputs[0].options.id == 'input.os-'+this.currentHost){
-          ////console.log('firing range......', pipe.inputs[0].options.id)
+          //////console.log('firing range......', pipe.inputs[0].options.id)
 
           let end = new Date().getTime()
 
-          // //////console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
+          // ////////console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
 
           // let host = pipe.inputs[0].options.conn[0].stat_host
 
@@ -214,7 +218,7 @@ export default {
   },
   methods: {
     create_hosts_pipelines (hosts, paths) {
-
+      //console.log('$store.state create_hosts_pipelines', hosts, paths)
 
 
       if(hosts.length > 0 && paths.length > 0){
@@ -227,7 +231,7 @@ export default {
           }.bind(this))
 
         this.$set(this.hosts_pipelines, [])
-        //console.log('create_hosts_pipelinesl', hosts, paths)
+
 
         Array.each(hosts, function(host){
           Array.each(host_pipelines_templates, function(pipeline_template){
@@ -242,21 +246,24 @@ export default {
 
             let pipe = new Pipeline(template)
 
-            //////console.log('$store.state.hosts.all', pipe)
+            ////////console.log('$store.state.hosts.all', pipe)
 
             pipe.fireEvent('onSuspend')
 
             //suscribe to 'onRangeDoc
 
             pipe.inputs[0].addEvent('onRangeDoc', function(doc){
+              //console.log('create_hosts_pipelines onRangeDoc',doc);
+
               if(this.$store.state.app.freeze == true){
-                //////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
+                ////////console.log('pipe.inputs[0].addEvent(onRangeDoc)')
                 // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
                 this.$store.commit('app/suspend', true)
                 this.$q.loading.hide()
                 // this.$store.commit('app/pause', true)
               }
               else{
+                //console.log('create_hosts_pipelines ON_RESUME',pipe);
                 pipe.fireEvent('onResume')
                 this.$q.loading.hide()
                 // this.$store.commit('app/pause', false)
@@ -276,13 +283,14 @@ export default {
 
 
     this.EventBus.$on('search', doc => {
-			// //console.log('recived doc via Event search', doc)
+			// ////console.log('recived doc via Event search', doc)
 
       // // this.$store.commit('hosts/clear')
       // // this.$store.commit('hosts/set', hosts)
       // //
       let currentPaths = this.$store.state.app.paths
       if (currentPaths.equals(doc.paths) !== true){
+
         this.$store.commit('app/paths', doc.paths)
 
         this.$store.commit('hosts/clear')
@@ -290,7 +298,7 @@ export default {
 
 
         let currentRange = Object.clone(this.$store.state.app.range)
-        //console.log('update range', currentRange)
+        ////console.log('update range', currentRange)
         //just a small modification to notify of update
         this.$store.commit('app/range', {start: currentRange[0] + 1, end: currentRange[1]})
 
@@ -305,17 +313,20 @@ export default {
 
 
       Array.each(doc.hosts, function(host){
-        if(!this.$store.state.hosts[host])
+        if(!this.$store.state.hosts[host]){
+          //console.log('registerModule HOSTS', host)
           this.$store.registerModule(['hosts', host], Object.clone(hostStore))
-
+        }
       }.bind(this))
 
       /**
       * should unregister modules for unset hosts?
       */
       Array.each(this.$store.state.hosts, function(host){
-        if(!doc.hosts.contains(host))
+        if(!doc.hosts.contains(host)){
+          //console.log('UNregisterModule HOSTS', host)
           this.$store.unregisterModule(['hosts', host])
+        }
       }.bind(this))
 
 
@@ -323,7 +334,7 @@ export default {
 		})
 
     // this.EventBus.$on('hosts', doc => {
-		// 	// //////////console.log('recived doc via Event hosts', doc)
+		// 	// ////////////console.log('recived doc via Event hosts', doc)
     //   this.$store.commit('hosts/set', doc)
     //
     //   Array.each(doc, function(host){
@@ -344,7 +355,7 @@ export default {
 		// })
 
     // this.EventBus.$on('paths', doc => {
-		// 	// //console.log('recived doc via Event paths', doc)
+		// 	// ////console.log('recived doc via Event paths', doc)
     //   // let os = /^os.*/g
     //   // let os_paths = []
     //   // Array.each(doc, function(path){

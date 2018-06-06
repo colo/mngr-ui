@@ -33,8 +33,8 @@ export default new Class({
 				//{ get: {uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'} },
 				{
 					sort_by_path: function(req, next, app){
-            //console.log('req.opt.range', req.opt.range)
-            // ////console.log('sort_by_path', next)
+            ////console.log('req.opt.range', req.opt.range)
+            // //////console.log('sort_by_path', next)
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
@@ -43,11 +43,11 @@ export default new Class({
 
               let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
               Array.each(app.options.paths, function(path){
-                // ////console.log('sort_by_path', host)
+                // //////console.log('sort_by_path', host)
 
                 // if(!app.hosts_range_started.contains(host)){
                   // app.hosts_range_started.push(host)
-                  //////console.log('req.opt.range', req.opt.range, host)
+                  ////////console.log('req.opt.range', req.opt.range, host)
 
                   // next(
                   app.view({
@@ -90,7 +90,7 @@ export default new Class({
 			periodical: [
         // {
 				// 	search_hosts: function(req, next, app){
-        //     ////console.log('search_hosts', next)
+        //     //////console.log('search_hosts', next)
         //
 				// 		// next(
         //     app.view({
@@ -113,7 +113,7 @@ export default new Class({
 				// },
         // {
         //   search_paths: function(req, next, app){
-        //     // console.log('search_paths', next)
+        //     // //console.log('search_paths', next)
         //
         //     // next(
         //     app.view({
@@ -134,8 +134,8 @@ export default new Class({
         // },
 				{
 					sort_by_path: function(req, next, app){
-            // console.log('sort_by_path', app.paths)
-            // ////console.log('sort_by_path', next)
+            // //console.log('sort_by_path', app.paths)
+            // //////console.log('sort_by_path', next)
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
@@ -149,7 +149,7 @@ export default new Class({
 
               Array.each(app.options.paths, function(path){
                 // next(
-                // ////console.log('sort_by_path', host)
+                // //////console.log('sort_by_path', host)
                 app.view({
     							uri: app.options.db,
                   args: [
@@ -182,10 +182,10 @@ export default new Class({
 				}
 				//{
 					//view: function(req, next, app){
-						//////////console.log('---periodical')
+						////////////console.log('---periodical')
 
 							//let cb = next.pass(
-								////////////console.log('---next')
+								//////////////console.log('---next')
 								//app.view({//get doc by host->last.timestamp (descending = true, and reversed star/end keys)
 									//uri: 'dashboard',
 									//id: 'sort/by_path',
@@ -211,9 +211,9 @@ export default new Class({
 				//}
 				//{
 					//view: function(req, next, app){//wrap it on a func, so we can call "this", as "app"
-						//////////console.log('---periodical')
+						////////////console.log('---periodical')
 						//let cb = next.pass(
-							////////////console.log('---next')
+							//////////////console.log('---next')
 							//app.view({
 								//uri: 'dashboard/_design/sort/_view/by_path',
 								//headers: {
@@ -276,18 +276,18 @@ export default new Class({
 
   },
   // range_sort_by_path: function(err, resp){
-  //   //////console.log('range_sort_by_path', err, resp)
+  //   ////////console.log('range_sort_by_path', err, resp)
   // },
   view: function(err, resp, view){
-		// //////console.log('this.view ', resp, view.options.args);
+		// ////////console.log('this.view ', resp, view.options.args);
 
 		if(err){
-			////////console.log('this.sort_by_path error %o', err);
+			//////////console.log('this.sort_by_path error %o', err);
 
 		}
 		else{
       // if(view.options.args[0] == 'search' && view.options.args[1] == 'paths'){
-      //   console.log('this.search_path', resp);
+      //   //console.log('this.search_path', resp);
       //   let os = /^os.*/
       //   this.paths = []
       //   Array.each(resp.rows, function(path){
@@ -303,7 +303,7 @@ export default new Class({
       //     // this.fireEvent('onPeriodicalDoc', [row.doc, {type: 'periodical', input_type: this, app: null}]);
       //     this.hosts.push(row.key)
       //
-      //     // ////console.log('this.hosts_range_started', this.hosts_range_started)
+      //     // //////console.log('this.hosts_range_started', this.hosts_range_started)
       //     // if(!this.hosts_range_started.contains(row.key)){//if no range for this host yet
       //     //   /**
       //     //   * start with range, "last 300000 ms / 5min"
@@ -320,8 +320,8 @@ export default new Class({
         if(view.options.args[2].limit == 1 && resp.rows[0]){
   				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
   			}
-        else{//range docs
-          //console.log('range docs', resp)
+        else if(resp.rows.length > 0){//range docs
+          ////console.log('range docs', resp)
           this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
 
           // Array.each(resp.rows, function(row){
@@ -332,13 +332,13 @@ export default new Class({
 		}
   },
   request: function(err, resp){
-		// ////////console.log('this.info %o', resp);
+		// //////////console.log('this.info %o', resp);
 
-		//////////console.log('---INFO RESP---');
+		////////////console.log('---INFO RESP---');
 		//this.get({uri: 'dashboard/cache', doc: 'localhost.colo.os.blockdevices@1515636560970'});
-		//////////console.log(resp);
+		////////////console.log(resp);
 		if(err){
-			////////console.log('this.info error %o', err);
+			//////////console.log('this.info error %o', err);
 			//this.fireEvent(this.ON_CONNECT_ERROR, err);
 		}
 	},
@@ -351,7 +351,7 @@ export default new Class({
 
     options.paths = paths
 
-    //console.log('input.poller.couchdb.os', options)
+    ////console.log('input.poller.couchdb.os', options)
 		this.parent(options);//override default options
 
 		this.profile('root_init');//start profiling
@@ -362,7 +362,7 @@ export default new Class({
 		this.log('root', 'info', 'root started');
   },
   connect: function(){
-		console.log('OS this.connect');
+		//console.log('OS this.connect');
 
 		// try{
 		// 	//this.os.api.get({uri: 'hostname'});
@@ -378,11 +378,11 @@ export default new Class({
     //
 		// }
 		// catch(e){
-		// 	////////console.log(e);
+		// 	//////////console.log(e);
 		// }
 	},
 	// _first_connect: function(err, result, body, opts){
-	// 	// //////console.log('first_connect %o', result.uuid);
+	// 	// ////////console.log('first_connect %o', result.uuid);
 	// 	this.options.id = 'os-'+result.uuid;//set ID
   //
   //   // this.fireEvent('ON_RANGE', {})
