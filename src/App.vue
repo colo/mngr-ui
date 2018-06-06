@@ -63,7 +63,7 @@ export default {
   watch: {
     '$store.state.app.suspend': function(bool){
       // //console.log('$store.state.app.suspend', bool)
-      let search_host = new RegExp(this.$store.state.hosts.current, 'g')
+      let search_host = new RegExp(this.currentHost, 'g')
       Array.each(this.hosts_pipelines, function(pipe){
         if(bool == false){
           //resume only current host
@@ -140,84 +140,89 @@ export default {
     //
     // },
     '$store.state.app.range' : function(range){
-      //console.log('store.state.app.range', range)
+      if(this.currentHost){
 
-      Array.each(this.hosts_pipelines, function(pipe){
+        Array.each(this.hosts_pipelines, function(pipe){
 
-        let search_host = new RegExp(this.currentHost, 'g')
-        if(search_host.test(pipe.inputs[0].options.id)){
-        // if(pipe.inputs[0].options.id == 'input.os-'+this.currentHost){
-          //////console.log('firing range......', pipe.inputs[0].options.id)
+          let search_host = new RegExp(this.currentHost, 'g')
 
-          let end = new Date().getTime()
+          console.log('store.state.app.range', this.currentHost)
 
-          // ////////console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
+          if(search_host.test(pipe.inputs[0].options.id)){
+          // if(pipe.inputs[0].options.id == 'input.os-'+this.currentHost){
+            //////console.log('firing range......', pipe.inputs[0].options.id)
 
-          // let host = pipe.inputs[0].options.conn[0].stat_host
+            let end = new Date().getTime()
 
-          // let null_range = (range[1] == null) ? true : false
+            // ////////console.log('firing range...', pipe.inputs[0].options.conn[0].stat_host)
 
-          if(range[1] != null)
-            end = range[1]
+            // let host = pipe.inputs[0].options.conn[0].stat_host
 
-          // if(range[1] != null){
-          //   end = range[1]
-          //
-          //   this.$store.commit('app/freeze', true)
-          //   // this.$nextTick(() => this.$store.commit('app/pause', true))
-          //   // this.EventBus.$emit('suspend')
+            // let null_range = (range[1] == null) ? true : false
+
+            if(range[1] != null)
+              end = range[1]
+
+            // if(range[1] != null){
+            //   end = range[1]
+            //
+            //   this.$store.commit('app/freeze', true)
+            //   // this.$nextTick(() => this.$store.commit('app/pause', true))
+            //   // this.EventBus.$emit('suspend')
+            // }
+            // else{
+            //   this.$store.commit('app/freeze', false)
+            //   // this.$store.commit('app/pause', false)
+            //   // this.EventBus.$emit('resume')
+            // }
+
+            console.log('firing range', range)
+
+            pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
+
+            pipe.fireEvent('onSuspend')
+
+
+            // if(range[1] != null){
+            //   this.$nextTick(function(){pipe.fireEvent('onSuspend')})
+            // }
+          }
+
+
+
+
+          // if(null_range == false){
+          //   this.$nextTick(() => this.$store.commit('app/freeze', true))
           // }
           // else{
-          //   this.$store.commit('app/freeze', false)
-          //   // this.$store.commit('app/pause', false)
           //   // this.EventBus.$emit('resume')
+          //   //pipe.fireEvent('onResume')
           // }
 
+          // this.EventBus.$emit('range', { host: host, Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })
 
-          pipe.fireEvent('onRange', { Range: 'posix '+ range[0] +'-'+ end +'/*' })
-
-          pipe.fireEvent('onSuspend')
+          // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
 
 
-          // if(range[1] != null){
-          //   this.$nextTick(function(){pipe.fireEvent('onSuspend')})
-          // }
+        }.bind(this))
+
+        if(range[1] != null){
+          this.$store.commit('app/freeze', true)
+        }
+        else{
+          this.$store.commit('app/freeze', false)
         }
 
+        this.$store.commit('app/reset', true)
 
+        this.$q.loading.show({
+          delay: 0, // ms
+          spinner: 'QSpinnerGears',
+          spinnerColor: 'blue',
+          customClass : 'bg-white'
+        })
 
-
-        // if(null_range == false){
-        //   this.$nextTick(() => this.$store.commit('app/freeze', true))
-        // }
-        // else{
-        //   // this.EventBus.$emit('resume')
-        //   //pipe.fireEvent('onResume')
-        // }
-
-        // this.EventBus.$emit('range', { host: host, Range: 'posix '+ val[0] +'-'+ val[1] +'/*' })
-
-        // this.$nextTick(function(){pipe.fireEvent('onSuspend')})
-
-
-      }.bind(this))
-
-      if(range[1] != null){
-        this.$store.commit('app/freeze', true)
-      }
-      else{
-        this.$store.commit('app/freeze', false)
-      }
-
-      this.$store.commit('app/reset', true)
-
-      this.$q.loading.show({
-        delay: 0, // ms
-        spinner: 'QSpinnerGears',
-        spinnerColor: 'blue',
-        customClass : 'bg-white'
-      })
-
+      }//if this.currentHost
     }
   },
   methods: {

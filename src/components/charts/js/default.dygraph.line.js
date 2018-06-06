@@ -2,7 +2,7 @@ import Dygraph from 'dygraphs'
 
 export default {
     component: 'dygraph-wrapper',
-    "style": "width:100%; height:160px;",
+    "style": "width:100%; height:180px;",
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
     // init: function (vue){

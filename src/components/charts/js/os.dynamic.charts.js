@@ -1,11 +1,11 @@
 import DefaultDygraphLine from './default.dygraph.line'
 import DefaultNetDygraphLine from './default.net.dygraph.line'
-import DefaultFrappeCharts from './default.frappeCharts'
-import DefaultNetFrappeCharts from './default.net.frappeCharts'
-import DefaultAMCharts3Line from './default.amcharts3.line'
-import DefaultNetAMCharts3Line from './default.net.amcharts3.line'
-import DefaultVueEcharts3Line from './default.vueEcharts3.line'
-import DefaultHighchartsVueLine from './default.highchartsVue.line'
+// import DefaultFrappeCharts from './default.frappeCharts'
+// import DefaultNetFrappeCharts from './default.net.frappeCharts'
+// import DefaultAMCharts3Line from './default.amcharts3.line'
+// import DefaultNetAMCharts3Line from './default.net.amcharts3.line'
+// import DefaultVueEcharts3Line from './default.vueEcharts3.line'
+// import DefaultHighchartsVueLine from './default.highchartsVue.line'
 
 export default {
   "networkInterfaces": Object.merge(Object.clone(DefaultNetDygraphLine), {

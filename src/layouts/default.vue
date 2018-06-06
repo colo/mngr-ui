@@ -515,7 +515,7 @@ export default {
         },
         // setter
         set (value) {
-          //////console.log('setting host...', value)
+          console.log('setting host...', value)
           this.$store.commit('hosts/current', value)
         }
       }

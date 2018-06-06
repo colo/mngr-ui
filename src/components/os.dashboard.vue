@@ -106,10 +106,10 @@ import { throttle } from 'quasar'
 
 
 import dygraphWrapper from './wrappers/dygraph'
-import frappeChartsWrapper from './wrappers/frappeCharts'
-import amcharts3Wrapper from './wrappers/amcharts3'
-import vueEcharts3Wrapper from './wrappers/vueEcharts3'
-import highchartsVueWrapper from './wrappers/highchartsVue'
+// import frappeChartsWrapper from './wrappers/frappeCharts'
+// import amcharts3Wrapper from './wrappers/amcharts3'
+// import vueEcharts3Wrapper from './wrappers/vueEcharts3'
+// import highchartsVueWrapper from './wrappers/highchartsVue'
 
 import Dygraph from 'dygraphs'
 // import 'dygraphs/src/extras/smooth-plotter'
@@ -139,10 +139,10 @@ export default {
   // uptime_chart: null,
   components: {
     dygraphWrapper,
-    frappeChartsWrapper,
-    amcharts3Wrapper,
-    vueEcharts3Wrapper,
-    highchartsVueWrapper
+    // frappeChartsWrapper,
+    // amcharts3Wrapper,
+    // vueEcharts3Wrapper,
+    // highchartsVueWrapper
 
   },
   props: {
@@ -586,10 +586,9 @@ export default {
         //   //console.log('this.hide', name, this.hide[name])
 
         /**
-        * should update data always?
-        * moved inside next if
+        * always update data, allow a hidden chart to update graphs on visibility change
         **/
-        // this.$set(this.stats[name], 'data', data)
+        this.$set(this.stats[name], 'data', data)
 
         if(
           this.stats[name].lastupdate < Date.now() - this.charts[name].interval
@@ -602,7 +601,7 @@ export default {
           && this.paused == false
           && data.length > 0
         ){
-          this.$set(this.stats[name], 'data', data)
+          // this.$set(this.stats[name], 'data', data)
           // this.$refs[this.host+'_'+name][0].updateOptions(
           //   { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
           //   false

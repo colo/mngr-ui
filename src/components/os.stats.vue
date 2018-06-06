@@ -154,7 +154,7 @@ export default {
         if(register == true){
           Object.each(keys, function(data, key){
 
-            console.log('recived doc via Event os.historical', 'hosts/'+host+'/'+path+'/data', key, data)
+            // console.log('recived doc via Event os.historical', 'hosts/'+host+'/'+path+'/data', key, data)
 
             this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
 
@@ -291,9 +291,9 @@ export default {
       })
       // ////////console.log('registering....', state_props)
 
-      let stats = Object.merge(Object.clone(hostStats), {state: function() {
+      let stats = Object.merge(Object.clone(hostStats), Object.clone({state: function() {
         return state_props
-      }})
+      }}))
 
       // ////////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
 
@@ -307,7 +307,7 @@ export default {
         new_path = new_path.append(path.split('/'))
         this.$store.registerModule(new_path, stats)
 
-        //////console.log('registering....', host, path, this.$store.state.hosts[host])
+        console.log('registering....', host, path, this.$store.state.hosts[host])
 
         return true
       }

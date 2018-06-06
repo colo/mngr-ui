@@ -12,9 +12,9 @@ module.exports = function (ctx) {
       'element-ui',
       'vue-observe-visibility',
       'AddressbarColor',
-      'amcharts3',
-      'vueEcharts3',
-      'highchartsVue'
+      // 'amcharts3',
+      // 'vueEcharts3',
+      // 'highchartsVue'
     ],
     css: [
       'app.styl'

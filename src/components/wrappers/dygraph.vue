@@ -117,8 +117,8 @@ export default {
   },
 
   destroyed (){
-
     if(this.chart){
+      console.log('destroying ...', this.id)
       this.chart.destroy()
       this.chart = null
     }
