@@ -63,10 +63,14 @@ export default {
   watch: {
     '$store.state.app.suspend': function(bool){
       // //console.log('$store.state.app.suspend', bool)
+      let search_host = new RegExp(this.$store.state.hosts.current, 'g')
       Array.each(this.hosts_pipelines, function(pipe){
         if(bool == false){
-          //console.log('$store.state.app.suspend ON_RESUME',pipe);
-          pipe.fireEvent('onResume')
+          //resume only current host
+          if(search_host.test(pipe.inputs[0].options.id)){
+            //console.log('$store.state.app.suspend ON_RESUME',pipe);
+            pipe.fireEvent('onResume')
+          }
         }
         else{
           pipe.fireEvent('onSuspend')
@@ -75,7 +79,7 @@ export default {
       }.bind(this))
     },
     '$store.state.hosts.current': function(host){
-      //console.log('$store.state.hosts.current', host)
+      console.log('$store.state.hosts.current', host)
 
       let range = Object.clone(this.$store.state.app.range)
 
@@ -86,7 +90,7 @@ export default {
         // if(pipe.inputs[0].options.id == 'input.os-'+host){
         let search_host = new RegExp(host, 'g')
         if(search_host.test(pipe.inputs[0].options.id)){
-          // //////console.log('firing onResume...', pipe.inputs[0].options.id)
+          console.log('current firing onResume...', pipe.inputs[0].options.id)
 
 
           if(range[1] == null){
@@ -100,7 +104,7 @@ export default {
           // }
           // else{
           if(this.$store.state.app.suspend != true){
-            //console.log('store.state.hosts.current ON_RESUME',pipe);
+            console.log('store.state.hosts.current ON_RESUME',this.$store.state.app.suspend);
             pipe.fireEvent('onResume')
           }
 
@@ -218,13 +222,14 @@ export default {
   },
   methods: {
     create_hosts_pipelines (hosts, paths) {
-      //console.log('$store.state create_hosts_pipelines', hosts, paths)
+      console.log('$store.state create_hosts_pipelines', hosts, paths)
 
 
       if(hosts.length > 0 && paths.length > 0){
         if(this.hosts_pipelines.length > 0)
           Array.each(this.hosts_pipelines, function(pipe, index){//destroy old ones
             pipe.fireEvent('onExit')
+            pipe.removeEvents()
             // delete pipe
             delete this.hosts_pipelines[index]
             // this.hosts_pipelines.shift()
@@ -248,7 +253,10 @@ export default {
 
             ////////console.log('$store.state.hosts.all', pipe)
 
-            pipe.fireEvent('onSuspend')
+            /**
+            * start suspended already
+            **/
+            // pipe.fireEvent('onSuspend')
 
             //suscribe to 'onRangeDoc
 
@@ -263,7 +271,10 @@ export default {
                 // this.$store.commit('app/pause', true)
               }
               else{
-                //console.log('create_hosts_pipelines ON_RESUME',pipe);
+                console.log('create_hosts_pipelines ON_RESUME',pipe.inputs[0].options.id);
+
+                this.$store.commit('app/suspend', false)//
+
                 pipe.fireEvent('onResume')
                 this.$q.loading.hide()
                 // this.$store.commit('app/pause', false)

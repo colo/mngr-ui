@@ -10,6 +10,7 @@ export default {
 	input: [
 		{
 			poll: {
+				suspended: true,//start suspended
 				id: "input.os.historical",
 				conn: [
           Object.merge(

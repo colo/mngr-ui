@@ -8,6 +8,7 @@ export default {
   input: [
   	{
   		poll: {
+        suspended: true,//start suspended
   			id: "input.munin",
   			conn: [
           Object.merge(
