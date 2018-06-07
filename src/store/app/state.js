@@ -20,7 +20,7 @@ export default function() {
     icons: {
       'mdi-chart-line': /^os$/,
       'mdi-flash': /cpus.*/,
-      'fa-microchip': /^.*mem.*$/,
+      'mdi-memory': /^.*mem.*$/,
       'mdi-clock': /minute.*/,
       'mdi-harddisk': /blockdevices.*|mounts.*/,
       'mdi-network': /networkInterfaces.*/

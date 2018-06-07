@@ -339,7 +339,7 @@ export default {
   data () {
     return {
       isCollapse: false,
-      // menu_props_expanded: [],
+      menu_props_expanded: [],
       leftDrawerOpen: this.$q.platform.is.desktop,
       rightDrawerOpen: this.$q.platform.is.desktop,
       DateRangeOptions: {
@@ -440,28 +440,28 @@ export default {
   // },
   computed: Object.merge(
     {
-      menu_props_expanded: {
-        get () {
-          let expand = function(menu){
-            let expanded = []
-            if(Array.isArray(menu)){
-              Array.each(menu, function(sub){
-                expanded.push(sub.id)
-                expanded = Array.combine(expand(sub.children), expanded)
-              })
-            }
-            return expanded
-          }
-
-          let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
-          console.log('menu_props_expanded get', this.$store.state.app.charts_tree_menu)
-
-          return expanded_menu
-        },
-        set (value){
-          console.log('menu_props_expanded set', value)
-        }
-      },
+      // menu_props_expanded: {
+      //   get () {
+      //     let expand = function(menu){
+      //       let expanded = []
+      //       if(Array.isArray(menu)){
+      //         Array.each(menu, function(sub){
+      //           expanded.push(sub.id)
+      //           expanded = Array.combine(expand(sub.children), expanded)
+      //         })
+      //       }
+      //       return expanded
+      //     }
+      //
+      //     let expanded_menu = expand(this.$store.state.app.charts_tree_menu)
+      //     console.log('menu_props_expanded get', this.$store.state.app.charts_tree_menu)
+      //
+      //     return expanded_menu
+      //   },
+      //   set (value){
+      //     console.log('menu_props_expanded set', value)
+      //   }
+      // },
       // menu_props_expanded: {
       //   get () {
       //     let expand = function(menu){
@@ -614,11 +614,26 @@ export default {
     text-decoration: none !important;
   } */
   .el-menu-vertical a:link {
+    display:block;
     text-decoration: inherit;
     color: inherit;
     cursor: inherit;
   }
   .el-menu-vertical a:visited {
+    display:block;
+    text-decoration: inherit;
+    color: inherit;
+    cursor: inherit;
+  }
+
+  .el-menu--vertical a:link {
+    display:block;
+    text-decoration: inherit;
+    color: inherit;
+    cursor: inherit;
+  }
+  .el-menu--vertical a:visited {
+    display:block;
     text-decoration: inherit;
     color: inherit;
     cursor: inherit;
