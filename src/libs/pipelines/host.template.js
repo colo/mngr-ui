@@ -34,7 +34,7 @@ export default {
 				// },
 				requests: {
     			periodical: function(dispatch){
-						// //console.log('host periodical running')
+						// ////console.log('host periodical running')
     				return cron.schedule('* * * * * *', dispatch);//every second
     			}
     		},
@@ -126,12 +126,12 @@ export default {
 
 				}
 
-				console.log('host.template.filter', doc)
+				//console.log('host.template.filter', doc)
 
 			 	next(doc)
 			}
       // if(doc != null && opts.type == 'periodical' && doc.metadata.path == 'os'){
-			// 	// //console.log('host doc perdiodical', doc)
+			// 	// ////console.log('host doc perdiodical', doc)
       //
 			// 	// let data {
 			// 	// 	host: doc.metadata.host,
@@ -205,7 +205,7 @@ export default {
       // 	next(data)
       // }
       // else if(doc != null && doc[0] && doc[0].doc.metadata.path == 'os'){//range
-      //   // //console.log('range doc', doc)
+      //   // ////console.log('range doc', doc)
       //
       //   let mem = {
       //     type: 'mem',
@@ -280,7 +280,7 @@ export default {
 		function(doc){
       doc = JSON.decode(doc)
 
-			// //console.log('InputPollerCouchDBOS output', doc)
+			// ////console.log('InputPollerCouchDBOS output', doc)
 
       // let type = doc.type
       // EventBus.$emit(type, doc)

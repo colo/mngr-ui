@@ -156,7 +156,11 @@ export default {
 
       let self = this
 
-      if(this.highlighted == false && this.ready == true
+      if(
+        this.highlighted == false
+        && this.ready == true
+        // && this.stat.data.length > 1
+        // && this.stat.data[0].length > 1
         // && this.$options.freezed <= 2//needed number of iterations to update data 'onRange'
         // && this.freezed == false
       ){

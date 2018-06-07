@@ -47,7 +47,7 @@ let hostStats = {
       else {
 
         // if(payload.key == 'loadavg'){
-        //   //////console.log('data', state, payload)
+        //   ////////console.log('data', state, payload)
         // }
 
         state[payload.key].push(payload.value)
@@ -94,7 +94,7 @@ export default {
       reset: state => state.app.reset,
       // arrow functions can make the code very succinct!
       seconds: function(state){
-        // ////////console.log('seconds to splice', state.app.range)
+        // //////////console.log('seconds to splice', state.app.range)
 
         let end = new Date().getTime()
         if(state.app.range[1] != null)
@@ -113,29 +113,29 @@ export default {
   ),
   watch:{
     '$store.state.app.reset' : function(val){
-      console.log('store.state.app.reset', val)
+      //console.log('store.state.app.reset', val)
     },
     '$store.state.app.freeze' : function(val){
-      console.log('store.state.app.freeze', val)
+      //console.log('store.state.app.freeze', val)
     },
     '$store.state.app.pause' : function(val){
-      console.log('store.state.app.pause', val)
+      //console.log('store.state.app.pause', val)
     },
     '$store.state.app.suspend' : function(val){
-      console.log('store.state.app.suspend', val)
+      //console.log('store.state.app.suspend', val)
     },
 
   },
   mounted: function(){
-    console.log('os.stats.vue mounted')
+    //console.log('os.stats.vue mounted')
     // this.$store.commit('app/reset', false)
   },
   updated: function(){
     this.$store.commit('app/reset', false)
-    // console.log('os.stats.vue updated', this.$store.state.app)
+    // //console.log('os.stats.vue updated', this.$store.state.app)
   },
   created: function(){
-    console.log('os.stats.vue created')
+    //console.log('os.stats.vue created')
 
     if(!window['EventBus'])
       window['EventBus'] = this.EventBus
@@ -144,7 +144,7 @@ export default {
 
 
     this.EventBus.$on('os.historical', doc => {
-      //console.log('recived doc via Event os.historical', doc)
+      ////console.log('recived doc via Event os.historical', doc)
 
       let {keys, path, host} = this.extract_data_os_historical_doc(doc)
 
@@ -154,14 +154,14 @@ export default {
         if(register == true){
           Object.each(keys, function(data, key){
 
-            // console.log('recived doc via Event os.historical', 'hosts/'+host+'/'+path+'/data', key, data)
+            // //console.log('recived doc via Event os.historical', 'hosts/'+host+'/'+path+'/data', key, data)
 
             this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
 
             let divisor = (path == 'os/minute') ? 60 : 3600
             let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
 
-            //console.log('recived doc via Event os.historical', path, divisor, splice, this.seconds)
+            ////console.log('recived doc via Event os.historical', path, divisor, splice, this.seconds)
 
             this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: splice })
 
@@ -175,7 +175,7 @@ export default {
 
       if(register_commit() != true){
         let interval = setInterval(function(){
-          //console.log('historical_interval', interval)
+          ////console.log('historical_interval', interval)
 
           if(register_commit() == true){
             clearInterval(interval)
@@ -206,7 +206,7 @@ export default {
 
         if(register_commit() != true){
           let interval = setInterval(function(){
-            //console.log('os_interval', interval, path)
+            ////console.log('os_interval', interval, path)
 
             if(register_commit() == true){
               clearInterval(interval)
@@ -289,17 +289,17 @@ export default {
       Object.each(state_props, function(data, key){
         state_props[key] = []
       })
-      // ////////console.log('registering....', state_props)
+      // //////////console.log('registering....', state_props)
 
       let stats = Object.merge(Object.clone(hostStats), Object.clone({state: function() {
         return state_props
       }}))
 
-      // ////////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
+      // //////////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
 
       // if(!this.$store.state.hosts[host][path]){
       let status = this.check_store_path(path.split('/'), this.$store.state.hosts[host])
-      ////////console.log('status', status)
+      //////////console.log('status', status)
       if(status == false){
 
         // this.$store.registerModule(['hosts', host, path], stats)
@@ -307,7 +307,7 @@ export default {
         new_path = new_path.append(path.split('/'))
         this.$store.registerModule(new_path, stats)
 
-        console.log('registering....', host, path, this.$store.state.hosts[host])
+        //console.log('registering....', host, path, this.$store.state.hosts[host])
 
         return true
       }
@@ -319,7 +319,7 @@ export default {
       }
     },
     check_store_path(path, root){
-      // ////////console.log('check_store_path', path)
+      // //////////console.log('check_store_path', path)
       for(let i = 0; i < path.length; ){
         if(root == undefined){
           return undefined
