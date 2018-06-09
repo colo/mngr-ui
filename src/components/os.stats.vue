@@ -225,8 +225,8 @@ export default {
       let type = ''
       let range = {}
       if(Array.isArray(doc)){
-        type = host = doc[0].doc.metadata.type
-        range = host = doc[0].doc.metadata.range
+        type = doc[0].doc.metadata.type
+        range = doc[0].doc.metadata.range
       }
       else{
         type = doc.metadata.type
