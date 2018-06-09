@@ -49,7 +49,7 @@ export default {
             // && chart.watch.value
           ){
             let obj = {}
-            if(chart.watch.value){
+            if(chart.watch && chart.watch.value){
               obj = stat[0].value[chart.watch.value]
             }
             else{

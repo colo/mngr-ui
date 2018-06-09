@@ -422,13 +422,10 @@ export default {
     */
     initialize_all_charts (val){
       Object.each(val, function(stat, key){
-
         this.parse_chart_from_stat(stat, key)
-
       }.bind(this))
 
       Object.each(this.$options.static_charts, function(chart, name){
-        // chart = Object.merge(Object.clone(DefaultChart), chart)
         this.process_chart(chart, name)
       }.bind(this))
     },

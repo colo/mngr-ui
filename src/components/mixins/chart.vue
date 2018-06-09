@@ -48,8 +48,6 @@ export default {
 
               Array.each(dynamic_charts[name], function(dynamic){
 
-                // chart = Object.merge(Object.clone(chart), dynamic)
-                // this.process_dynamic_chart(chart, name, stat)
                 this.process_dynamic_chart(Object.clone(dynamic), name, stat)
 
               }.bind(this))
@@ -58,7 +56,6 @@ export default {
 
               let chart = Object.clone(this.$options.DefaultChart)
 
-              // this.process_generic_chart(chart, name, stat)
               this.process_chart(
                 chart.pre_process(chart, name, stat),
                 name
@@ -77,41 +74,14 @@ export default {
 
       }
     },
-    /**
-    * process
-    * @moved char.pre_process
-    */
-    // process_generic_chart (chart, name, stat){
-    //
-    //   chart.options.labels = ['Time']
-    //
-    //   if(Array.isArray(stat[0].value)){//like 'loadavg', that has 3 values
-    //
-    //     for(let i= 0; i < stat[0].value.length; i++){//create data columns
-    //       chart.options.labels.push(name+'_'+i)
-    //     }
-    //
-    //     // chart.options.labels.push(name+'_minute')//minute
-    //     this.process_chart(chart, name)
-    //   }
-    //   else if(!isNaN(stat[0].value)){//like 'uptime', one value only
-    //
-    //     chart.options.labels.push(name)
-    //     this.process_chart(chart, name)
-    //   }
-    // },
+
     process_dynamic_chart (chart, name, stat){
-      // console.log('process_dynamic_chart',  name, chart)
-      // let watcher = {value: ''}
 
       if(Array.isArray(stat[0].value)){//like 'cpus'
-        // ////////////console.log('isArray', stat[0].value)
 
         Array.each(stat[0].value, function(val, index){
 
-          // let arr_chart = Object.merge(Object.clone(chart), chart)
           let arr_chart = Object.clone(chart)
-          // watcher = chart.watch
 
           arr_chart.label = this.process_chart_label(chart, name, stat) || name
           let chart_name = this.process_chart_name(chart, stat) || name
@@ -119,52 +89,21 @@ export default {
           if(chart.watch.merge != true){
             chart_name += '_'+index
           }
-          // else{
-          //   chart_name = name
-          // }
 
           if(chart.watch.merge != true || index == 0){//merge creates only once instance
-            // console.log('process_dynamic_chart',  name, arr_chart.pre_process)
 
-            /**
-            * @moved chart.pre_process
-            **/
-            // if(!arr_chart.options || !arr_chart.options.labels){
-            //   if(!arr_chart.options)
-            //     arr_chart.options = {}
-            //
-            //   arr_chart.options.labels = []
-            //
-            //   Object.each(val[chart.watch.value], function(tmp, tmp_key){
-            //     arr_chart.options.labels.push(tmp_key)
-            //   })
-            //
-            //   arr_chart.options.labels.unshift('Time')
-            //
-            //   // arr_chart.options.labels.push(name+'_minute')//minute
-            // }
-
-            // this.process_chart(arr_chart, chart_name)
             this.process_chart(
               arr_chart.pre_process(arr_chart, chart_name, stat),
               chart_name
             )
 
-
           }
 
-
-
-
         }.bind(this))
-
-
 
       }
       else if(isNaN(stat[0].value)){
         //sdX.stats.
-
-        //////console.log('isNan', name, stat, chart)
 
         let filtered = false
         if(chart.watch && chart.watch.filters){
@@ -187,31 +126,6 @@ export default {
 
         if(filtered == true){
 
-
-          /**
-          * @moved chart.pre_process
-          **/
-          // if(!chart.options || !chart.options.labels){
-          //   if(!chart.options)
-          //     chart.options = {}
-          //
-          //   chart.options.labels = []
-          //
-          //
-          //   //if no "watch.value" property, everything should be manage on "trasnform" function
-          //   if(chart.watch && chart.watch.managed != true
-          //     // && chart.watch.value
-          //   ){
-          //     Object.each(stat[0].value[chart.watch.value], function(tmp, tmp_key){
-          //       // ////console.log('labeling...', tmp)
-          //       chart.options.labels.push(tmp_key)
-          //     })
-          //
-          //     chart.options.labels.unshift('Time')
-          //   }
-          //
-          //
-          // }
           chart = chart.pre_process(chart, name, stat)
 
           chart.label = this.process_chart_label(chart, name, stat) || name
@@ -220,38 +134,17 @@ export default {
           this.process_chart(chart, chart_name)
         }
 
-
-
       }
       else{
 
-        // // chart = Object.merge(Object.clone(chart), chart)
-        // // watcher = chart.watch
-        //
         chart.label = this.process_chart_label(chart, name, stat) || name
         let chart_name = this.process_chart_name(chart, stat) || name
-        //
-        // if(!chart.options || !chart.options.labels){
-        //   if(!chart.options)
-        //     chart.options = {}
-        //
-        //   chart.options.labels = []
-        //
-        //   chart.options.labels.push(name)
-        //
-        //   chart.options.labels.unshift('Time')
-        // }
-        //
-        //
-        // // chart.options.labels.push(name+'_minute')//minute
-        // this.process_chart(chart, chart_name)
 
         this.process_chart(
           chart.pre_process(chart, chart_name, stat),
           name
         )
       }
-
 
     },
     /**
@@ -265,7 +158,6 @@ export default {
       if(chart.init && typeOf(chart.init) == 'function')
         chart.init(this, chart, 'chart')
 
-      // this.create_watcher('os.'+name, chart.watch)
       this.create_watcher(name, chart)
 
     },
@@ -318,11 +210,7 @@ export default {
 
     generic_data_watcher (current, chart, name){
       let watcher = chart.watch || {}
-      // //console.log('generic_data_watcher', this.host+'_'+name, current)
-      // console.log('generic_data_watcher', name, Date.now())
 
-
-      ////////////////console.log('type_value', name, val.current)
       if(watcher.managed == true){
         watcher.transform(current, this, chart)
       }
@@ -330,79 +218,70 @@ export default {
         let type_value = null
         let value_length = 0
         if(watcher.value != ''){
-
           type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher.value]) ? current[0].value[0][watcher.value] : current[0].value[watcher.value]
-          // value_length = (Array.isArray(val.current.value) && val.current.value[0][watcher.value]) ? val.current.value[0][watcher.value].length : val.current[0].value[watcher.value].length
         }
         else{
           type_value = current[0].value
-          // value_length = current.length
         }
 
-        // if(this.$refs[this.host+'_'+name]){
+        let data = []
 
-          let data = []
-
-          if(Array.isArray(type_value)){//multiple values, ex: loadavg
-            if(watcher.exclude){
-              Array.each(current, function(data){
-                Object.each(data.value, function(value, key){
-                  if(watcher.exclude.test(key) == true)
-                    delete data.value[key]
-                })
+        if(Array.isArray(type_value)){//multiple values, ex: loadavg
+          if(watcher.exclude){
+            Array.each(current, function(data){
+              Object.each(data.value, function(value, key){
+                if(watcher.exclude.test(key) == true)
+                  delete data.value[key]
               })
-            }
-
-            if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this, chart)
-            }
-
-            data = this._current_array_to_data(current, watcher)
+            })
           }
-          else if(isNaN(type_value) || watcher.value != ''){
 
-            if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
-              // //////console.log('generic_data_watcher isNaN', name, type_value, current)
+          if(typeOf(watcher.transform) == 'function'){
+            current = watcher.transform(current, this, chart)
+          }
 
-              current = this._current_nested_array(current, watcher, name)
-            }
+          data = this._current_array_to_data(current, watcher)
+        }
+        else if(isNaN(type_value) || watcher.value != ''){
 
-            // else{//blockdevices.sdX
-            if(watcher.exclude){
-              Array.each(current, function(data){
-                Object.each(data.value, function(value, key){
-                  if(watcher.exclude.test(key) == true)
-                    delete data.value[key]
-                })
+          if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
+            current = this._current_nested_array(current, watcher, name)
+          }
+
+          // else{//blockdevices.sdX
+          if(watcher.exclude){
+            Array.each(current, function(data){
+              Object.each(data.value, function(value, key){
+                if(watcher.exclude.test(key) == true)
+                  delete data.value[key]
               })
-            }
-
-
-            if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this, chart)
-            }
-
-            if(!Array.isArray(current))
-              current = [current]
-
-            data = this._current_array_to_data(current, watcher)
-
-          }
-          else{//single value, ex: uptime
-            ////////////////console.log('generic_data_watcher Num', name, type_value)
-            if(typeOf(watcher.transform) == 'function'){
-              current = watcher.transform(current, this, chart)
-            }
-
-            data = this._current_number_to_data (current, watcher)
-
-
+            })
           }
 
-          // console.log('calling update_chart_stat', name, Date.now())
-          this.update_chart_stat(name, data)
 
-        // }
+          if(typeOf(watcher.transform) == 'function'){
+            current = watcher.transform(current, this, chart)
+          }
+
+          if(!Array.isArray(current))
+            current = [current]
+
+          data = this._current_array_to_data(current, watcher)
+
+        }
+        else{//single value, ex: uptime
+
+          if(typeOf(watcher.transform) == 'function'){
+            current = watcher.transform(current, this, chart)
+          }
+
+          data = this._current_number_to_data (current, watcher)
+
+
+        }
+
+        this.update_chart_stat(name, data)
+
       }
 
 
