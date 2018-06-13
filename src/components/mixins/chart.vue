@@ -3,6 +3,7 @@
 let array_to_tabular = require( 'node-tabular-data' ).array_to_tabular
 let number_to_tabular = require( 'node-tabular-data' ).number_to_tabular
 let nested_array_to_tabular = require( 'node-tabular-data' ).nested_array_to_tabular
+let data_to_tabular  = require( 'node-tabular-data' ).data_to_tabular
 
 export default {
 
@@ -202,7 +203,7 @@ export default {
       // if(found_watcher == false){
 
         let generic_data_watcher = function(current){
-          this.generic_data_watcher(current, chart, name)
+          this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
         }
 
         // console.log('gonna watch...', name, path)
@@ -212,84 +213,85 @@ export default {
       // }
     },
 
-    generic_data_watcher (current, chart, name){
-      let watcher = chart.watch || {}
-
-      if(watcher.managed == true){
-        watcher.transform(current, this, chart)
-      }
-      else{
-        let type_value = null
-        let value_length = 0
-        if(watcher.value != ''){
-          type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher.value]) ? current[0].value[0][watcher.value] : current[0].value[watcher.value]
-        }
-        else{
-          type_value = current[0].value
-        }
-
-        let data = []
-
-        if(Array.isArray(type_value)){//multiple values, ex: loadavg
-          if(watcher.exclude){
-            Array.each(current, function(data){
-              Object.each(data.value, function(value, key){
-                if(watcher.exclude.test(key) == true)
-                  delete data.value[key]
-              })
-            })
-          }
-
-          if(typeOf(watcher.transform) == 'function'){
-            current = watcher.transform(current, this, chart)
-          }
-
-          data = this._current_array_to_data(current, watcher)
-        }
-        else if(isNaN(type_value) || watcher.value != ''){
-
-          if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
-            current = this._current_nested_array(current, watcher, name)
-          }
-
-          // else{//blockdevices.sdX
-          if(watcher.exclude){
-            Array.each(current, function(data){
-              Object.each(data.value, function(value, key){
-                if(watcher.exclude.test(key) == true)
-                  delete data.value[key]
-              })
-            })
-          }
-
-
-          if(typeOf(watcher.transform) == 'function'){
-            current = watcher.transform(current, this, chart)
-          }
-
-          if(!Array.isArray(current))
-            current = [current]
-
-          data = this._current_array_to_data(current, watcher)
-
-        }
-        else{//single value, ex: uptime
-
-          if(typeOf(watcher.transform) == 'function'){
-            current = watcher.transform(current, this, chart)
-          }
-
-          data = this._current_number_to_data (current, watcher)
-
-
-        }
-
-        this.update_chart_stat(name, data)
-
-      }
-
-
-    },
+    generic_data_watcher: data_to_tabular,
+    // (current, chart, name){
+    //   let watcher = chart.watch || {}
+    //
+    //   if(watcher.managed == true){
+    //     watcher.transform(current, this, chart)
+    //   }
+    //   else{
+    //     let type_value = null
+    //     let value_length = 0
+    //     if(watcher.value != ''){
+    //       type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher.value]) ? current[0].value[0][watcher.value] : current[0].value[watcher.value]
+    //     }
+    //     else{
+    //       type_value = current[0].value
+    //     }
+    //
+    //     let data = []
+    //
+    //     if(Array.isArray(type_value)){//multiple values, ex: loadavg
+    //       if(watcher.exclude){
+    //         Array.each(current, function(data){
+    //           Object.each(data.value, function(value, key){
+    //             if(watcher.exclude.test(key) == true)
+    //               delete data.value[key]
+    //           })
+    //         })
+    //       }
+    //
+    //       if(typeOf(watcher.transform) == 'function'){
+    //         current = watcher.transform(current, this, chart)
+    //       }
+    //
+    //       data = this._current_array_to_data(current, watcher)
+    //     }
+    //     else if(isNaN(type_value) || watcher.value != ''){
+    //
+    //       if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
+    //         current = this._current_nested_array(current, watcher, name)
+    //       }
+    //
+    //       // else{//blockdevices.sdX
+    //       if(watcher.exclude){
+    //         Array.each(current, function(data){
+    //           Object.each(data.value, function(value, key){
+    //             if(watcher.exclude.test(key) == true)
+    //               delete data.value[key]
+    //           })
+    //         })
+    //       }
+    //
+    //
+    //       if(typeOf(watcher.transform) == 'function'){
+    //         current = watcher.transform(current, this, chart)
+    //       }
+    //
+    //       if(!Array.isArray(current))
+    //         current = [current]
+    //
+    //       data = this._current_array_to_data(current, watcher)
+    //
+    //     }
+    //     else{//single value, ex: uptime
+    //
+    //       if(typeOf(watcher.transform) == 'function'){
+    //         current = watcher.transform(current, this, chart)
+    //       }
+    //
+    //       data = this._current_number_to_data (current, watcher)
+    //
+    //
+    //     }
+    //
+    //     this.update_chart_stat(name, data)
+    //
+    //   }
+    //
+    //
+    // },
     /**
     * update chart data
     **/
