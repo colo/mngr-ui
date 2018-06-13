@@ -27,6 +27,7 @@
     "node-app-http-client": "git+https://github.com/colo/node-app-http-client.git",
     "node-cron": "^1.2.1",
     "node-mngr-worker": "git+https://github.com/colo/node-mngr-worker.git",
+    "node-tabular-data": "git+https://github.com/colo/node-tabular-data.git",
     "odometer": "^0.4.8",
     "tls": "0.0.1",
     "vue-easy-pie-chart": "^1.0.3",

@@ -1,6 +1,8 @@
 <script>
 import Chart from './chart'
 
+let get_dynamics = require( 'node-tabular-data' ).get_dynamics
+
 export default {
   mixins: [Chart],
 
@@ -58,20 +60,21 @@ export default {
     * @private
     * get dynamics charts that match this "dynamic chart name"
     **/
-    _get_dynamic_charts (name, dynamic_charts){
-      let charts = {}
-      Object.each(dynamic_charts, function(dynamic){
-        if(dynamic.match.test(name) == true){
-          if(!charts[name])
-            charts[name] = []
-
-          charts[name].push(dynamic)
-
-        }
-      }.bind(this))
-
-      return charts
-    },
+    _get_dynamic_charts: get_dynamics,
+    // (name, dynamic_charts){
+    //   let charts = {}
+    //   Object.each(dynamic_charts, function(dynamic){
+    //     if(dynamic.match.test(name) == true){
+    //       if(!charts[name])
+    //         charts[name] = []
+    //
+    //       charts[name].push(dynamic)
+    //
+    //     }
+    //   }.bind(this))
+    //
+    //   return charts
+    // },
     /**
     * @override chart [mixin]
     **/
