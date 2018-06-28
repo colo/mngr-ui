@@ -103,7 +103,7 @@ export default {
   }),
   "mounts_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'mounts_percentage',
-    match: /mounts/,
+    match: /^mounts/,
     // label: 'somelabel',
     labeling: function(vm, chart, name, stat){
 
@@ -114,6 +114,7 @@ export default {
       filters: [{
         type: /ext.*/
       }],
+      // exclude: /samples/,
       value: 'percentage',
 
     },
@@ -520,31 +521,36 @@ export default {
       }
     }
   }),
-  "mounts_minute": Object.merge(Object.clone(DefaultDygraphLine),{
+  "mounts_minute_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'os.minute.uptime',
-    name: function(vm, chart, stats){
-      return vm.host+'_os.minute.mounts'
-    },
+    // name: function(vm, chart, stats){
+    //   console.log('naming...', vm, chart, stats)
+    // //   return vm.host+'_os.minute.mounts'
+    // },
     labeling: function(vm, chart, name, stat){
-      console.log('labeling...', vm, chart, name, stat)
-      return vm.host+'_os.mounts['+stat[0].value.mount_point+']'
+      // console.log('labeling...', vm, chart, name, stat)
+      // return vm.host+'_os.minute.mounts['+stat[0].value.mount_point+']'
+      return vm.host+'_os.'+name
     },
     match: /minute\.mounts.*/,
     watch: {
-      // exclude: /samples/,
+      exclude: /samples/,
+      // exclude: /range|mode/,
+      value: 'percentage',
 
       transform: function(values){
-        console.log('transform: ', values)
-        let transformed = []
-
-        Array.each(values, function(val, index){
-          let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-          transformed.push(transform)
-        })
-
-        // ////console.log('transform: ', transformed)
-
-        return transformed
+        console.log('transform minute.mount: ', values)
+      //   // let transformed = []
+      //   //
+      //   // Array.each(values, function(val, index){
+      //   //   let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+      //   //   transformed.push(transform)
+      //   // })
+      //
+      //   // ////console.log('transform: ', transformed)
+      //
+      //   // return transformed
+        return values
       }
     },
     "options": {

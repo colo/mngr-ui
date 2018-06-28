@@ -27,9 +27,16 @@ export default {
           && chart.watch && chart.watch.value
           && stat[0].value[0][chart.watch.value]
         ){
+
+
           // console.log('Array.isArray(stat[0].value)', stat[0].value)
           Object.each(stat[0].value[0][chart.watch.value], function(tmp, tmp_key){
-            chart.options.labels.push(tmp_key)
+            if(
+              !chart.watch
+              || !chart.watch.exclude
+              || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
+            )
+              chart.options.labels.push(tmp_key)
           })
 
           chart.options.labels.unshift('Time')
@@ -55,12 +62,14 @@ export default {
             else{
               obj = stat[0].value
             }
+
             Object.each(obj, function(tmp, tmp_key){
               if(
                 !chart.watch
                 || !chart.watch.exclude
                 || (chart.watch.exclude && chart.watch.exclude.test(tmp_key) == false)
               )
+
                 chart.options.labels.push(tmp_key)
             })
 
@@ -107,6 +116,8 @@ export default {
           chart = null
         }
       }
+
+      // console.log('pre_process)', name, chart)
 
       return chart
     },

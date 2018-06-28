@@ -262,8 +262,14 @@ export default {
     }
 
     this.$watch('$store.state.hosts.'+this.host+'.os', function (val, oldVal) {
-
+      // console.log('watcher $store.state.hosts.'+this.host+'.os', Object.clone(val))
       this.initialize_all_charts(val)
+
+    }.bind(this))
+
+    this.$watch('$store.state.hosts.'+this.host+'.os.minute', function (val, oldVal) {
+      // console.log('watcher $store.state.hosts.'+this.host+'.os.minute', Object.clone(val))
+      this.initialize_all_charts(this.$store.state.hosts[this.host].os)
 
     }.bind(this))
 
@@ -318,7 +324,7 @@ export default {
 
 
 
-      console.log('os.dashboard.vue _update_charts_menu', menu)
+      // console.log('os.dashboard.vue _update_charts_menu', menu)
 
       Object.each(this.$store.state.app.icons, function(rgexp, name){
           if(rgexp.test('os') && menu[0])
@@ -421,7 +427,7 @@ export default {
     * initlize all charts, dynamics & static
     */
     initialize_all_charts (val){
-      console.log('initializing ...', val)
+      // console.log('initializing ...', val)
 
       Object.each(val, function(stat, key){
         this.parse_chart_from_stat(stat, key)

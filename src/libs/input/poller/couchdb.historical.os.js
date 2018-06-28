@@ -25,12 +25,15 @@ export default new Class({
 				{
 					sort_by_type: function(req, next, app){
             // //console.log('req.opt.range', req.opt.range)
-            // ////console.log('sort_by_path', next)
+            // console.log('sort_by_type', next)
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
 
+              // let start = (req.opt.range.start != null) ?  req.opt.range.start : Date.now() - 300000
               let end = (req.opt.range.end != null) ?  req.opt.range.end : Date.now()
+
+              let views = []
 
               Array.each(app.options.paths, function(path){
                 // ////console.log('sort_by_path', host)
@@ -40,13 +43,13 @@ export default new Class({
                   //////console.log('req.opt.range', req.opt.range, host)
 
                   // next(
-                  app.view({
+                  let cb = app.view.pass({
       							uri: app.options.db,
                     args: [
                       'sort',
                       'by_path',
                       {
-        								startkey: [path, app.options.stat_host, "minute", req.opt.range.start],
+        								startkey: [path, app.options.stat_host, "minute", start],
         								endkey: [path, app.options.stat_host, "minute",end],
         								/**
         								 * pouchdb
@@ -61,12 +64,20 @@ export default new Class({
         							}
                     ]
       						})
+
+
+                  views.push(cb);
                   // )
 
                 // }
 
 
               }.bind(app))
+
+              Array.each(views, function(view){
+  							view.attempt();
+  						});
+
             }
 
 
@@ -84,10 +95,13 @@ export default new Class({
 
             // if(app.hosts.length > 0){
             if(app.options.stat_host){
+
+              let views = []
+
               Array.each(app.options.paths, function(path){
                 // next(
                 // ////console.log('sort_by_path', host)
-                app.view({
+                let cb = app.view.pass({
     							uri: app.options.db,
                   args: [
                     'sort',
@@ -108,8 +122,14 @@ export default new Class({
       							}
                   ]
     						})
-              // )
+
+                views.push(cb);
+
               }.bind(app))
+
+              Array.each(views, function(view){
+  							view.attempt();
+  						});
 
             }
 
