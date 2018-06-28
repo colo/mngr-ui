@@ -11,7 +11,8 @@ export default {
 		{
 			poll: {
 				suspended: true,//start suspended
-				id: "input.os.historical",
+				// id: "input.os.historical",
+				id: "input.historical.os",
 				conn: [
           Object.merge(
             Object.clone(DefaultConn),
@@ -38,7 +39,8 @@ export default {
 	],
 	filters: [
 		function(doc, opts, next){
-			let paths = /^os\.historical.*/
+			// let paths = /^os\.historical.*/
+			let paths = /^historical\.os.*/
 
 			// if(doc != null
 			// 	&& ( (opts.type == 'periodical' && doc.metadata.path == 'os')
@@ -210,7 +212,8 @@ export default {
       //
       // // //////console.log(doc.host)
       // let type = doc.type
-      EventBus.$emit('os.historical', doc)
+      // EventBus.$emit('os.historical', doc)
+			EventBus.$emit('historical.os', doc)
 			// EventBus.$emit('os', doc)
 
 		}

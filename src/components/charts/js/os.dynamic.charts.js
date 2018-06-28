@@ -225,7 +225,7 @@ export default {
   }),
   "cpus_simple": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'os.cpus_simple',
-    name: function(vm, chart, sta){
+    name: function(vm, chart, stats){
       return vm.host+'_os.cpus_simple'
     },
     match: /cpus/,
@@ -293,7 +293,7 @@ export default {
   "freemem": Object.merge(Object.clone(DefaultDygraphLine),{
     // icon: 'memory',
     // name: 'os.freemem',
-    name: function(vm, chart, sta){
+    name: function(vm, chart, stats){
       return vm.host+'_os.freemem'
     },
     match: /freemem/,
@@ -336,7 +336,7 @@ export default {
 
   "loadavg_minute": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'os.minute.loadavg',
-    name: function(vm, chart, sta){
+    name: function(vm, chart, stats){
       return vm.host+'_os.minute.loadavg'
     },
     match: /minute\.loadavg.*/,
@@ -413,7 +413,7 @@ export default {
   }),
   "uptime_minute": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'os.minute.uptime',
-    name: function(vm, chart, sta){
+    name: function(vm, chart, stats){
       return vm.host+'_os.minute.uptime'
     },
     match: /minute\.uptime.*/,
@@ -427,7 +427,7 @@ export default {
   }),
   "freemem_minute": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'os.minute.freemem',
-    name: function(vm, chart, sta){
+    name: function(vm, chart, stats){
       return vm.host+'_os.minute.freemem'
     },
     match: /minute\.freemem.*/,
@@ -520,7 +520,37 @@ export default {
       }
     }
   }),
+  "mounts_minute": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'os.minute.uptime',
+    name: function(vm, chart, stats){
+      return vm.host+'_os.minute.mounts'
+    },
+    labeling: function(vm, chart, name, stat){
+      console.log('labeling...', vm, chart, name, stat)
+      return vm.host+'_os.mounts['+stat[0].value.mount_point+']'
+    },
+    match: /minute\.mounts.*/,
+    watch: {
+      // exclude: /samples/,
 
+      transform: function(values){
+        console.log('transform: ', values)
+        let transformed = []
+
+        Array.each(values, function(val, index){
+          let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+          transformed.push(transform)
+        })
+
+        // ////console.log('transform: ', transformed)
+
+        return transformed
+      }
+    },
+    "options": {
+      fillGraph: false,
+    }
+  }),
 
 
 

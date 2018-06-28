@@ -147,7 +147,8 @@ export default {
     let self = this;
 
 
-    this.EventBus.$on('os.historical', doc => {
+    // this.EventBus.$on('os.historical', doc => {
+    this.EventBus.$on('historical.os', doc => {
       ////console.log('recived doc via Event os.historical', doc)
 
       let {keys, path, host} = this.extract_data_os_historical_doc(doc)
@@ -234,7 +235,8 @@ export default {
       Object.each(state_props, function(data, key){
         state_props[key] = []
       })
-      // //////////console.log('registering....', state_props)
+
+      // console.log('registering....', host, path, keys)
 
       let stats = Object.merge(Object.clone(hostStats), Object.clone({state: function() {
         return state_props
@@ -252,7 +254,7 @@ export default {
         new_path = new_path.append(path.split('/'))
         this.$store.registerModule(new_path, stats)
 
-        //console.log('registering....', host, path, this.$store.state.hosts[host])
+        // console.log('registering....', host, new_path, this.$store.state.hosts[host])
 
         return true
       }
@@ -264,22 +266,25 @@ export default {
       }
     },
     check_store_path(path, root){
-      // //////////console.log('check_store_path', path)
-      for(let i = 0; i < path.length; ){
+      // console.log('registering check_store_path', path)
+      // for(let i = 0; i < path.length; ){
         if(root == undefined){
           return undefined
         }
-        else if(root[path[i]] == undefined && i == path.length - 1){//last path item
+        else if(root[path[0]] == undefined && path.length == 1){//last path item
           return false
         }
-        else if(i < path.length - 1){
-          let tmp_root = root[path[i]]
-          return this.check_store_path([path[++i]], tmp_root)
+        // else if(i < path.length - 1){
+        else if(path.length > 1){
+          let tmp_root = root[path[0]]
+          // return this.check_store_path([path[++i]], tmp_root)
+          path.shift()
+          return this.check_store_path(path, tmp_root)
         }
         else{
           return true
         }
-      }
+      // }
     },
 
     // format_cpu_simple (doc, prev){

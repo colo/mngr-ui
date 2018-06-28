@@ -421,6 +421,8 @@ export default {
     * initlize all charts, dynamics & static
     */
     initialize_all_charts (val){
+      console.log('initializing ...', val)
+
       Object.each(val, function(stat, key){
         this.parse_chart_from_stat(stat, key)
       }.bind(this))

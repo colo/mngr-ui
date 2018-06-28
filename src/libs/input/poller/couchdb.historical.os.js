@@ -7,7 +7,7 @@ const App = require ( 'node-app-couchdb-client/index' )
 export default new Class({
   Extends: App,
 
-  paths: /^os\.historical.*/,
+  paths: /^historical\.os.*/,
 
   options: {
     paths: [],
@@ -148,7 +148,7 @@ export default new Class({
   },
 
   view: function(err, resp, view){
-		//console.log('historical..os -> this.view ', resp, view.options.args);
+		// console.log('historical..os -> this.view ', resp, view.options.args);
 
 		if(err){
 

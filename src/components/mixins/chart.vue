@@ -28,6 +28,7 @@ export default {
     * @param name = chart name
     */
     parse_chart_from_stat (stat, name){
+      console.log('parse_chart_from_stat', name)
 
       /**
       * create chart automatically if it's not blacklisted or is whitelisted
@@ -71,7 +72,10 @@ export default {
 
         }
         else{//blockdevices.[key]
+          console.log('...parse_chart_from_stat', Object.clone(stat))
           Object.each(stat, function(data, key){
+            console.log('gonna parse_chart_from_stat', name+'.'+key)
+
             this.parse_chart_from_stat(data, name+'.'+key)
           }.bind(this))
 
