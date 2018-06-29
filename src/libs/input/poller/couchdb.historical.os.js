@@ -49,7 +49,8 @@ export default new Class({
                       'sort',
                       'by_path',
                       {
-        								startkey: [path, app.options.stat_host, "minute", start],
+        								// startkey: [path, app.options.stat_host, "minute", start],
+                        startkey: [path, app.options.stat_host, "minute", req.opt.range.start],
         								endkey: [path, app.options.stat_host, "minute",end],
         								/**
         								 * pouchdb
