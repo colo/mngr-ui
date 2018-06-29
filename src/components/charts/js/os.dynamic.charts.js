@@ -9,14 +9,14 @@ import DefaultNetDygraphLine from './default.net.dygraph.line'
 
 export default {
   "networkInterfaces": Object.merge(Object.clone(DefaultNetDygraphLine), {
-    match: /networkInterfaces/,
+    match: /^networkInterfaces/,
     watch: {
       managed: true,
       transform: function(networkInterfaces, vm, chart){
         let watcher = chart.watch || {}
-        // ////console.log('networkInterfaces transform: ', networkInterfaces)
+        // //////console.log('networkInterfaces transform: ', networkInterfaces)
 
-        // //////////////console.log('networkInterfaces', networkInterfaces)
+        // ////////////////console.log('networkInterfaces', networkInterfaces)
 
         if(networkInterfaces.getLast() !== null){
 
@@ -76,7 +76,7 @@ export default {
                 }
                 else{
                   data = []
-                  ////////////////console.log('stats.value[iface] undefined', iface)
+                  //////////////////console.log('stats.value[iface] undefined', iface)
                   /**
                   * should notify error??
                   **/
@@ -126,7 +126,7 @@ export default {
     //   ){
     //     if(vm.$store.state.hosts[vm.host])
     //     chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
-    //     ////console.log('valueRange', chart)
+    //     //////console.log('valueRange', chart)
     //   }
     //
     // },
@@ -144,9 +144,9 @@ export default {
     }
   }),
   "blkdev_stats": Object.merge(Object.clone(DefaultDygraphLine),{
-    match: /blockdevices\..*/,
+    match: /^blockdevices\..*/,
     labeling: function(vm, chart, name, stat){
-      // console.log('blkdev_stats', chart, name, stat)
+      // //console.log('blkdev_stats', chart, name, stat)
 
       return vm.host+'_os.'+name
     },
@@ -156,7 +156,7 @@ export default {
       * @trasnform: diff between each value against its prev one
       */
       transform: function(values){
-        // ////console.log('transform: ', values)
+        // //////console.log('transform: ', values)
         let transformed = []
         let prev = null
         Array.each(values, function(val, index){
@@ -185,7 +185,7 @@ export default {
     name: function(vm, chart, stats){
       return vm.host+'_os.cpus_times'
     },
-    match: /cpus/,
+    match: /^cpus/,
     watch: {
       merge: true,
       value: 'times',
@@ -193,7 +193,7 @@ export default {
       * @trasnform: diff between each value against its prev one
       */
       transform: function(values){
-        // ////console.log('transform: ', values)
+        // //////console.log('transform: ', values)
         let transformed = []
         let prev = null
         Array.each(values, function(val, index){
@@ -229,7 +229,7 @@ export default {
     name: function(vm, chart, stats){
       return vm.host+'_os.cpus_simple'
     },
-    match: /cpus/,
+    match: /^cpus/,
     "options": {
       valueRange: [0, 100],
       labels: ['Time', 'usage %'],
@@ -250,7 +250,7 @@ export default {
       * @trasnform: diff between each value against its prev one
       */
       transform: function(values){
-        // ////console.log('transform: ', values)
+        // //////console.log('transform: ', values)
         let transformed = []
         let prev = {idle: 0, total: 0, timestamp: 0 }
         Array.each(values, function(val, index){
@@ -270,13 +270,13 @@ export default {
           let diff_total = current.total - prev.total;
           let diff_idle = current.idle - prev.idle;
 
-          // ////console.log('transform: ', current, prev)
+          // //////console.log('transform: ', current, prev)
 
           //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
           let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
 
           if(percentage > 100){
-            console.log('cpu transform: ', diff_time, diff_total, diff_idle)
+            //console.log('cpu transform: ', diff_time, diff_total, diff_idle)
           }
 
           transform.value.times.usage = (percentage > 100) ? 100 : percentage
@@ -297,7 +297,7 @@ export default {
     name: function(vm, chart, stats){
       return vm.host+'_os.freemem'
     },
-    match: /freemem/,
+    match: /^freemem/,
     watch: {
       // merge: true,
       value: undefined,
@@ -305,7 +305,7 @@ export default {
       * @trasnform: diff between each value against its prev one
       */
       transform: function(values){
-        // ////console.log('transform: ', values)
+        // //////console.log('transform: ', values)
         let transformed = []
 
         Array.each(values, function(val, index){
@@ -313,20 +313,20 @@ export default {
           transformed.push(transform)
         })
 
-        // ////console.log('transform: ', transformed)
+        // //////console.log('transform: ', transformed)
 
         return transformed
       }
     },
     init: function (vm, chart, type){
-      // ////console.log('chart', chart)
+      // //////console.log('chart', chart)
       if(type == 'chart'
         && vm.$store.state.hosts[vm.host]
         && vm.$store.state.hosts[vm.host].os
       ){
         // if(vm.$store.state.hosts[vm.host])
         chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
-        // ////console.log('valueRange', chart.options.valueRange)
+        // //////console.log('valueRange', chart.options.valueRange)
       }
 
     },
@@ -335,81 +335,99 @@ export default {
     }
   }),
 
+  /**
+  * doens't play nice with other "minute" charts
+  **/
+  // "loadavg_minute": Object.merge(Object.clone(DefaultDygraphLine),{
+  //   // name: 'os.minute.loadavg',
+  //   name: function(vm, chart, stats){
+  //     return vm.host+'_os.minute.loadavg'
+  //   },
+  //   match: /^minute\.loadavg.*/,
+  //   watch: {
+  //     // exclude: /samples/,
+  //     exclude: /range|mode/,
+  //
+  //     /**
+  //     * returns  a bigger array (values.length * samples.length) and add each property
+  //     */
+  //     transform: function(values){
+  //       //console.log('loadavg_minute transform: ', values)
+  //
+  //       let transformed = []
+  //
+  //       Array.each(values, function(val, index){
+  //         // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+  //         // transformed.push(transform)
+  //
+  //         let last_sample = null
+  //         let counter = 0
+  //         Object.each(val.value.samples, function(sample, timestamp){
+  //           let transform = {timestamp: timestamp * 1, value: {samples: sample}}
+  //
+  //           if(counter == Object.getLength(val.value.samples) -1)
+  //             last_sample = sample
+  //
+  //           Object.each(val.value, function(data, property){
+  //             if(property != 'samples')
+  //               transform.value[property] = data
+  //           })
+  //
+  //           transformed.push(transform)
+  //           counter++
+  //         })
+  //
+  //         let timestamp = val.timestamp
+  //         let transform = {timestamp: timestamp * 1, value: {}}
+  //
+  //         Object.each(val.value, function(data, property){
+  //           if(property != 'samples'){
+  //             transform.value[property] = data
+  //           }
+  //           else{
+  //             transform.value['samples'] = last_sample
+  //           }
+  //         })
+  //         transformed.push(transform)
+  //       })
+  //
+  //       // //console.log('transformed: ', transformed)
+  //       //
+  //       //console.log('loadavg_minute transform: ', transformed)
+  //
+  //       return transformed
+  //       // return values
+  //     }
+  //   },
+  //   "options": {
+  //     fillGraph: false,
+  //     strokeWidth: 1.5,
+  //     series: {
+  //       'mean': {
+  //         color: 'red',
+  //         strokeWidth: 2,
+  //       },
+  //       'samples': {
+  //           fillGraph: true,
+  //           // pointSize: 1,
+  //           color: 'grey',
+  //           strokeWidth: 1
+  //       }
+  //     }
+  //   }
+  // }),
   "loadavg_minute": Object.merge(Object.clone(DefaultDygraphLine),{
-    // name: 'os.minute.loadavg',
+    // name: 'os.minute.uptime',
     name: function(vm, chart, stats){
       return vm.host+'_os.minute.loadavg'
     },
-    match: /minute\.loadavg.*/,
+    match: /^minute\.loadavg.*/,
     watch: {
-      // exclude: /samples/,
-      exclude: /range|mode/,
-
-      /**
-      * returns  a bigger array (values.length * samples.length) and add each property
-      */
-      transform: function(values){
-        // console.log('loadavg_minute transform: ', values)
-
-
-        let transformed = []
-
-        Array.each(values, function(val, index){
-          // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-          // transformed.push(transform)
-
-          let last_sample = null
-          let counter = 0
-          Object.each(val.value.samples, function(sample, timestamp){
-            let transform = {timestamp: timestamp * 1, value: {samples: sample}}
-
-            if(counter == Object.getLength(val.value.samples) -1)
-              last_sample = sample
-
-            Object.each(val.value, function(data, property){
-              if(property != 'samples')
-                transform.value[property] = data
-            })
-
-            transformed.push(transform)
-            counter++
-          })
-
-          let timestamp = val.timestamp
-          let transform = {timestamp: timestamp * 1, value: {}}
-
-          Object.each(val.value, function(data, property){
-            if(property != 'samples'){
-              transform.value[property] = data
-            }
-            else{
-              transform.value['samples'] = last_sample
-            }
-          })
-          transformed.push(transform)
-        })
-
-        // console.log('transformed: ', transformed)
-        //
-        return transformed
-        // return values
-      }
+      exclude: /samples/,
     },
     "options": {
       fillGraph: false,
-      strokeWidth: 1.5,
-      series: {
-        'mean': {
-          color: 'red',
-          strokeWidth: 2,
-        },
-        'samples': {
-            fillGraph: true,
-            // pointSize: 1,
-            color: 'grey',
-            strokeWidth: 1
-        }
-      }
+      // maxNumberWidth: 12,
     }
   }),
   "uptime_minute": Object.merge(Object.clone(DefaultDygraphLine),{
@@ -417,7 +435,7 @@ export default {
     name: function(vm, chart, stats){
       return vm.host+'_os.minute.uptime'
     },
-    match: /minute\.uptime.*/,
+    match: /^minute\.uptime.*/,
     watch: {
       exclude: /samples/,
 
@@ -426,132 +444,227 @@ export default {
       fillGraph: false,
     }
   }),
+  /**
+  * doens't play nice with other "minute" charts
+  **/
+  // "freemem_minute": Object.merge(Object.clone(DefaultDygraphLine),{
+  //   // name: 'os.minute.freemem',
+  //   name: function(vm, chart, stats){
+  //     return vm.host+'_os.minute.freemem'
+  //   },
+  //   match: /^minute\.freemem.*/,
+  //   watch: {
+  //     // exclude: /samples/,
+  //     exclude: /range|mode/,
+  //     /**
+  //     * returns  a bigger array (values.length * samples.length) and add each property
+  //     */
+  //     transform: function(values){
+  //       // //console.log('loadavg_minute transform: ', values)
+  //
+  //
+  //       let transformed = []
+  //
+  //       Array.each(values, function(val, index){
+  //         // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+  //         // transformed.push(transform)
+  //
+  //         let last_sample = null
+  //         let counter = 0
+  //         Object.each(val.value.samples, function(sample, timestamp){
+  //           let transform = {timestamp: timestamp * 1, value: {samples: (( sample / 1024) / 1024 )}}
+  //
+  //           if(counter == Object.getLength(val.value.samples) -1)
+  //             last_sample = sample
+  //
+  //           Object.each(val.value, function(data, property){
+  //             if(property != 'samples')
+  //               transform.value[property] = (( data / 1024) / 1024 )
+  //           })
+  //
+  //           transformed.push(transform)
+  //           counter++
+  //         })
+  //
+  //         let timestamp = val.timestamp
+  //         let transform = {timestamp: timestamp * 1, value: {}}
+  //
+  //         Object.each(val.value, function(data, property){
+  //           if(property != 'samples'){
+  //             transform.value[property] = (( data / 1024) / 1024 )
+  //           }
+  //           else{
+  //             transform.value['samples'] = ((last_sample / 1024) / 1024 )
+  //           }
+  //         })
+  //         transformed.push(transform)
+  //       })
+  //
+  //       // //console.log('transformed: ', transformed)
+  //       //
+  //       return transformed
+  //       // return values
+  //     }
+  //
+  //   },
+  //   "options": {
+  //     fillGraph: false,
+  //     strokeWidth: 1.5,
+  //     series: {
+  //       'mean': {
+  //         color: 'red',
+  //         strokeWidth: 2,
+  //       },
+  //       'samples': {
+  //           fillGraph: true,
+  //           // pointSize: 1,
+  //           color: 'grey',
+  //           strokeWidth: 1
+  //       }
+  //     }
+  //   }
+  // }),
   "freemem_minute": Object.merge(Object.clone(DefaultDygraphLine),{
-    // name: 'os.minute.freemem',
+    // name: 'os.minute.uptime',
     name: function(vm, chart, stats){
       return vm.host+'_os.minute.freemem'
     },
-    match: /minute\.freemem.*/,
+    match: /^minute\.freemem.*/,
     watch: {
-      // exclude: /samples/,
-      exclude: /range|mode/,
-
-      // transform: function(values){
-      //   // ////console.log('transform: ', values)
-      //   let transformed = []
-      //
-      //   Array.each(values, function(val, index){
-      //     let transform = { timestamp: val.timestamp, value: {} }
-      //     Object.each(val.value, function(stat, name){
-      //       transform.value[name] = Math.floor(stat / 1024 / 1024)
-      //     })
-      //     transformed.push(transform)
-      //   })
-      //
-      //   // ////console.log('transform: ', transformed)
-      //
-      //   return transformed
-      // }
-
-      /**
-      * returns  a bigger array (values.length * samples.length) and add each property
-      */
-      transform: function(values){
-        // console.log('loadavg_minute transform: ', values)
-
-
-        let transformed = []
-
-        Array.each(values, function(val, index){
-          // let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-          // transformed.push(transform)
-
-          let last_sample = null
-          let counter = 0
-          Object.each(val.value.samples, function(sample, timestamp){
-            let transform = {timestamp: timestamp * 1, value: {samples: (( sample / 1024) / 1024 )}}
-
-            if(counter == Object.getLength(val.value.samples) -1)
-              last_sample = sample
-
-            Object.each(val.value, function(data, property){
-              if(property != 'samples')
-                transform.value[property] = (( data / 1024) / 1024 )
-            })
-
-            transformed.push(transform)
-            counter++
-          })
-
-          let timestamp = val.timestamp
-          let transform = {timestamp: timestamp * 1, value: {}}
-
-          Object.each(val.value, function(data, property){
-            if(property != 'samples'){
-              transform.value[property] = (( data / 1024) / 1024 )
-            }
-            else{
-              transform.value['samples'] = ((last_sample / 1024) / 1024 )
-            }
-          })
-          transformed.push(transform)
-        })
-
-        // console.log('transformed: ', transformed)
-        //
-        return transformed
-        // return values
-      }
-
+      exclude: /samples/,
     },
     "options": {
       fillGraph: false,
-      strokeWidth: 1.5,
-      series: {
-        'mean': {
-          color: 'red',
-          strokeWidth: 2,
-        },
-        'samples': {
-            fillGraph: true,
-            // pointSize: 1,
-            color: 'grey',
-            strokeWidth: 1
-        }
-      }
+      maxNumberWidth: 12,
     }
+  }),
+  "cpus_minute": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'os.minute.uptime',
+    name: function(vm, chart, stats){
+      return vm.host+'_os.minute.cpus'
+    },
+    match: /^minute\.cpus.*/,
+    /**
+    * @var: save prev cpu data, need to calculate current cpu usage
+    **/
+    prev: {idle: 0, total: 0, timestamp: 0, value: 0 },
+
+    watch: {
+      value: ['times', /^[a-zA-Z0-9_]+$/, 'samples'],
+      // exclude: /samples/,
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values, caller, chart){
+        //console.log('transform minute.cpus: ', values)
+
+        let transformed = []
+        // let prev = {idle: 0, total: 0, timestamp: 0 }
+        Array.each(values, function(val, index){
+
+          let value = {}
+          Object.each(val.value, function(stat, full_key){ // ex: times.user.samples.1530294072336
+
+            let key = full_key.split('.')[1]
+            let timestamp = full_key.split('.')[3]
+
+            if(!value[timestamp]) value[timestamp] = {}
+
+            if(!value[timestamp][key]) value[timestamp][key] = null
+
+            value[timestamp][key] = stat
+
+          })
+
+          //console.log('VALUE', value)
+
+          Object.each(value, function(data, timestamp){
+            let transform = {timestamp: timestamp * 1, value: 0 }
+            let current = {idle: 0, total: 0, timestamp: timestamp * 1}
+
+            Object.each(data, function (stat, key){
+              if(key == 'idle')
+                current.idle += stat
+
+              current.total += stat
+            })
+
+
+
+            let diff_time = current.timestamp - chart.prev.timestamp
+
+            if(diff_time > 0){
+              let diff_total = current.total - chart.prev.total;
+              let diff_idle = current.idle - chart.prev.idle;
+
+              // //////console.log('transform: ', current, chart.prev)
+
+              //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
+              let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
+
+              // if(percentage > 100){
+                //console.log('cpu transform: ', diff_time, diff_total, diff_idle)
+              // }
+
+              transform.value = (percentage > 100) ? 100 : percentage
+
+
+              chart.prev = Object.clone(current)
+              transformed.push(transform)
+            }
+          })
+
+        })
+
+        ////console.log('transform minute.cpus: ', transformed)
+
+        return transformed
+      }
+    },
+    "options": {
+      valueRange: [0, 100],
+      labels: ['Time', 'samples usage%'],
+      // series: {
+      //  'samples usage %': {
+      //    color: 'red',
+      //    //strokeWidth: 2,
+      //    // plotter: smoothPlotter,
+      //  },
+      // },
+
+    },
   }),
   "mounts_minute_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
     // name: 'os.minute.uptime',
     // name: function(vm, chart, stats){
-    //   console.log('naming...', vm, chart, stats)
+    //   //console.log('naming...', vm, chart, stats)
     // //   return vm.host+'_os.minute.mounts'
     // },
     labeling: function(vm, chart, name, stat){
-      // console.log('labeling...', vm, chart, name, stat)
+      // //console.log('labeling...', vm, chart, name, stat)
       // return vm.host+'_os.minute.mounts['+stat[0].value.mount_point+']'
       return vm.host+'_os.'+name
     },
-    match: /minute\.mounts.*/,
+    match: /^minute\.mounts.*/,
     watch: {
       exclude: /samples/,
       // exclude: /range|mode/,
       value: 'percentage',
 
-      transform: function(values){
-        console.log('transform minute.mount: ', values)
-      //   // let transformed = []
-      //   //
-      //   // Array.each(values, function(val, index){
-      //   //   let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-      //   //   transformed.push(transform)
-      //   // })
-      //
-      //   // ////console.log('transform: ', transformed)
-      //
-      //   // return transformed
-        return values
-      }
+      // transform: function(values){
+      //   //console.log('transform minute.mount: ', values)
+      // //   // let transformed = []
+      // //   //
+      // //   // Array.each(values, function(val, index){
+      // //   //   let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+      // //   //   transformed.push(transform)
+      // //   // })
+      // //
+      // //   // //////console.log('transform: ', transformed)
+      // //
+      // //   // return transformed
+      //   return values
+      // }
     },
     "options": {
       fillGraph: false,

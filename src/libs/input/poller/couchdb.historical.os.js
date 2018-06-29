@@ -42,8 +42,11 @@ export default new Class({
                   // app.hosts_range_started.push(host)
                   //////console.log('req.opt.range', req.opt.range, host)
 
+                  console.log('input.poller.couchdb.stats.os range path', path, new Date(Date.now()).toString())
+
                   // next(
-                  let cb = app.view.pass({
+                  // let cb = app.view.pass({
+                  app.view({
       							uri: app.options.db,
                     args: [
                       'sort',
@@ -67,7 +70,7 @@ export default new Class({
       						})
 
 
-                  views.push(cb);
+                  // views.push(cb);
                   // )
 
                 // }
@@ -75,9 +78,11 @@ export default new Class({
 
               }.bind(app))
 
-              Array.each(views, function(view){
-  							view.attempt();
-  						});
+              // Array.each(views, function(view){
+              //   console.log('input.poller.couchdb.stats.os view', view, new Date(Date.now()).toString())
+              //
+  						// 	view.attempt();
+  						// });
 
             }
 
@@ -100,9 +105,11 @@ export default new Class({
               let views = []
 
               Array.each(app.options.paths, function(path){
-                // next(
-                // ////console.log('sort_by_path', host)
-                let cb = app.view.pass({
+
+                console.log('input.poller.couchdb.stats.os periodical path', path, new Date(Date.now()).toString())
+
+                // let cb = app.view.pass({
+                app.view({
     							uri: app.options.db,
                   args: [
                     'sort',
@@ -124,13 +131,13 @@ export default new Class({
                   ]
     						})
 
-                views.push(cb);
+                // views.push(cb);
 
               }.bind(app))
 
-              Array.each(views, function(view){
-  							view.attempt();
-  						});
+              // Array.each(views, function(view){
+  						// 	view.attempt();
+  						// });
 
             }
 
@@ -177,10 +184,13 @@ export default new Class({
 		else{
 
         if(view.options.args[2].limit == 1 && resp.rows[0]){
+          console.log('input.poller.couchdb.stats.os periodical RESP', resp.rows[0], new Date(Date.now()).toString())
+
   				this.fireEvent('onPeriodicalDoc', [resp.rows[0].doc, {type: 'periodical', input_type: this, app: null}]);
   			}
         else if(resp.rows.length > 0){//range docs
-          //console.log('range docs', resp)
+          console.log('input.poller.couchdb.stats.os range RESP', resp.rows, new Date(Date.now()).toString())
+
           this.fireEvent('onRangeDoc', [resp.rows, {type: 'range', input_type: this, app: null}]);
 
         }
@@ -201,7 +211,8 @@ export default new Class({
 
     options.paths = paths
 
-    //console.log('input.poller.couchdb.stats.os', options)
+    console.log('input.poller.couchdb.stats.os', options.paths, Date.now())
+
 		this.parent(options);//override default options
 
 		this.profile('root_init');//start profiling

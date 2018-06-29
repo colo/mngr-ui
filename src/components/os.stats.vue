@@ -163,7 +163,9 @@ export default {
 
             this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
 
-            let divisor = (path == 'os/minute') ? 60 : 3600
+            console.log('PATH', path)
+
+            let divisor = (path.indexOf('minute') >= 0 ) ? 60 : 3600
             let splice = ((this.seconds / divisor) < 1) ? 1 : Math.trunc((this.seconds / divisor))
 
             ////console.log('recived doc via Event os.historical', path, divisor, splice, this.seconds)
