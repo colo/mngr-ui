@@ -56,8 +56,41 @@ export default {
             // && chart.watch.value
           ){
             let obj = {}
+            // if(chart.watch && chart.watch.value){
+            //   obj = stat[0].value[chart.watch.value]
+            // }
+            // else{
+            //   obj = stat[0].value
+            // }
+
             if(chart.watch && chart.watch.value){
-              obj = stat[0].value[chart.watch.value]
+
+              if(Array.isArray(chart.watch.value)){
+      					// chart_watch_value = chart.watch.value.split('/')
+                if(chart.watch.value[0] instanceof RegExp){
+                  Object.each(stat[0].value, function(val, key){
+                    /**
+                    * watch out to have a good RegExp, or may keep matching 'til last one
+                    **/
+                    if(chart.watch.value[0].test(key)) obj[key] = stat[0].value[key]
+                      // obj = stat[0].value[key]
+                  })
+                }
+                else{
+                  obj = stat[0].value[chart.watch.value[0]]
+                }
+
+                // Array.each(chart.watch.value.split('/'), function(sub_key, index){
+                //   if(index != 0 && obj[sub_key])
+                //     obj = obj[sub_key]
+                // })
+
+      				}
+              else{
+                  obj = stat[0].value[chart.watch.value]
+              }
+
+
             }
             else{
               obj = stat[0].value
@@ -74,6 +107,8 @@ export default {
             })
 
             chart.options.labels.unshift('Time')
+            console.log('chart.options.labels', name, chart.options.labels)
+
           }
           // else if (
           //   ! chart.watch

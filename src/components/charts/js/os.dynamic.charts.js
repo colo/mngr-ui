@@ -556,7 +556,7 @@ export default {
       * @trasnform: diff between each value against its prev one
       */
       transform: function(values, caller, chart){
-        //console.log('transform minute.cpus: ', values)
+        console.log('transform minute.cpus: ', values)
 
         let transformed = []
         // let prev = {idle: 0, total: 0, timestamp: 0 }
@@ -576,7 +576,7 @@ export default {
 
           })
 
-          //console.log('VALUE', value)
+          console.log('minute.cpus VALUE', value)
 
           Object.each(value, function(data, timestamp){
             let transform = {timestamp: timestamp * 1, value: 0 }
@@ -609,14 +609,17 @@ export default {
               transform.value = (percentage > 100) ? 100 : percentage
 
 
-              chart.prev = Object.clone(current)
+
               transformed.push(transform)
             }
+
+            chart.prev = Object.clone(current)
+            
           })
 
         })
 
-        ////console.log('transform minute.cpus: ', transformed)
+        console.log('transform minute.cpus: ', transformed)
 
         return transformed
       }
@@ -670,7 +673,46 @@ export default {
       fillGraph: false,
     }
   }),
+  "blockdevices_minute": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'os.minute.uptime',
+    // name: function(vm, chart, stats){
+    //   console.log('naming...', vm, chart, stats)
+    // //   return vm.host+'_os.minute.mounts'
+    // },
+    labeling: function(vm, chart, name, stat){
+      // console.log('labeling...', vm, chart, name, stat)
+      // return vm.host+'_os.minute.mounts['+stat[0].value.mount_point+']'
+      return vm.host+'_os.'+name
+    },
+    match: /^minute\.blockdevices.*/,
+    watch: {
+      // exclude: /samples/,
+    //   // // exclude: /range|mode/,
+      value: [/^[a-zA-Z0-9_]+$/, 'median'],
 
+      transform: function(values){
+        // console.log('transform minute.blockdevices: ', values)
+        let transformed = []
+
+        Array.each(values, function(val, index){
+          let transform = { timestamp: val.timestamp, value: {} }
+          Object.each(val.value, function(value, prop){
+            prop = prop.replace('.median', '')
+            transform.value[prop] = value * 1
+          })
+          transformed.push(transform)
+        })
+
+        // console.log('transform minute.blockdevices: ', transformed)
+
+        return transformed
+        // return values
+      }
+    },
+    "options": {
+      fillGraph: false,
+    }
+  }),
 
 
 }
