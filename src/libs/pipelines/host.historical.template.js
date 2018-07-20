@@ -6,6 +6,8 @@ import DefaultConn from '../../etc/default.conn'
 
 import InputPollerCouchDBOSHistorical from '../input/poller/couchdb.historical.os'
 
+import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
+
 export default {
 	input: [
 		{
@@ -38,6 +40,7 @@ export default {
 		}
 	],
 	filters: [
+		decompress,
 		function(doc, opts, next){
 			// let paths = /^os\.historical.*/
 			let paths = /^historical\.os.*/

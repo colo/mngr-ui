@@ -30,58 +30,58 @@ export default {
     parse_chart_from_stat (stat, name){
       // console.log('parse_chart_from_stat', name)
 
-      /**
-      * create chart automatically if it's not blacklisted or is whitelisted
-      **/
-      if(
-        (
-          ( this.$options.dynamic_blacklist
-          && this.$options.dynamic_blacklist.test(name) == false )
-        || ( this.$options.dynamic_whitelist
-          && this.$options.dynamic_whitelist.test(name) == true )
-        )
-        && (
-          !this.$options.static_charts
-          || Object.keys(this.$options.static_charts).contains(name) == false
-        )
-      ){
 
-        if(Array.isArray(stat)){//it's stat
+      if(Array.isArray(stat)){//it's stat
+        /**
+        * create chart automatically if it's not blacklisted or is whitelisted
+        **/
+        if(
+          (
+            ( this.$options.dynamic_blacklist
+            && this.$options.dynamic_blacklist.test(name) == false )
+          || ( this.$options.dynamic_whitelist
+            && this.$options.dynamic_whitelist.test(name) == true )
+          )
+          && (
+            !this.$options.static_charts
+            || Object.keys(this.$options.static_charts).contains(name) == false
+          )
+        ){
 
-            let dynamic_charts = this._get_dynamic_charts(name, this.$options.dynamic_charts)
+          let dynamic_charts = this._get_dynamic_charts(name, this.$options.dynamic_charts)
 
-            if(dynamic_charts[name]){
+          if(dynamic_charts[name]){
 
-              Array.each(dynamic_charts[name], function(dynamic){
+            Array.each(dynamic_charts[name], function(dynamic){
 
-                this.process_dynamic_chart(Object.clone(dynamic), name, stat)
+              this.process_dynamic_chart(Object.clone(dynamic), name, stat)
 
-              }.bind(this))
-            }
-            else{
+            }.bind(this))
+          }
+          else{
 
-              let chart = Object.clone(this.$options.DefaultChart)
+            let chart = Object.clone(this.$options.DefaultChart)
 
-              this.process_chart(
-                chart.pre_process(chart, name, stat),
-                name
-              )
+            this.process_chart(
+              chart.pre_process(chart, name, stat),
+              name
+            )
 
-            }
-
-
-        }
-        else{//blockdevices.[key]
-          // console.log('...parse_chart_from_stat', Object.clone(stat))
-          Object.each(stat, function(data, key){
-            // console.log('gonna parse_chart_from_stat', name+'.'+key)
-
-            this.parse_chart_from_stat(data, name+'.'+key)
-          }.bind(this))
+          }
 
         }
+      }
+      else{//blockdevices.[key]
+        // console.log('...parse_chart_from_stat', Object.clone(stat))
+        Object.each(stat, function(data, key){
+          // console.log('gonna parse_chart_from_stat', name+'.'+key)
+
+          this.parse_chart_from_stat(data, name+'.'+key)
+        }.bind(this))
 
       }
+
+
     },
 
     process_dynamic_chart (chart, name, stat){

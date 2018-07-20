@@ -178,7 +178,9 @@ export default {
   DefaultChart: DefaultChart,
   static_charts: static_charts,
   dynamic_charts: dynamic_charts,
-  dynamic_blacklist: /totalmem/, //don't add charts automatically for this os[key]
+  // dynamic_blacklist: /totalmem/, //don't add charts automatically for this os[key]
+  dynamic_blacklist: /[\s\S]*/,
+  dynamic_whitelist: /loadavg|cpu|mounts|blockdevices|freemem|networkInterfaces/,
 
 
   data () {

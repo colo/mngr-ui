@@ -6,6 +6,8 @@ import DefaultConn from '../../etc/default.conn'
 
 import InputPollerCouchDBOS from '../input/poller/couchdb.os'
 
+import decompress from 'node-mngr-worker/etc/snippets/filter.zlib.decompress'
+
 let os = {
 	mounts: {
 		type: /ext.*/ //filter mounts
@@ -42,6 +44,7 @@ export default {
 		}
 	],
 	filters: [
+		decompress,
 		function(doc, opts, next){
 			let paths = /^os.*/
 
