@@ -445,7 +445,7 @@ export default {
     * UI related
     **/
     visibilityChanged (isVisible, entry) {
-      // //////////console.log('visibilityChanged', isVisible, entry.target.id)
+      console.log('visibilityChanged', isVisible, entry.target.id)
       // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
 
       // this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
@@ -579,9 +579,45 @@ export default {
     /**
     * @override chart [mixin]
     **/
-    update_chart_stat (name, data){
-      // ////////console.log('update_chart_stat', name, data)
+    _create_watcher(path, name, chart){
+      let watcher = chart.watch || {}
+      path = path || ''
 
+      watcher = watcher || {}
+      watcher.value = watcher.value || ''
+      watcher.transform = watcher.transform || ''
+
+      if(this.$options.unwatchers[path+name]){
+        this.$options.unwatchers[path+name]()
+        delete this.$options.unwatchers[path+name]
+      }
+
+      /**
+      * process only if it's visible
+      * saves CPU
+      **/
+      let generic_data_watcher = function(current){
+
+        if(
+          ( this.visibles[name] == true && this.freezed == false)
+          && this.highlighted == false
+          && this.paused == false
+          || (chart.watch && chart.watch.managed == true) //managed stats must run always
+        ){
+
+          console.log('generic_data_watcher', name, this.visibles[name], this.freezed)
+
+          this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
+        }
+      }
+
+      // console.log('gonna watch...', name, path)
+      // this.$options.unwatchers[path+name] = this.$watch(path+watch_name, generic_data_watcher)
+      this.$options.unwatchers[path+name] = this.$watch(path, generic_data_watcher)
+
+    },
+
+    update_chart_stat (name, data){
 
       if(this.hide[name] != true){
 
@@ -606,14 +642,6 @@ export default {
           this.$set(this, 'hide', hide)//or won't work the watch.hide
         }
 
-        // if(this.hide[name] == true)
-        //   ////console.log('this.hide', name, this.hide[name])
-
-        /**
-        * always update data, allow a hidden chart to update graphs on visibility change
-        **/
-        this.$set(this.stats[name], 'data', data)
-
         if(
           this.stats[name].lastupdate < Date.now() - this.charts[name].interval
           && (this.$refs[name]
@@ -625,12 +653,23 @@ export default {
           && this.paused == false
           && this.stats[name].data.length > 0 && this.stats[name].data[0].length > 0
         ){
-          // this.$set(this.stats[name], 'data', data)
-          // this.$refs[this.host+'_'+name][0].updateOptions(
-          //   { 'dateWindow': this.$refs[this.host+'_'+name][0].chart.xAxisExtremes() },
-          //   false
-          // )
-          // console.log('update_chart_stat', name, data)
+
+          /**
+          * @start
+          * moved from outside this 'if'
+          **/
+          console.log('update_chart_stat', name)
+
+
+
+          /**
+          * always update data, allow a hidden chart to update graphs on visibility change
+          **/
+          this.$set(this.stats[name], 'data', data)
+          /**
+          * @end
+          * moved from outside this 'if'
+          **/
 
           this.$refs[name][0].update()//default update
 
