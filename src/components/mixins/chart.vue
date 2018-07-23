@@ -64,7 +64,8 @@ export default {
 
             this.process_chart(
               chart.pre_process(chart, name, stat),
-              name
+              name,
+              stat
             )
 
           }
@@ -103,7 +104,8 @@ export default {
 
             this.process_chart(
               arr_chart.pre_process(arr_chart, chart_name, stat),
-              chart_name
+              chart_name,
+              stat
             )
 
           }
@@ -140,7 +142,7 @@ export default {
           chart.label = this.process_chart_label(chart, name, stat) || name
           let chart_name = this.process_chart_name(chart, stat) || name
 
-          this.process_chart(chart, chart_name)
+          this.process_chart(chart, chart_name, stat)
         }
 
       }
@@ -151,7 +153,8 @@ export default {
 
         this.process_chart(
           chart.pre_process(chart, chart_name, stat),
-          name
+          name,
+          stat
         )
       }
 
@@ -159,13 +162,13 @@ export default {
     /**
     * commmon for generics or dynamics charts
     */
-    process_chart (chart, name){
+    process_chart (chart, name, stat){
       this._process_chart(chart, name)
     },
-    _process_chart (chart, name){
+    _process_chart (chart, name, stat){
 
       if(chart.init && typeOf(chart.init) == 'function')
-        chart.init(this, chart, 'chart')
+        chart.init(this, chart, name, stat, 'chart')
 
       this.create_watcher(name, chart)
 

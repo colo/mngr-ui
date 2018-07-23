@@ -207,6 +207,11 @@ export default {
       this._update_charts_menu()
 
     }),
+    // 'charts': function(val) {
+    //   console.log('charts watched', val )
+    //   this._update_charts_menu()
+    //
+    // },
     // 'visibles' (val){
     //   ////console.log('visibles watched', val )
     // },
@@ -317,7 +322,7 @@ export default {
             key.replace('-collapsible', '')//remove '-collapsible' from link
           )
 
-          // //////console.log('os.dashboard.vue _update_charts_menu entry', key, ref, menu_entry)
+          console.log('os.dashboard.vue _update_charts_menu entry', key, ref, menu_entry)
 
           menu = this._merge_menu(menu, menu_entry)
 
@@ -436,7 +441,7 @@ export default {
       }.bind(this))
 
       Object.each(this.$options.static_charts, function(chart, name){
-        this.process_chart(chart, name)
+        this.process_chart(chart, name, undefined)
       }.bind(this))
     },
 
@@ -445,7 +450,23 @@ export default {
     * UI related
     **/
     visibilityChanged (isVisible, entry) {
-      console.log('visibilityChanged', isVisible, entry.target.id)
+      // let module = entry.target.id.replace(this.host+'_', '').replace('-card','')
+      // if(module.indexOf('_') > -1)
+      //   module = module.substring(0, module.indexOf('_'))
+      //
+      // let path = module.substring(0, module.lastIndexOf('.')).replace('.', '/')
+      // let list = module.substring(module.lastIndexOf('.') + 1, module.length)
+      let {path, list} = this.name_to_module(entry.target.id.replace('-card',''))
+
+      console.log('visibilityChanged', isVisible, entry.target.id, module, path, list)
+
+      if(isVisible == true){
+        this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
+      }
+      else{
+        this.$store.commit('hosts/erase_whitelist_module', {path: path, list: list} )
+      }
+
       // this.$set(this.visibles, entry.target.id.replace('-container',''), isVisible)
 
       // this.$options.visibles[entry.target.id.replace('-card','')] = isVisible
@@ -541,18 +562,42 @@ export default {
     //
     //     return label
     // },
-    process_chart (chart, name){
+    name_to_module(name){
+      let module = name.replace(this.host+'_', '')
+      if(module.indexOf('_') > -1)
+        module = module.substring(0, module.indexOf('_'))
+
+      let second_indexOf = module.indexOf('.', module.indexOf('.') + 1)
+      let path = module.substring(0, second_indexOf).replace('.', '/')
+      let list = module.substring(module.lastIndexOf('.') + 1, module.length)
+
+      return {path, list}
+    },
+    process_chart (chart, name, stat){
+
+      // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
 
       if(name.indexOf('os.') < 0)
         name = this.host+'_os.'+name
 
+      let {path, list} = this.name_to_module(name)
+      // if(path == "")
+      //   path == 'os'
+
+      console.log('process_chart', name, path, list)
+      this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
+
+      // if(chart.watch && chart.watch.managed == true)
+      //   this.$store.commit('hosts/whitelist_module', {path: path, list: list} )
 
       if(!chart.watch || chart.watch.managed != true){
 
         this.add_chart(name, chart)
       }
 
-      this._process_chart(chart, name)
+      this._process_chart(chart, name, stat)
+
+
     },
     /**
     * @override chart [mixin]

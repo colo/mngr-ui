@@ -10,11 +10,47 @@ import DefaultNetDygraphLine from './default.net.dygraph.line'
 export default {
   "networkInterfaces": Object.merge(Object.clone(DefaultNetDygraphLine), {
     match: /^networkInterfaces/,
+
+    init: function (vm, chart, name, networkInterfaces, type ){
+      // console.log('init', vm.host, chart, name, networkInterfaces, type)
+
+      if(type == 'chart' && networkInterfaces.getLast() !== null){
+
+        let val = networkInterfaces.getLast().value
+        let ifaces = Object.keys(val)
+        let properties = Object.keys(val[ifaces[0]])
+        let messures = Object.keys(val[ifaces[0]][properties[1]])//properties[0] is "if", we want recived | transmited
+
+        // chart = Object.clone(chart)
+
+        Array.each(ifaces, function(iface){
+          // if(!vm.stats.networkInterfaces+'.'+iface)
+          //   vm.$set(vm.stats, 'networkInterfaces.'+iface, {})
+
+
+          /**
+          * turn data property->messure (ex: transmited { bytes: .. }),
+          * to: messure->property (ex: bytes {transmited:.., recived: ... })
+          **/
+          Array.each(messures, function(messure){// "bytes" | "packets"
+            if(!vm.stats[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
+
+              chart.label = vm.host+'_os.networkInterfaces.'+iface+'.'+messure
+              vm.add_chart(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, Object.clone(chart))
+
+              console.log('init', vm.host+'_os.networkInterfaces.'+iface+'.'+messure)
+            }
+
+          })
+
+        })
+      }
+    },
     watch: {
       managed: true,
       transform: function(networkInterfaces, vm, chart){
         let watcher = chart.watch || {}
-        // //////console.log('networkInterfaces transform: ', networkInterfaces)
+        // console.log('networkInterfaces transform: ', networkInterfaces)
 
         // ////////////////console.log('networkInterfaces', networkInterfaces)
 
@@ -37,10 +73,10 @@ export default {
             * to: messure->property (ex: bytes {transmited:.., recived: ... })
             **/
             Array.each(messures, function(messure){// "bytes" | "packets"
-              if(!vm.stats[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
-
-                vm.add_chart(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, chart)
-              }
+              // if(!vm.stats[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
+              //
+              //   vm.add_chart(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, chart)
+              // }
 
 
               let data = []
@@ -614,7 +650,7 @@ export default {
             }
 
             chart.prev = Object.clone(current)
-            
+
           })
 
         })

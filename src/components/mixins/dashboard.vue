@@ -78,14 +78,14 @@ export default {
     /**
     * @override chart [mixin]
     **/
-    process_chart (chart, name){
+    process_chart (chart, name, stat){
 
       if(!chart.watch || chart.watch.managed != true){
 
         this.add_chart(name, chart)
       }
 
-      this._process_chart(chart, name)
+      this._process_chart(chart, name, stat)
     },
   }
 }

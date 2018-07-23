@@ -77,13 +77,13 @@ export default {
     osSummary
   },
 
-  modules_blacklist: {
-    'os': /[\s\S]*/,
-    'os/blockdevices': /sd.*/
-  },
-  modules_whitelist: {
-    'os': /freemem|totalmem/,
-  },
+  // modules_blacklist: {
+  //   'os': /[\s\S]*/,
+  //   // 'os/blockdevices': /sd.*/
+  // },
+  // modules_whitelist: {
+  //   'os': /freemem|totalmem/,
+  // },
 
   // template: '<div><osdygraphs '+
   //           ':mem="mem" :cpu="cpu" '+
@@ -104,6 +104,8 @@ export default {
   },
   computed: Object.merge(
     mapState({
+      modules_blacklist: state => state.hosts.modules_blacklist,
+      modules_whitelist: state => state.hosts.modules_whitelist,
       reset: state => state.app.reset,
       // arrow functions can make the code very succinct!
       seconds: function(state){
@@ -227,17 +229,20 @@ export default {
 
       Object.each(keys, function(data, key){
         if(
-          this.$options.modules_blacklist
-          && this.$options.modules_blacklist[path]
-          && this.$options.modules_blacklist[path].test(key) == true
-          && (
-            ! this.$options.modules_whitelist
-            || !this.$options.modules_whitelist[path]
-            || this.$options.modules_whitelist[path].test(key) != true
-          )
+          this.modules_blacklist
+          && this.modules_blacklist[path]
+          && this.modules_blacklist[path].test(key) == true
         ){
             // console.log('deleting...', path, key)
-            delete keys[key]
+            let whitelisted = false
+            if( this.modules_whitelist && this.modules_whitelist[path] )
+              Array.each(this.modules_whitelist[path], function(whitelist){
+                if(whitelist.test(key) == true)
+                  whitelisted = true
+              })
+
+            if(whitelisted == false)
+              delete keys[key]
         }
       }.bind(this))
 
@@ -265,16 +270,7 @@ export default {
     extract_data_os_doc: extract_data_os,
 
     register_host_store_module (host, path, keys){
-      let state_props = (keys) ? Object.clone(keys) : {}
-      Object.each(state_props, function(data, key){
-        state_props[key] = []
-      })
 
-      // console.log('registering....', host, path, keys)
-
-      let stats = Object.merge(Object.clone(hostStats), Object.clone({state: function() {
-        return state_props
-      }}))
 
       // //////////console.log('this.check_store_path', path, this.check_store_path(path.split('/'), this.$store.state.hosts[host]))
 
@@ -283,11 +279,22 @@ export default {
       //////////console.log('status', status)
       if(status == false){
 
-        // this.$store.registerModule(['hosts', host, path], stats)
+        let state_props = (keys) ? Object.clone(keys) : {}
+        Object.each(state_props, function(data, key){
+          state_props[key] = []
+        })
+
+        console.log('registering....', host, path, keys)
+
+        let stats = Object.merge(Object.clone(hostStats), Object.clone({state: function() {
+          return state_props
+        }}))
+
         let new_path = ['hosts', host]
         new_path = new_path.append(path.split('/'))
         this.$store.registerModule(new_path, stats)
 
+        // this.$store.commit('hosts/blacklist_module', {path: path, list: /[\s\S]*/} )
         // console.log('registering....', host, new_path, this.$store.state.hosts[host])
 
         return true

@@ -5,7 +5,7 @@ export default {
     "style": "width:100%; height:180px;",
     "class": "netdata-chart-with-legend-right netdata-dygraph-chart-with-legend-right",
     "interval": 0,
-    // init: function (vue){
+    // init: function (vm, chart, name, stat, type ){
     //   // //console.log('init', vue)
     //   this.$vm = vue
     //   // EventBus.$emit('cpu', doc) //update cpu widget
