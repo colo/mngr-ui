@@ -38,7 +38,7 @@ let search_pipeline = new Pipeline(SearchPipeline)
 let host_pipelines_templates = [
   HostTemplatePipeline,
   // HostMuninTemplatePipeline,
-  HostHistoricalTemplatePipeline
+  // HostHistoricalTemplatePipeline
 ]
 
 import { mapState } from 'vuex'

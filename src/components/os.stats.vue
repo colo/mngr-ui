@@ -76,6 +76,15 @@ export default {
     osDashboard,
     osSummary
   },
+
+  modules_blacklist: {
+    'os': /[\s\S]*/,
+    'os/blockdevices': /sd.*/
+  },
+  modules_whitelist: {
+    'os': /freemem|totalmem/,
+  },
+
   // template: '<div><osdygraphs '+
   //           ':mem="mem" :cpu="cpu" '+
   //           ':uptime="uptime" '+
@@ -197,31 +206,54 @@ export default {
 
     this.EventBus.$on('os', doc => {
 
-        let {keys, path, host} = this.extract_data_os_doc(doc)
+      let register_commit = function(host, path, keys){
+        let register = this.register_host_store_module(host, path, keys)
+        if(register == true){
+          Object.each(keys, function(data, key){
 
-        let register_commit = function(){
-          let register = this.register_host_store_module(host, path, keys)
-          if(register == true){
-            Object.each(keys, function(data, key){
-              this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
-              this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
-            }.bind(this))
-          }
+            console.log('register_host_store_module',path, key)
 
-          return register
-        }.bind(this)
+            this.$store.commit('hosts/'+host+'/'+path+'/data', {key: key, value: data })
+            this.$store.commit('hosts/'+host+'/'+path+'/splice', { key: key, length: this.seconds })
 
-        if(register_commit() != true){
+          }.bind(this))
+        }
+
+        return register
+      }.bind(this)
+
+      let {keys, path, host} = this.extract_data_os_doc(doc)
+      // console.log('pre register_host_store_module',path, keys)
+
+      Object.each(keys, function(data, key){
+        if(
+          this.$options.modules_blacklist
+          && this.$options.modules_blacklist[path]
+          && this.$options.modules_blacklist[path].test(key) == true
+          && (
+            ! this.$options.modules_whitelist
+            || !this.$options.modules_whitelist[path]
+            || this.$options.modules_whitelist[path].test(key) != true
+          )
+        ){
+            // console.log('deleting...', path, key)
+            delete keys[key]
+        }
+      }.bind(this))
+
+      // if(Object.getLength(keys) > 0){
+        if(register_commit(host, path, keys) != true){
           let interval = setInterval(function(){
             ////console.log('os_interval', interval, path)
 
-            if(register_commit() == true){
+            if(register_commit(host, path, keys) == true){
               clearInterval(interval)
             }
 
 
           }.bind(this), 1000)
         }
+      // }
 
 		})
 
