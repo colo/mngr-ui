@@ -11,6 +11,9 @@ export default {
   "networkInterfaces": Object.merge(Object.clone(DefaultNetDygraphLine), {
     match: /^networkInterfaces/,
 
+    // name: function(vm, chart, stats){
+    //   return vm.host+'_os.cpus_times'
+    // },
     init: function (vm, chart, name, networkInterfaces, type ){
       // console.log('init', vm.host, chart, name, networkInterfaces, type)
 
@@ -35,6 +38,7 @@ export default {
           Array.each(messures, function(messure){// "bytes" | "packets"
             if(!vm.stats[vm.host+'_os.networkInterfaces.'+iface+'.'+messure]){
 
+              // chart.name = function(){ return vm.host+'_os.networkInterfaces.'+iface+'.'+messure }
               chart.label = vm.host+'_os.networkInterfaces.'+iface+'.'+messure
               vm.add_chart(vm.host+'_os.networkInterfaces.'+iface+'.'+messure, Object.clone(chart))
 

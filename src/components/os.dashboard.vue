@@ -569,7 +569,17 @@ export default {
 
       let second_indexOf = module.indexOf('.', module.indexOf('.') + 1)
       let path = module.substring(0, second_indexOf).replace('.', '/')
-      let list = module.substring(module.lastIndexOf('.') + 1, module.length)
+
+
+      let list = ''
+      // if(second_indexOf == -1){
+        list = module.substring(module.lastIndexOf('.') + 1, module.length)
+      // }
+      // else{
+      //   list = module.substring(second_indexOf + 1, module.indexOf('.', second_indexOf+1) )
+      // }
+
+      console.log('name_to_module', name, path, list)
 
       return {path, list}
     },
@@ -643,15 +653,29 @@ export default {
       **/
       let generic_data_watcher = function(current){
 
+        /**
+        * managed charts doens't match (==) visibles[name]
+        * so use it as a regexp
+        */
+        let visible_found = false
+        if(chart.watch && chart.watch.managed == true){ //managed stats must run always
+          let rg = new RegExp(name, 'ig')
+          Object.each(this.visibles, function(bool, namaged){
+            if(rg.test(namaged) == true && bool == true)
+              visible_found = true
+          })
+        }
+
         if(
-          ( this.visibles[name] == true && this.freezed == false)
+          (this.visibles[name] == true || visible_found == true)
+          && this.freezed == false
           && this.highlighted == false
           && this.paused == false
-          || (chart.watch && chart.watch.managed == true) //managed stats must run always
+          // || (chart.watch && chart.watch.managed == true) //managed stats must run always
         ){
 
-          console.log('generic_data_watcher', name, this.visibles[name], this.freezed)
-
+          console.log('generic_data_watcher', name, this.visibles[name], visible_found, this.freezed)
+          
           this.generic_data_watcher(current, chart, name, this.update_chart_stat.bind(this))
         }
       }
