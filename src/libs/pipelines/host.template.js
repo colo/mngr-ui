@@ -44,7 +44,7 @@ export default {
 		}
 	],
 	filters: [
-		decompress,
+		// decompress,
 		function(doc, opts, next){
 			let paths = /^os.*/
 
