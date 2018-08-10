@@ -12,20 +12,21 @@ module.exports = function (ctx) {
       'element-ui',
       'vue-observe-visibility',
       'AddressbarColor',
+      'bootstrap-vue',
       // 'amcharts3',
       // 'vueEcharts3',
       // 'highchartsVue'
     ],
-    css: [
-      'app.styl'
-    ],
-    extras: [
-      ctx.theme.mat ? 'roboto-font' : null,
-      'material-icons',
-      'ionicons',
-      'mdi',
-      'fontawesome'
-    ],
+    // css: [
+    //   'app.styl'
+    // ],
+    // extras: [
+    //   ctx.theme.mat ? 'roboto-font' : null,
+    //   'material-icons',
+    //   'ionicons',
+    //   'mdi',
+    //   'fontawesome'
+    // ],
     supportIE: true,
     vendor: {
       add: [],

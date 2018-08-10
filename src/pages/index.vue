@@ -1,4 +1,5 @@
 <template>
+
   <q-page class="flex"> <!-- flex-center -->
     <!-- <div class="overflow-hidden"> -->
     <div class="row window-width" >
@@ -71,6 +72,7 @@
   </div>
   <!-- </div> -->
   </q-page>
+
 </template>
 
 <style>
