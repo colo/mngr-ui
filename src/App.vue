@@ -1,7 +1,7 @@
 <template>
   <div id="q-app">
-    <router-view :EventBus="EventBus" :class="($q.loading.active) ? 'invisible' : 'visible'"  />
-    <!-- <router-view :EventBus="EventBus" /> -->
+    <!-- <router-view :EventBus="EventBus" :class="($q.loading.active) ? 'invisible' : 'visible'"  /> -->
+    <router-view :EventBus="EventBus" />
   </div>
 </template>
 
@@ -385,12 +385,12 @@ export default {
 		// })
   },
   beforeCreate () {
-    this.$q.loading.show({
-      delay: 0, // ms
-      spinner: 'QSpinnerGears',
-      spinnerColor: 'blue',
-      customClass : 'bg-white'
-    })
+    // this.$q.loading.show({
+    //   delay: 0, // ms
+    //   spinner: 'QSpinnerGears',
+    //   spinnerColor: 'blue',
+    //   customClass : 'bg-white'
+    // })
   },
 }
 
