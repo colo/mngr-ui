@@ -141,48 +141,6 @@ export default {
     }
 
   }),
-  "mounts_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
-    // name: 'mounts_percentage',
-    match: /^mounts/,
-    // label: 'somelabel',
-    labeling: function(vm, chart, name, stat){
-
-      return vm.host+'_os.mounts['+stat[0].value.mount_point+']'
-    },
-    watch: {
-      // merge: true,
-      filters: [{
-        type: /ext.*/
-      }],
-      // exclude: /samples/,
-      value: 'percentage',
-
-    },
-    // init: function (vm, chart, type){
-    //   if(type == 'chart'
-    //     && vm.$store.state.hosts[vm.host]
-    //     && vm.$store.state.hosts[vm.host].os
-    //     && vm.$store.state.hosts[vm.host].os.mounts
-    //   ){
-    //     if(vm.$store.state.hosts[vm.host])
-    //     chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
-    //     //////console.log('valueRange', chart)
-    //   }
-    //
-    // },
-    "options": {
-      valueRange: [0, 100],
-      labels: ['Time', 'usage %'],
-      series: {
-       'usage %': {
-         color: 'red',
-         //strokeWidth: 2,
-         // plotter: smoothPlotter,
-       },
-
-      },
-    }
-  }),
   "blkdev_stats": Object.merge(Object.clone(DefaultDygraphLine),{
     match: /^blockdevices\..*/,
     labeling: function(vm, chart, name, stat){
@@ -219,160 +177,6 @@ export default {
       }
     }
 
-  }),
-  "cpus_times": Object.merge(Object.clone(DefaultDygraphLine),{
-    // name: 'os.cpus_times',
-    name: function(vm, chart, stats){
-      return vm.host+'_os.cpus_times'
-    },
-    match: /^cpus/,
-    watch: {
-      merge: true,
-      value: 'times',
-      /**
-      * @trasnform: diff between each value against its prev one
-      */
-      transform: function(values){
-        // //////console.log('transform: ', values)
-        let transformed = []
-        let prev = null
-        Array.each(values, function(val, index){
-          let transform = {timestamp: val.timestamp, value: { times: {} } }
-          if(index == 0){
-            Object.each(val.value.times, function(stat, key){
-                transform.value.times[key] = 0
-            })
-          }
-          else{
-            Object.each(val.value.times, function(stat, key){
-              if(key == 'idle'){//represent idle on the negative sideof axes
-                stat = 0 - stat
-                let value = ((stat + prev.value.times[key]) < 0) ? stat + prev.value.times[key] : 0
-                transform.value.times[key] = value
-              }
-              else{
-                let value = ((stat - prev.value.times[key]) > 0) ? stat - prev.value.times[key] : 0
-                transform.value.times[key] = value
-              }
-            })
-          }
-          prev = val
-          transformed.push(transform)
-        })
-        return transformed
-      }
-    }
-
-  }),
-  "cpus_simple": Object.merge(Object.clone(DefaultDygraphLine),{
-    // name: 'os.cpus_simple',
-    name: function(vm, chart, stats){
-      return vm.host+'_os.cpus_simple'
-    },
-    match: /^cpus/,
-    "options": {
-      valueRange: [0, 100],
-      labels: ['Time', 'usage %'],
-      series: {
-       'usage %': {
-         color: 'red',
-         //strokeWidth: 2,
-         // plotter: smoothPlotter,
-       },
-
-      },
-
-    },
-    watch: {
-      merge: true,
-      value: 'times',
-      /**
-      * @trasnform: diff between each value against its prev one
-      */
-      transform: function(values){
-        // //////console.log('transform: ', values)
-        let transformed = []
-        let prev = {idle: 0, total: 0, timestamp: 0 }
-        Array.each(values, function(val, index){
-          let transform = {timestamp: val.timestamp, value: { times: { usage: 0} } }
-          let current = {idle: 0, total: 0, timestamp: val.timestamp }
-
-          // if(index == 0){
-          Object.each(val.value.times, function(stat, key){
-            if(key == 'idle')
-              current.idle += stat
-
-              current.total += stat
-          })
-
-
-          let diff_time = current.timestamp - prev.timestamp
-          let diff_total = current.total - prev.total;
-          let diff_idle = current.idle - prev.idle;
-
-          // //////console.log('transform: ', current, prev)
-
-          //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
-          let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
-
-          if(percentage > 100){
-            //console.log('cpu transform: ', diff_time, diff_total, diff_idle)
-          }
-
-          transform.value.times.usage = (percentage > 100) ? 100 : percentage
-
-
-          prev = Object.clone(current)
-          transformed.push(transform)
-        })
-        return transformed
-      }
-    },
-
-
-  }),
-  "freemem": Object.merge(Object.clone(DefaultDygraphLine),{
-    // icon: 'memory',
-    // name: 'os.freemem',
-    name: function(vm, chart, stats){
-      return vm.host+'_os.freemem'
-    },
-    match: /^freemem/,
-    watch: {
-      // merge: true,
-      value: undefined,
-      /**
-      * @trasnform: diff between each value against its prev one
-      */
-      transform: function(values){
-        // //////console.log('transform: ', values)
-        let transformed = []
-
-        Array.each(values, function(val, index){
-          let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
-          transformed.push(transform)
-        })
-
-        // //////console.log('transform: ', transformed)
-
-        return transformed
-      }
-    },
-    init: function (vm, chart, type){
-      // //////console.log('chart', chart)
-      if(type == 'chart'
-        && vm.$store.state.hosts[vm.host]
-        && vm.$store.state.hosts[vm.host].os
-      ){
-        // if(vm.$store.state.hosts[vm.host])
-        chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
-        // //////console.log('valueRange', chart.options.valueRange)
-      }
-
-    },
-    "options": {
-      labels: ['Time', 'Mbytes'],
-    }
   }),
 
   /**
@@ -753,6 +557,206 @@ export default {
       fillGraph: false,
     }
   }),
+  /**
+  * @done
+  **/
+  "cpus_times": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'os.cpus_times',
+    name: function(vm, chart, stats){
+      return vm.host+'_os.cpus_times'
+    },
+    match: /^cpus/,
+    watch: {
+      merge: true,
+      value: 'times',
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values){
+        // //////console.log('transform: ', values)
+        let transformed = []
+        let prev = null
+        Array.each(values, function(val, index){
+          let transform = {timestamp: val.timestamp, value: { times: {} } }
+          if(index == 0){
+            Object.each(val.value.times, function(stat, key){
+                transform.value.times[key] = 0
+            })
+          }
+          else{
+            Object.each(val.value.times, function(stat, key){
+              if(key == 'idle'){//represent idle on the negative sideof axes
+                stat = 0 - stat
+                let value = ((stat + prev.value.times[key]) < 0) ? stat + prev.value.times[key] : 0
+                transform.value.times[key] = value
+              }
+              else{
+                let value = ((stat - prev.value.times[key]) > 0) ? stat - prev.value.times[key] : 0
+                transform.value.times[key] = value
+              }
+            })
+          }
+          prev = val
+          transformed.push(transform)
+        })
+        return transformed
+      }
+    }
+
+  }),
+  "cpus_simple": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'os.cpus_simple',
+    name: function(vm, chart, stats){
+      return vm.host+'_os.cpus_simple'
+    },
+    match: /^cpus/,
+    "options": {
+      valueRange: [0, 100],
+      labels: ['Time', 'usage %'],
+      series: {
+       'usage %': {
+         color: 'red',
+         //strokeWidth: 2,
+         // plotter: smoothPlotter,
+       },
+
+      },
+
+    },
+    watch: {
+      merge: true,
+      value: 'times',
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values){
+        // //////console.log('transform: ', values)
+        let transformed = []
+        let prev = {idle: 0, total: 0, timestamp: 0 }
+        Array.each(values, function(val, index){
+          let transform = {timestamp: val.timestamp, value: { times: { usage: 0} } }
+          let current = {idle: 0, total: 0, timestamp: val.timestamp }
+
+          // if(index == 0){
+          Object.each(val.value.times, function(stat, key){
+            if(key == 'idle')
+              current.idle += stat
+
+              current.total += stat
+          })
 
 
+          let diff_time = current.timestamp - prev.timestamp
+          let diff_total = current.total - prev.total;
+          let diff_idle = current.idle - prev.idle;
+
+          // //////console.log('transform: ', current, prev)
+
+          //algorithm -> https://github.com/pcolby/scripts/blob/master/cpu.sh
+          let percentage =  (diff_time * (diff_total - diff_idle) / diff_total ) / (diff_time * 0.01)
+
+          if(percentage > 100){
+            //console.log('cpu transform: ', diff_time, diff_total, diff_idle)
+          }
+
+          transform.value.times.usage = (percentage > 100) ? 100 : percentage
+
+
+          prev = Object.clone(current)
+          transformed.push(transform)
+        })
+        return transformed
+      }
+    },
+
+
+  }),
+  "freemem": Object.merge(Object.clone(DefaultDygraphLine),{
+    // icon: 'memory',
+    // name: 'os.freemem',
+    name: function(vm, chart, stats){
+      return vm.host+'_os.freemem'
+    },
+    match: /^freemem/,
+    watch: {
+      // merge: true,
+      value: undefined,
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values){
+        // //////console.log('transform: ', values)
+        let transformed = []
+
+        Array.each(values, function(val, index){
+          let transform = { timestamp: val.timestamp, value: (val.value / 1024) / 1024 }
+          transformed.push(transform)
+        })
+
+        // //////console.log('transform: ', transformed)
+
+        return transformed
+      }
+    },
+    init: function (vm, chart, type){
+      // //////console.log('chart', chart)
+      if(type == 'chart'
+        && vm.$store.state.hosts[vm.host]
+        && vm.$store.state.hosts[vm.host].os
+      ){
+        // if(vm.$store.state.hosts[vm.host])
+        chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
+        // //////console.log('valueRange', chart.options.valueRange)
+      }
+
+    },
+    "options": {
+      labels: ['Time', 'Mbytes'],
+    }
+  }),
+  "mounts_percentage": Object.merge(Object.clone(DefaultDygraphLine),{
+    // name: 'mounts_percentage',
+    match: /^mounts/,
+    // label: 'somelabel',
+    labeling: function(vm, chart, name, stat){
+
+      return vm.host+'_os.mounts['+stat[0].value.mount_point+']'
+    },
+    watch: {
+      // merge: true,
+      filters: [{
+        type: /ext.*/
+      }],
+      // exclude: /samples/,
+      value: 'percentage',
+
+    },
+    // init: function (vm, chart, type){
+    //   if(type == 'chart'
+    //     && vm.$store.state.hosts[vm.host]
+    //     && vm.$store.state.hosts[vm.host].os
+    //     && vm.$store.state.hosts[vm.host].os.mounts
+    //   ){
+    //     if(vm.$store.state.hosts[vm.host])
+    //     chart.options.valueRange = [0, Math.round((vm.$store.state.hosts[vm.host].os.totalmem[0].value / 1024) / 1024) ]
+    //     //////console.log('valueRange', chart)
+    //   }
+    //
+    // },
+    "options": {
+      valueRange: [0, 100],
+      labels: ['Time', 'usage %'],
+      series: {
+       'usage %': {
+         color: 'red',
+         //strokeWidth: 2,
+         // plotter: smoothPlotter,
+       },
+
+      },
+    }
+  }),
+  /**
+  * @end -done
+  **/
 }
