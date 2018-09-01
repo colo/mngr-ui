@@ -141,43 +141,6 @@ export default {
     }
 
   }),
-  "blkdev_stats": Object.merge(Object.clone(DefaultDygraphLine),{
-    match: /^blockdevices\..*/,
-    labeling: function(vm, chart, name, stat){
-      // //console.log('blkdev_stats', chart, name, stat)
-
-      return vm.host+'_os.'+name
-    },
-    watch: {
-      value: 'stats',
-      /**
-      * @trasnform: diff between each value against its prev one
-      */
-      transform: function(values){
-        // //////console.log('transform: ', values)
-        let transformed = []
-        let prev = null
-        Array.each(values, function(val, index){
-          let transform = {timestamp: val.timestamp, value: { stats: {} } }
-          if(index == 0){
-            Object.each(val.value.stats, function(stat, key){
-                transform.value.stats[key] = 0
-            })
-          }
-          else{
-            Object.each(val.value.stats, function(stat, key){
-              let value = ((stat - prev.value.stats[key]) > 0) ? stat - prev.value.stats[key] : 0
-              transform.value.stats[key] = value
-            })
-          }
-          prev = val
-          transformed.push(transform)
-        })
-        return transformed
-      }
-    }
-
-  }),
 
   /**
   * doens't play nice with other "minute" charts
@@ -755,6 +718,43 @@ export default {
 
       },
     }
+  }),
+  "blkdev_stats": Object.merge(Object.clone(DefaultDygraphLine),{
+    match: /^blockdevices\..*/,
+    labeling: function(vm, chart, name, stat){
+      // //console.log('blkdev_stats', chart, name, stat)
+
+      return vm.host+'_os.'+name
+    },
+    watch: {
+      value: 'stats',
+      /**
+      * @trasnform: diff between each value against its prev one
+      */
+      transform: function(values){
+        // //////console.log('transform: ', values)
+        let transformed = []
+        let prev = null
+        Array.each(values, function(val, index){
+          let transform = {timestamp: val.timestamp, value: { stats: {} } }
+          if(index == 0){
+            Object.each(val.value.stats, function(stat, key){
+                transform.value.stats[key] = 0
+            })
+          }
+          else{
+            Object.each(val.value.stats, function(stat, key){
+              let value = ((stat - prev.value.stats[key]) > 0) ? stat - prev.value.stats[key] : 0
+              transform.value.stats[key] = value
+            })
+          }
+          prev = val
+          transformed.push(transform)
+        })
+        return transformed
+      }
+    }
+
   }),
   /**
   * @end -done
